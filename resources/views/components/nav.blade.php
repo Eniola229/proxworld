@@ -3,13 +3,13 @@
         <div class="m-header">
             <a href="{{ route('dashboard') }}" class="b-brand">
                 <!-- ========   change your logo hear   ============ -->
-            <img src="{{ asset('assets/images/logo-full.png') }}"
+            <img src="{{ asset('assets/images/LOGO.png') }}"
                  alt=""
                  class="logo logo-lg"
                  style="width: 140px; height: auto; display: block; margin: 0 auto;" />
 
 
-                <img src="{{ asset('assets/images/B.png') }}" alt="" class="logo logo-sm" />
+                <img src="{{ asset('assets/images/LOGO.png') }}" alt="" class="logo logo-sm" />
             </a>
         </div>
         <div class="navbar-content">
@@ -68,7 +68,7 @@
                         <li class="nxl-item">
                             <a class="nxl-link" href="{{ route('reseller-panel.index') }}">My Panel</a>
                         </li>
-                        @php $hasPanel = \App\Models\Reseller::where('user_id', auth()->id())->exists(); @endphp
+                        @php $hasPanel =\App\Models\Reseller::where('owner_id', auth()->id())->exists(); @endphp
                         @if(!$hasPanel)
                             <li class="nxl-item">
                                 <a class="nxl-link" href="{{ route('reseller-panel.create') }}">Create Panel</a>
@@ -76,7 +76,7 @@
                         @endif
 
                         {{-- Reseller Services Link --}}
-                        @if(auth()->check() && \App\Models\Reseller::where('user_id', auth()->id())->where('status', 'active')->exists())
+                        @if(auth()->check() && \App\Models\Reseller::where('owner_id', auth()->id())->where('status', 'active')->exists())
                         <li class="nxl-item">
                             <a href="{{ route('reseller-panel.services') }}" class="nxl-link {{ request()->routeIs('reseller-panel.services*') ? 'active' : '' }}">
                                 <span class="nxl-micon"><i class="feather-tag"></i></span>
@@ -323,3 +323,5 @@
         <!--! [End] Header Right !-->
     </div>
 </header>
+
+@include('components.flash-messages')

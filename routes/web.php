@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\WelcomeModalController;
+use App\Http\Controllers\ReferralWithdrawalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,7 +70,7 @@ Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\Emai
 | Authenticated customer area
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:web', 'account.active'])->group(function () {
+Route::middleware(['auth:web'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::post('/welcome-modal/dismiss', [WelcomeModalController::class, 'dismiss'])->name('welcome-modal.dismiss');
 
@@ -84,6 +85,7 @@ Route::middleware(['auth:web', 'account.active'])->group(function () {
     Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
     Route::post('/wallet/topup', [\App\Http\Controllers\WalletController::class, 'fund'])->name('wallet.topup');
     Route::get('/wallet/callback', [\App\Http\Controllers\FlutterwaveController::class, 'callback'])->name('wallet.callback');
+    Route::get('/wallet/topup-status', [\App\Http\Controllers\WalletController::class, 'topupStatus'])->name('wallet.topup-status');
 
     // API keys
     Route::get('/api', [\App\Http\Controllers\ApiKeyController::class, 'index'])->name('api.index');
@@ -92,12 +94,13 @@ Route::middleware(['auth:web', 'account.active'])->group(function () {
     Route::delete('/api/{apiKey}', [\App\Http\Controllers\ApiKeyController::class, 'destroy'])->name('api.destroy');
     Route::get('/api/{apiKey}/test', [\App\Http\Controllers\ApiKeyController::class, 'test'])->name('api.test');
     Route::get('/api-docs', [\App\Http\Controllers\ApiKeyController::class, 'docs'])->name('api.docs');
-
+    
     // Referral program
     Route::get('/referral', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referral.index');
-    Route::get('/referral/withdraw', [\App\Http\Controllers\ReferralController::class, 'withdrawForm'])->name('referral.withdraw');
-    Route::post('/referral/withdraw/bank', [\App\Http\Controllers\ReferralController::class, 'withdrawBank'])->name('referral.withdraw.bank');
-    Route::post('/referral/withdraw/wallet', [\App\Http\Controllers\ReferralController::class, 'withdrawToWallet'])->name('referral.withdraw.wallet');
+    Route::get('/referral/withdraw', [ReferralWithdrawalController::class, 'create'])->name('referral.withdraw');
+    Route::post('/referral/withdraw/wallet', [ReferralWithdrawalController::class, 'withdrawToWallet'])->name('referral.withdraw.wallet');
+    Route::post('/referral/withdraw/bank', [ReferralWithdrawalController::class, 'withdrawToBank'])->name('referral.withdraw.bank');
+    Route::post('/referral/withdraw/resolve-account', [ReferralWithdrawalController::class, 'resolveAccount'])->name('referral.withdraw.resolve-account');
 
     // Become a reseller — application + self-service settings, all under
     // the customer's own account (no separate reseller login).

@@ -28,18 +28,36 @@
                     <div class="card stretch stretch-full">
                         <div class="card-body text-center">
                             <h6 class="mb-2">Current Balance</h6>
-                            <h2 class="mb-0 text-primary">₦{{ number_format(Auth::user()->balance, 2) }}</h2>
+                            <h2 class="mb-0 text-primary" id="wallet-balance">₦{{ number_format($balance, 2) }}</h2>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-xl-8">
                     <div class="card stretch stretch-full">
                         <div class="card-header">
                             <h5 class="card-title">Add Funds</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="/wallet">
+                        @if(session('virtualAccount'))
+                            @php $va = session('virtualAccount'); @endphp
+                            <div class="alert alert-info" id="virtual-account-details" data-reference="{{ $va['reference'] }}">
+                                <h6 class="mb-3">Complete your transfer</h6>
+                                <p class="mb-1"><strong>Bank:</strong> {{ $va['account_bank_name'] }}</p>
+                                <p class="mb-1">
+                                    <strong>Account Number:</strong>
+                                    <span id="va-account-number">{{ $va['account_number'] }}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                            onclick="navigator.clipboard.writeText('{{ $va['account_number'] }}')">
+                                        Copy
+                                    </button>
+                                </p>
+                                <p class="mb-1"><strong>Amount to send:</strong> ₦{{ number_format($va['amount'], 2) }}</p>
+                                <p class="text-muted small mb-2">Send the exact amount above. This account is one-time and expires shortly.</p>
+                                <p class="mb-0"><span id="va-status" class="badge bg-warning">Waiting for payment…</span></p>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('reseller.wallet.topup') }}">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-8">
@@ -50,6 +68,7 @@
                                     </div>
                                 </div>
                             </form>
+                        @endif
                         </div>
                     </div>
                 </div>
@@ -101,5 +120,33 @@
         </div>
     </div>
 </main>
+
+@if(session('virtualAccount'))
+<script>
+    (function () {
+        const box = document.getElementById('virtual-account-details');
+        const reference = box.dataset.reference;
+        const statusBadge = document.getElementById('va-status');
+
+        const poll = setInterval(async () => {
+            try {
+                const res = await fetch(`{{ route('reseller.wallet.topup-status') }}?reference=${encodeURIComponent(reference)}`);
+                const json = await res.json();
+
+                if (json.status === 'success') {
+                    clearInterval(poll);
+                    statusBadge.textContent = 'Payment received!';
+                    statusBadge.className = 'badge bg-success';
+                    setTimeout(() => window.location.reload(), 1200);
+                } else if (json.status === 'failed') {
+                    clearInterval(poll);
+                    statusBadge.textContent = 'Payment failed';
+                    statusBadge.className = 'badge bg-danger';
+                }
+            } catch (e) {}
+        }, 4000);
+    })();
+</script>
+@endif
 
 @include('reseller.components.g-footer')

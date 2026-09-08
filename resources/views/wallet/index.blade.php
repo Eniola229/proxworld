@@ -36,7 +36,7 @@
                         <div class="card stretch stretch-full">
                             <div class="card-body">
                                 <h5 class="card-title text-muted mb-4">Current Balance</h5>
-                                <h2 class="display-6 fw-bold text-primary">
+                                <h2 class="display-6 fw-bold text-primary" id="wallet-balance">
                                     ₦{{ number_format(auth()->user()->balance, 2) }}
                                 </h2>
                                 <p class="text-muted mt-3">Available funds for orders</p>
@@ -51,16 +51,43 @@
                                 <h5 class="card-title">Add Funds</h5>
                             </div>
                             <div class="card-body">
-                                <form method="POST" action="{{ route('wallet.topup') }}">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label">Amount (₦)</label>
-                                        <input type="number" name="amount" class="form-control form-control-lg" placeholder="e.g. 5000" min="500" required>
+
+                                @if(session('virtualAccount'))
+                                    @php $va = session('virtualAccount'); @endphp
+                                    <div class="alert alert-info" id="virtual-account-details" data-reference="{{ $va['reference'] }}">
+                                        <h6 class="mb-3">Complete your transfer</h6>
+                                        <p class="mb-1"><strong>Bank:</strong> {{ $va['account_bank_name'] }}</p>
+                                        <p class="mb-1">
+                                            <strong>Account Number:</strong>
+                                            <span id="va-account-number">{{ $va['account_number'] }}</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                                    onclick="navigator.clipboard.writeText('{{ $va['account_number'] }}')">
+                                                Copy
+                                            </button>
+                                        </p>
+                                        <p class="mb-1"><strong>Amount to send:</strong> ₦{{ number_format($va['amount'], 2) }}</p>
+                                        <p class="text-muted small mb-2">
+                                            Send the <strong>exact</strong> amount above from your bank app or USSD.
+                                            This account is one-time use and expires shortly — don't save it.
+                                        </p>
+                                        <p class="mb-0">
+                                            <span id="va-status" class="badge bg-warning">Waiting for payment…</span>
+                                        </p>
                                     </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
-                                    </div>
-                                </form>
+                                @else
+                                    <form method="POST" action="{{ route('wallet.topup') }}">
+                                        @csrf
+                                        <input type="hidden" name="currency" value="NGN">
+                                        <div class="mb-3">
+                                            <label class="form-label">Amount (₦)</label>
+                                            <input type="number" name="amount" class="form-control form-control-lg" placeholder="e.g. 5000" min="500" required>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
+                                        </div>
+                                    </form>
+                                @endif
+
                             </div>
                         </div>
                     </div>
@@ -87,7 +114,7 @@
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="transactions-body">
                                             @forelse(auth()->user()->wallet()->latest()->paginate(10) as $log)
                                                 <tr>
                                                     <td>{{ $log->created_at->format('M d, Y') }}</td>
@@ -126,3 +153,34 @@
     </main>
 
     @include('components.g-footer')
+
+    @if(session('virtualAccount'))
+    <script>
+        (function () {
+            const box = document.getElementById('virtual-account-details');
+            const reference = box.dataset.reference;
+            const statusBadge = document.getElementById('va-status');
+
+            const poll = setInterval(async () => {
+                try {
+                    const res = await fetch(`{{ route('wallet.topup-status') }}?reference=${encodeURIComponent(reference)}`);
+                    const json = await res.json();
+
+                    if (json.status === 'success') {
+                        clearInterval(poll);
+                        statusBadge.textContent = 'Payment received!';
+                        statusBadge.className = 'badge bg-success';
+                        setTimeout(() => window.location.reload(), 1200);
+                    } else if (json.status === 'failed') {
+                        clearInterval(poll);
+                        statusBadge.textContent = 'Payment failed';
+                        statusBadge.className = 'badge bg-danger';
+                    }
+                    // if 'pending', keep polling silently
+                } catch (e) {
+                    // network hiccup — just try again next tick
+                }
+            }, 4000);
+        })();
+    </script>
+    @endif

@@ -11,41 +11,68 @@ class WalletController extends Controller
     {
         $user = $request->user();
 
-        $transactions = $user->wallet()->latest()->paginate(15);
-
         return view('wallet.index', [
-            'balance' => $user->balance,
-            'transactions' => $transactions,
-            'currencies' => \App\Models\Currency::where('is_active', true)->get(),
+            'balance'      => $user->balance,
+            'transactions' => $user->wallet()->latest()->paginate(15),
+            'currencies'   => \App\Models\Currency::where('is_active', true)->get(),
         ]);
     }
 
-    /** Initiates a Flutterwave checkout — does NOT credit the wallet directly (see FlutterwaveController). */
     public function fund(Request $request)
     {
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:100'],
-            'currency' => ['required', 'string', 'size:3'],
         ]);
 
         $user = $request->user();
-        $txRef = 'PXW-'.strtoupper(Str::random(16));
+        $txRef = 'PXW-' . strtoupper(Str::random(16));
 
-        $response = \Illuminate\Support\Facades\Http::withToken(config('services.flutterwave.secret_key'))
-            ->post(config('services.flutterwave.base_url').'/payments', [
-                'tx_ref' => $txRef,
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
-                'redirect_url' => route('wallet.callback'),
-                'customer' => ['email' => $user->email, 'name' => $user->name],
-                'customizations' => ['title' => config('app.name').' Wallet Top-Up'],
+        try {
+            $account = app(\App\Services\FlutterwaveService::class)->createVirtualAccount([
+                'amount'   => (float) $data['amount'],
+                'currency' => 'NGN',
+                'reference' => $txRef,
+                'customer' => [
+                    'email' => $user->email,
+                    'name'  => $user->name,
+                ],
                 'meta' => ['user_id' => $user->id],
+                'expiry' => 900, // 15 minutes
             ]);
-
-        if (! $response->successful()) {
-            return back()->with('error', 'Could not start payment. Please try again.');
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::critical('Unhandled error in user payment fund:', [
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
+            return back()->with('error', 'An unexpected error occurred while starting payment.');
         }
 
-        return redirect()->away($response->json('data.link'));
+        // Store the reference so we can look up the eventual webhook-confirmed
+        // status from the wallet page (e.g. via polling) without trusting
+        // anything from the client.
+        session(['pending_topup_reference' => $txRef]);
+
+        return back()->with('virtualAccount', [
+            'account_number'   => $account['account_number'] ?? null,
+            'account_bank_name'=> $account['account_bank_name'] ?? null,
+            'amount'           => $account['amount'] ?? $data['amount'],
+            'reference'        => $txRef,
+            'expires_at'       => $account['account_expiration_datetime'] ?? null,
+            'note'             => $account['note'] ?? null,
+        ]);
+    }
+
+    public function topupStatus(Request $request)
+    {
+        $reference = $request->query('reference');
+
+        $log = $request->user()->wallet()->where('reference', $reference)->first();
+
+        return response()->json([
+            'status' => $log?->status ?? 'pending',
+        ]);
     }
 }

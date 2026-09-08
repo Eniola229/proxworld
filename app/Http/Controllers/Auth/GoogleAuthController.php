@@ -40,7 +40,8 @@ class GoogleAuthController extends Controller
             $referralCode = session('referral_code'); // captured on landing if ?ref=CODE was present
 
             $user = DB::transaction(function () use ($googleUser, $referralCode) {
-                $newUser = User::create([
+                $newUser = new User();
+                $newUser->forceFill([
                     'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'ProxWorld User',
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
@@ -48,7 +49,9 @@ class GoogleAuthController extends Controller
                     'password' => null,
                     'email_verified_at' => now(), // Google already verified this email
                     'status' => AccountStatus::ACTIVE,
+                    'terms_accepted_at' => now(),
                 ]);
+                $newUser->save();
 
                 if ($referralCode) {
                     $referrer = User::where('referral_code', $referralCode)->first();

@@ -6,7 +6,6 @@
     <title>ProxWorld — Premium Residential, Datacenter, ISP &amp; Mobile Proxies</title>
     <meta name="description" content="Buy fast, reliable proxies with ProxWorld. Residential, datacenter, ISP, and mobile proxies across 190+ countries — built for scraping, automation, and anonymity." />
     <meta name="keyword" content="buy proxies, residential proxies, datacenter proxies, ISP proxies, mobile proxies, proxy provider Nigeria, buy proxies online, rotating proxies, SOCKS5 proxies" />
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.jpeg') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1335,7 +1334,8 @@
                 <span class="logo-text">Prox<span>World</span></span>
                 <p>Your trusted proxy provider worldwide. Safe, fast, and built for results.</p>
                 <div class="footer-socials">
-                    <a href="https://whatsapp.com/channel/0029Vb7I1e3JuyAL31rIia0r" target="_blank" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://whatsapp.com/channel/0029VbEIyPKFi8xhoHYXrk2i" target="_blank" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/proxworldhq" target="_blank" class="soc-btn"><i class="fab fa-telegram"></i></a>
                     <a href="https://www.tiktok.com/@ProxWorld3928" target="_blank" class="soc-btn"><i class="fab fa-tiktok"></i></a>
                     <a href="#" class="soc-btn"><i class="fab fa-twitter"></i></a>
                     <a href="#" class="soc-btn"><i class="fab fa-instagram"></i></a>

@@ -45,6 +45,14 @@ class SecurityHeaders
     {
         // Adjust the CDN/host lists here as you finalize which asset CDNs,
         // font hosts, and payment/embed domains the frontend actually uses.
+        //
+        // Flutterwave v4 redirects customers to different domains than v3's
+        // checkout.flutterwave.com — sandbox charges (bank_account, card 3DS,
+        // mobile money, etc.) land on developersandbox.flutterwave.com or a
+        // *.flutterwave.cloud subdomain. Production will use flutterwave.com /
+        // flutterwave.cloud equivalents once live keys are swapped in — check
+        // the actual `Location` header on a live charge and tighten/adjust
+        // this list then rather than leaving the wildcard in permanently.
         $directives = [
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' https://checkout.flutterwave.com https://cdnjs.cloudflare.com",
@@ -52,11 +60,11 @@ class SecurityHeaders
             "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:",
             "img-src 'self' data: https: blob:",
             "media-src 'self' https://res.cloudinary.com",
-            "connect-src 'self' https://api.flutterwave.com",
-            "frame-src 'self' https://checkout.flutterwave.com",
+            "connect-src 'self' https://api.flutterwave.com https://developersandbox-api.flutterwave.com",
+            "frame-src 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.cloud",
             "object-src 'none'",
             "base-uri 'self'",
-            "form-action 'self' https://checkout.flutterwave.com",
+            "form-action 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.com https://*.flutterwave.cloud",
             "frame-ancestors 'self'",
         ];
 

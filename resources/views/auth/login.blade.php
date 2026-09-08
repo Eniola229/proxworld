@@ -7,7 +7,7 @@
                 
                 <!-- Logo -->
                 <div class="wd-50 bg-white p-2 rounded-circle shadow-lg position-absolute translate-middle top-0 start-50">
-                    <img src="{{ asset('assets/images/LOGO.jpeg') }}" alt="Logo" class="img-fluid">
+                    <img src="{{ asset('assets/images/LOGO.png') }}" alt="Logo" class="img-fluid">
                 </div>
 
                 <div class="card-body p-sm-5">

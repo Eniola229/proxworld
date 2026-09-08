@@ -5,7 +5,7 @@
             
             <!-- Header -->
             <div style="background: #3730a3; padding: 30px; text-align: center;">
-                <img src="{{ asset('assets/images/B.png') }}" alt="Logo" style="height: 50px; width: auto;">
+                <img src="{{ asset('assets/images/LOGO.png') }}" alt="Logo" style="height: 50px; width: auto;">
             </div>
             <!-- Body -->
             <div style="padding: 40px 30px;">

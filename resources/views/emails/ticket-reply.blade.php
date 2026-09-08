@@ -3,7 +3,7 @@
         <div style="background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-top: 40px;">
             <!-- Header -->
             <div style="background: #3730a3; padding: 30px; text-align: center;">
-                <img src="{{ asset('assets/images/B.png') }}" alt="Logo" style="height: 50px; width: auto;">
+                <img src="{{ asset('assets/images/LOGO.png') }}" alt="Logo" style="height: 50px; width: auto;">
             </div>
             <!-- Body -->
             <div style="padding: 40px 30px;">

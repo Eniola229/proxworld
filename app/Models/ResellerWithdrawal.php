@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ResellerWithdrawal extends Model
 {
     protected $fillable = [
-        'reseller_id', 'amount', 'currency', 'bank_name', 'account_number', 'account_name',
-        'reference', 'status', 'failure_reason', 'processed_by', 'processed_at',
+        'reseller_id', 'amount', 'currency',
+        'bank_name', 'bank_code', 'account_number', 'account_name',
+        'reference', 'status', 'failure_reason',
+        'processed_by', 'processed_at',
+        'flutterwave_transfer_id',
     ];
 
     protected function casts(): array

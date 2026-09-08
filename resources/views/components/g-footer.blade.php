@@ -53,7 +53,7 @@
         <div class="support-modal-body">
             <p class="text-muted mb-4">How would you like to chat with us?</p>
             <div class="support-options">
-                <a href="t.me/ProxWorldhq" target="_blank" class="support-option">
+                <a href="https://t.me/proxworldhq" target="_blank" class="support-option">
                     <div class="support-option-icon whatsapp">
                         <i class="feather-message-square"></i>
                     </div>

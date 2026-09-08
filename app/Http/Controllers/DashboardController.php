@@ -11,11 +11,24 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        $totalOrders = $user->orders()->count();
+        $pendingOrders = $user->orders()->where('status', OrderStatus::PENDING)->count();
+        $processingOrders = $user->orders()->where('status', OrderStatus::PROCESSING)->count();
+        $completedOrders = $user->orders()->where('status', OrderStatus::COMPLETED)->count();
+
+        // Assumption: "Total Spent" = sum of charge across every order the
+        // user has placed, regardless of status. Adjust the where() below
+        // if you only want completed (paid/delivered) orders counted.
+        $totalSpent = $user->orders()->sum('charge');
+
         return view('dashboard', [
             'balance' => $user->balance,
             'recentOrders' => $user->orders()->latest()->limit(5)->get(),
-            'ordersCount' => $user->orders()->count(),
-            'completedOrders' => $user->orders()->where('status', OrderStatus::COMPLETED)->count(),
+            'totalOrders' => $totalOrders,
+            'pendingOrders' => $pendingOrders,
+            'processingOrders' => $processingOrders,
+            'completedOrders' => $completedOrders,
+            'totalSpent' => $totalSpent,
             'openTickets' => $user->tickets()->whereIn('status', ['open', 'in_progress'])->count(),
         ]);
     }

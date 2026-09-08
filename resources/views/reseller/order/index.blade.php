@@ -33,10 +33,9 @@
                         <form method="GET" class="d-flex">
                             <select name="status" class="form-select me-2" style="width: auto;">
                                 <option value="">All Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                @foreach(\App\Types\OrderStatus::labels() as $value => $label)
+                                    <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
                             </select>
                             <button type="submit" class="btn btn-primary">Filter</button>
                         </form>
@@ -46,50 +45,53 @@
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
-                            
+                                <tr>
                                     <th>Order ID</th>
                                     <th>Service</th>
-                                    <th>Link</th>
+                                    <th>Type</th>
                                     <th>Quantity</th>
                                     <th>Amount</th>
                                     <th>Status</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
-                                </thead>
+                                </tr>
+                            </thead>
                             <tbody>
+                                @php
+                                    $badgeClass = [
+                                        \App\Types\OrderStatus::PENDING    => 'bg-warning',
+                                        \App\Types\OrderStatus::PROCESSING => 'bg-info',
+                                        \App\Types\OrderStatus::COMPLETED  => 'bg-success',
+                                        \App\Types\OrderStatus::CANCELLED  => 'bg-danger',
+                                        \App\Types\OrderStatus::REFUNDED   => 'bg-secondary',
+                                    ];
+                                    $statusLabels = \App\Types\OrderStatus::labels();
+                                @endphp
+
                                 @forelse($orders as $order)
                                 <tr>
-                                    <td>#{{ $order->id }}</td>
+                                    <td>#{{ substr($order->id, 0, 8) }}...</td>
                                     <td>{{ $order->service_name }}</td>
                                     <td>
-                                        <a href="{{ $order->link }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 200px;">
-                                            {{ Str::limit($order->link, 30) }}
-                                        </a>
+                                        <span class="badge bg-secondary text-uppercase">{{ $order->product_type ?? '—' }}</span>
                                     </td>
                                     <td>{{ number_format($order->quantity) }}</td>
                                     <td>₦{{ number_format($order->charge, 2) }}</td>
                                     <td>
-                                        <span class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : ($order->status == 'processing' ? 'info' : 'danger')) }}">
-                                            {{ ucfirst($order->status) }}
+                                        <span class="badge {{ $badgeClass[$order->status] ?? 'bg-secondary' }}">
+                                            {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
                                         </span>
                                     </td>
                                     <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                                    <td>
-                                        -
-                               <!--          <a href="/orders/{{ $order->id }}/status" class="btn btn-sm btn-info" title="Check Status">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </a> -->
-                                    </td>
                                 </tr>
-                                @empty 
+                                @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No orders found</td>
+                                    <td colspan="7" class="text-center">No orders found</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="mt-4">
                         {{ $orders->links() }}
                     </div>

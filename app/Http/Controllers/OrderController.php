@@ -84,9 +84,15 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        return view('order.index', [
-            'orders' => $request->user()->orders()->latest()->paginate(15),
-        ]);
+        $status = $request->query('status');
+
+        $orders = $request->user()->orders()
+            ->when($status && in_array($status, \App\Types\OrderStatus::all(), true), fn ($q) => $q->where('status', $status))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('order.index', ['orders' => $orders]);
     }
 
     public function show(Request $request, Order $order)

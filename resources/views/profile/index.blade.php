@@ -33,7 +33,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Email</label>
-                                        <input type="email" name="email" class="form-control" value="{{ auth()->user()->email }}" required>
+                                        <input type="email" name="email" class="form-control" value="{{ auth()->user()->email }}" readonly>
                                     </div>
                                     <button type="submit" class="btn btn-primary">Update Profile</button>
                                 </form>

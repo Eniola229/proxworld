@@ -5,7 +5,7 @@
             <div class="card mb-4 mt-5 mx-4 mx-sm-0 position-relative text-center">
                 <!-- Logo -->
                 <div class="wd-50 bg-white p-2 rounded-circle shadow-lg position-absolute translate-middle top-0 start-50">
-                    <img src="{{ asset('assets/images/B.png') }}" alt="Logo" class="img-fluid">
+                    <img src="{{ asset('assets/images/LOGO.png') }}" alt="Logo" class="img-fluid">
                 </div>
                 <div class="card-body p-sm-5 pt-5">
                     <h1 class="display-4 fw-bolder text-danger mb-3">403</h1>

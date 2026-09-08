@@ -36,12 +36,16 @@ return [
     ],
 
     'flutterwave' => [
-        'public_key' => env('FLUTTERWAVE_PUBLIC_KEY'),
-        'secret_key' => env('FLUTTERWAVE_SECRET_KEY'),
-        'secret_hash' => env('FLUTTERWAVE_SECRET_HASH'),
-        'base_url' => env('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.com/v3'),
+        'environment' => env('FLUTTERWAVE_ENV', 'sandbox'), // sandbox | production
+        'base_url' => env('FLUTTERWAVE_ENV', 'sandbox') === 'production'
+            ? 'https://f4bexperience.flutterwave.com'
+            : 'https://developersandbox-api.flutterwave.com',
+        'auth_url' => 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
+        'client_id' => env('FLUTTERWAVE_CLIENT_ID'),
+        'client_secret' => env('FLUTTERWAVE_CLIENT_SECRET'),
+        'secret_hash' => env('FLUTTERWAVE_SECRET_HASH'), // webhook verif-hash, unchanged from v3
     ],
-
+    
     'exchange' => [
         'api_key' => env('EXCHANGE_RATE_API_KEY'),
         'base_url' => env('EXCHANGE_RATE_BASE_URL', 'https://v6.exchangerate-api.com/v6'),

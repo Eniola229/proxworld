@@ -21,11 +21,11 @@
     <meta property="og:description" content="Buy fast, reliable proxies across 190+ countries — residential, datacenter, ISP, and mobile, for scraping, automation, and anonymity." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:image" content="{{ asset('assets/images/LOGO.jpeg') }}" />
+    <meta property="og:image" content="{{ asset('assets/images/LOGO.png') }}" />
     <meta property="og:site_name" content="{{ config('app.name', 'ProxWorld') }}" />
 
     <!--! BEGIN: Favicon-->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.jpeg') }}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.png') }}" />
     <!--! END: Favicon-->
 
     <!--! BEGIN: Bootstrap CSS-->

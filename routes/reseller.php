@@ -19,7 +19,10 @@ Route::middleware(['auth:web', 'account.active'])->group(function () {
         Route::get('/manage/services', [\App\Http\Controllers\Reseller\PricingController::class, 'edit'])->name('manage.services');
         Route::put('/manage/services', [\App\Http\Controllers\Reseller\PricingController::class, 'update'])->name('manage.services.update');
         Route::get('/manage/revenue', [\App\Http\Controllers\Reseller\RevenueController::class, 'index'])->name('manage.revenue');
-        Route::get('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'create'])->name('manage.withdraw');
+        Route::get('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'create'])->name('manage.withdraw')
+        ;
+        Route::post('/manage/withdraw/resolve-account', [WithdrawalController::class, 'resolveAccount'])
+        ->name('manage.withdraw.resolve-account');
         Route::post('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'store'])->name('manage.withdraw.store');
 
         Route::get('/order/new', [\App\Http\Controllers\Reseller\OrderController::class, 'create'])->name('order.create');
@@ -28,6 +31,7 @@ Route::middleware(['auth:web', 'account.active'])->group(function () {
 
         Route::get('/wallet', [\App\Http\Controllers\Reseller\WalletController::class, 'index'])->name('wallet.index');
         Route::post('/wallet/topup', [\App\Http\Controllers\Reseller\WalletController::class, 'fund'])->name('wallet.topup');
+        Route::get('/wallet/topup-status', [\App\Http\Controllers\Reseller\WalletController::class, 'topupStatus'])->name('wallet.topup-status');
 
         Route::get('/profile', [\App\Http\Controllers\Reseller\ProfileController::class, 'edit'])->name('profile.index');
     });
