@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /control-panel/
+Disallow: /reseller/
+Disallow: /api/
+Disallow: /wallet
+Disallow: /orders
+Disallow: /dashboard
+Disallow: /support
+Disallow: /profile
+Disallow: /api-keys
+Disallow: /referral
+
+Sitemap: /sitemap.xml
