@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Referral extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['referrer_id', 'referred_user_id', 'has_deposited', 'has_ordered', 'bonus_paid', 'bonus_amount', 'bonus_paid_at'];
 
     protected function casts(): array

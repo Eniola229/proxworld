@@ -29,6 +29,22 @@
                             Support
                         </a>
                     @endif
+                    @if($reseller->support_telegram)
+                        <span class="text-muted">|</span>
+                        <a href="{{ $telegramLink ?? '#' }}" target="_blank" rel="noopener"
+                           class="fs-11 fw-semibold text-uppercase text-muted footer-link">
+                            <i class="feather-send me-1" style="font-size: 12px;"></i>
+                            Telegram
+                        </a>
+                    @endif
+                    @if($reseller->support_whatsapp)
+                        <span class="text-muted">|</span>
+                        <a href="{{ $whatsappLink ?? '#' }}" target="_blank" rel="noopener"
+                           class="fs-11 fw-semibold text-uppercase text-muted footer-link">
+                            <i class="feather-phone me-1" style="font-size: 12px;"></i>
+                            WhatsApp
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -62,16 +78,39 @@
                         </div>
                     </a>
                 @endif
-                {{-- Reseller can add more channels via settings in the future --}}
-                <div class="support-option" style="opacity:.5; cursor:default;">
-                    <div class="support-option-icon" style="background: #6c757d;">
-                        <i class="feather-message-circle"></i>
+                @if($reseller->support_telegram)
+                    <a href="{{ $telegramLink ?? '#' }}" target="_blank" rel="noopener" class="support-option">
+                        <div class="support-option-icon" style="background: #229ED9;">
+                            <i class="feather-send"></i>
+                        </div>
+                        <div class="support-option-content">
+                            <h6>Telegram</h6>
+                            <p>{{ $reseller->support_telegram }}</p>
+                        </div>
+                    </a>
+                @endif
+                @if($reseller->support_whatsapp)
+                    <a href="{{ $whatsappLink ?? '#' }}" target="_blank" rel="noopener" class="support-option">
+                        <div class="support-option-icon" style="background: #25D366;">
+                            <i class="feather-phone"></i>
+                        </div>
+                        <div class="support-option-content">
+                            <h6>WhatsApp</h6>
+                            <p>{{ $reseller->support_whatsapp }}</p>
+                        </div>
+                    </a>
+                @endif
+                @if(!$reseller->support_email && !$reseller->support_telegram && !$reseller->support_whatsapp)
+                    <div class="support-option" style="opacity:.5; cursor:default;">
+                        <div class="support-option-icon" style="background: #6c757d;">
+                            <i class="feather-message-circle"></i>
+                        </div>
+                        <div class="support-option-content">
+                            <h6>Live Chat</h6>
+                            <p>Coming soon</p>
+                        </div>
                     </div>
-                    <div class="support-option-content">
-                        <h6>Live Chat</h6>
-                        <p>Coming soon</p>
-                    </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>

@@ -34,7 +34,16 @@ class WalletController extends Controller
 
     public function show(WalletTransaction $transaction)
     {
-        return view('admin.wallet.show', ['transaction' => $transaction->load('user')]);
+        $transaction->load('user');
+
+        return view('admin.wallet.show', [
+            'transaction' => $transaction,
+            'customerBalance' => $transaction->user->balance,
+            'totalTransactions' => WalletTransaction::where('user_id', $transaction->user_id)->count(),
+            'logs' => WalletTransaction::where('user_id', $transaction->user_id)
+                ->latest()
+                ->paginate(15),
+        ]);
     }
 
     /** Approves a pending manual top-up (e.g. bank transfer submitted for review) — actually credits the wallet now. */

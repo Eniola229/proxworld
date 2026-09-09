@@ -10,10 +10,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('profit_transactions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->uuid('order_id');
-            $table->foreignId('provider_id')->nullable()->constrained('providers')->nullOnDelete();
-            $table->foreignId('reseller_id')->nullable()->constrained('resellers')->nullOnDelete();
+            $table->foreignUuid('provider_id')->nullable()->constrained('providers')->nullOnDelete();
+            $table->foreignUuid('reseller_id')->nullable()->constrained('resellers')->nullOnDelete();
             $table->string('channel'); // App\Types\OrderChannel — snapshot for fast filtering
             $table->decimal('amount', 16, 4); // platform profit for this order
             $table->string('currency', 3)->default('NGN');

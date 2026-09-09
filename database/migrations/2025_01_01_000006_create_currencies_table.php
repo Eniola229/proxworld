@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('currencies', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             // Column named `currency` (not `code`) to match the admin
             // exchange-rates view, which iterates these as $provider->currency.
             $table->string('currency', 3)->unique();

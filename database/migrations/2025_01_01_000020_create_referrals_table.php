@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('referrals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('referrer_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('referred_user_id')->unique()->constrained('users')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('referrer_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('referred_user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->boolean('has_deposited')->default(false);
             $table->boolean('has_ordered')->default(false);
             $table->boolean('bonus_paid')->default(false);

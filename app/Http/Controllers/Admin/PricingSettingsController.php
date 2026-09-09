@@ -11,7 +11,7 @@ class PricingSettingsController extends Controller
 {
     public function edit()
     {
-        $pricing = Setting::get('pricing_config', [
+        $defaults = [
             'default_markup' => 30,
             'minimum_markup' => 10,
             'maximum_markup' => 200,
@@ -19,20 +19,23 @@ class PricingSettingsController extends Controller
             'round_prices' => true,
             'service_type_markup' => [],
             'platform_markup' => [],
-        ]);
+            'combined_markup' => [],
+        ];
+
+        $pricing = array_merge($defaults, Setting::get('pricing_config', []));
 
         return view('admin.settings.pricing', [
             'pricing' => $pricing,
             'productTypes' => ProductType::all(),
         ]);
     }
-
     public function update(UpdatePricingSettingsRequest $request)
     {
         $data = $request->validated();
         $data['round_prices'] = $request->boolean('round_prices');
         $data['service_type_markup'] = array_filter($data['service_type_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
         $data['platform_markup'] = array_filter($data['platform_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
+        $data['combined_markup'] = array_filter($data['combined_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
 
         Setting::set('pricing_config', $data);
 

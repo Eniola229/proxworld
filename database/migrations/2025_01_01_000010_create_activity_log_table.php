@@ -21,9 +21,11 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('log_name')->nullable();
             $table->text('description');
-            $table->nullableMorphs('subject', 'subject');
+            // uuidMorphs, not morphs: subjects/causers (User, Admin, Order, etc.)
+            // now all use uuid primary keys.
+            $table->nullableUuidMorphs('subject', 'subject');
             $table->string('event')->nullable();
-            $table->nullableMorphs('causer', 'causer');
+            $table->nullableUuidMorphs('causer', 'causer');
             $table->string('causer_guard')->nullable(); // "web" or "admin"
             $table->string('ip_address')->nullable();
             $table->string('method')->nullable();

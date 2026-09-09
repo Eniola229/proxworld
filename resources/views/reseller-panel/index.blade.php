@@ -86,11 +86,33 @@
                                         <i class="feather-external-link ms-1" style="font-size:11px;"></i>
                                     </a>
                                 </div>
-                                @if($reseller->custom_domain && $reseller->custom_domain_status === 'active')
+                                @if($reseller->custom_domain)
                                 <div class="d-flex justify-content-between fs-13">
                                     <span class="text-muted">Custom Domain</span>
                                     <span class="fw-semibold text-primary">{{ $reseller->custom_domain }}</span>
                                 </div>
+                                <div class="d-flex justify-content-between fs-13">
+                                    <span class="text-muted">Domain Status</span>
+                                    @if($reseller->custom_domain_status === 'active')
+                                        <span class="badge bg-soft-success text-success">Active</span>
+                                    @elseif($reseller->custom_domain_status === 'failed')
+                                        <span class="badge bg-soft-danger text-danger">Failed</span>
+                                    @else
+                                        <span class="badge bg-soft-warning text-warning">Pending</span>
+                                    @endif
+                                </div>
+                                @if($reseller->custom_domain_verified_at)
+                                <div class="d-flex justify-content-between fs-13">
+                                    <span class="text-muted">Verified At</span>
+                                    <span class="fw-semibold text-dark">{{ $reseller->custom_domain_verified_at->format('M d, Y H:i') }}</span>
+                                </div>
+                                @endif
+                                @if($reseller->custom_domain_status === 'failed' && $reseller->custom_domain_error)
+                                <div class="d-flex justify-content-between fs-13">
+                                    <span class="text-muted">Domain Error</span>
+                                    <span class="fw-semibold text-danger">{{ $reseller->custom_domain_error }}</span>
+                                </div>
+                                @endif
                                 @endif
                                 <div class="d-flex justify-content-between fs-13">
                                     <span class="text-muted">Markup</span>
@@ -100,6 +122,18 @@
                                     <span class="text-muted">Support Email</span>
                                     <span class="fw-semibold text-dark">{{ $reseller->support_email ?? '—' }}</span>
                                 </div>
+                                @if($reseller->support_telegram)
+                                <div class="d-flex justify-content-between fs-13">
+                                    <span class="text-muted">Support Telegram</span>
+                                    <span class="fw-semibold text-dark">{{ $reseller->support_telegram }}</span>
+                                </div>
+                                @endif
+                                @if($reseller->support_whatsapp)
+                                <div class="d-flex justify-content-between fs-13">
+                                    <span class="text-muted">Support WhatsApp</span>
+                                    <span class="fw-semibold text-dark">{{ $reseller->support_whatsapp }}</span>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -153,7 +187,6 @@
                             </div>
                         </div>
 
-                        {{-- Add this in the stats row or as a separate card --}}
                         <div class="col-md-6 mb-4">
                             <div class="card stretch stretch-full">
                                 <div class="card-body">
@@ -232,6 +265,25 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-semibold">Support Telegram <span class="text-muted fw-normal">(optional)</span></label>
+                                        <input type="text" name="support_telegram"
+                                               class="form-control @error('support_telegram') is-invalid @enderror"
+                                               placeholder="@yourpanelsupport or t.me/yourpanel"
+                                               value="{{ old('support_telegram', $reseller->support_telegram) }}" />
+                                        @error('support_telegram')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-semibold">Support WhatsApp <span class="text-muted fw-normal">(optional)</span></label>
+                                        <input type="text" name="support_whatsapp"
+                                               class="form-control @error('support_whatsapp') is-invalid @enderror"
+                                               placeholder="+234 800 000 0000"
+                                               value="{{ old('support_whatsapp', $reseller->support_whatsapp) }}" />
+                                        @error('support_whatsapp')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary px-5">
                                     <i class="feather-save me-2"></i> Save Changes
                                 </button>
@@ -239,10 +291,9 @@
                         </div>
                     </div>
                 </div>
-                
+
                 {{-- DNS Configuration Card - Conditional based on status --}}
                 @if($reseller->status === 'active')
-                {{-- Panel is ACTIVE - Show DNS Setup with Server IP --}}
                 <div class="col-12 mt-4">
                     <div class="card stretch">
                         <div class="card-header">
@@ -270,18 +321,41 @@
                                 </div>
                             </div>
 
-                            @if($reseller->custom_domain && $reseller->custom_domain_status === 'active')
-                                <div class="alert alert-success mb-4">
-                                    <i class="feather-check-circle me-2"></i>
-                                    <strong>Custom domain active!</strong> Your panel is now available at:
-                                    <div class="mt-2">
-                                        <code class="d-block p-2 bg-light rounded">
-                                            <i class="feather-link me-1"></i> 
-                                            <a href="https://{{ $reseller->custom_domain }}" target="_blank">
-                                                https://{{ $reseller->custom_domain }}
-                                            </a>
-                                        </code>
+                            @if($reseller->custom_domain)
+                                <div class="alert alert-{{ $reseller->custom_domain_status === 'active' ? 'success' : ($reseller->custom_domain_status === 'failed' ? 'danger' : 'warning') }} mb-4">
+                                    <i class="feather-{{ $reseller->custom_domain_status === 'active' ? 'check-circle' : ($reseller->custom_domain_status === 'failed' ? 'alert-triangle' : 'clock') }} me-2"></i>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>Domain:</strong><br>
+                                            <code>{{ $reseller->custom_domain }}</code>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Status:</strong><br>
+                                            @if($reseller->custom_domain_status === 'active')
+                                                <span class="badge bg-success">Active</span>
+                                            @elseif($reseller->custom_domain_status === 'failed')
+                                                <span class="badge bg-danger">Failed</span>
+                                            @else
+                                                <span class="badge bg-warning">Pending Verification</span>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-4">
+                                            @if($reseller->custom_domain_verified_at)
+                                                <strong>Verified At:</strong><br>
+                                                {{ $reseller->custom_domain_verified_at->format('M d, Y H:i') }}
+                                            @endif
+                                        </div>
                                     </div>
+                                    @if($reseller->custom_domain_status === 'active')
+                                        <div class="mt-2">
+                                            <code class="d-block p-2 bg-light rounded">
+                                                <i class="feather-link me-1"></i>
+                                                <a href="https://{{ $reseller->custom_domain }}" target="_blank">
+                                                    https://{{ $reseller->custom_domain }}
+                                                </a>
+                                            </code>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
 
@@ -316,7 +390,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6">
                                     <div class="border rounded p-3 mb-3">
                                         <h6 class="fw-bold mb-3"><i class="feather-alert-circle me-2"></i>Step-by-Step Instructions</h6>
@@ -341,13 +415,13 @@
                             <form action="{{ route('reseller-panel.update-domain') }}" method="POST" class="mt-3">
                                 @csrf
                                 @method('PUT')
-                                
+
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Your Custom Domain</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="feather-link"></i></span>
-                                        <input type="text" 
-                                               name="custom_domain" 
+                                        <input type="text"
+                                               name="custom_domain"
                                                class="form-control @error('custom_domain') is-invalid @enderror"
                                                placeholder="panel.yourdomain.com"
                                                value="{{ old('custom_domain', $reseller->custom_domain) }}" />
@@ -393,7 +467,6 @@
                 </div>
 
                 @elseif($reseller->status === 'pending')
-                {{-- Panel is PENDING - Show Warning Message --}}
                 <div class="col-12 mt-4">
                     <div class="card stretch">
                         <div class="card-header">
@@ -426,7 +499,6 @@
                 </div>
 
                 @elseif($reseller->status === 'rejected')
-                {{-- Panel is REJECTED - Show Rejection Message --}}
                 <div class="col-12 mt-4">
                     <div class="card stretch">
                         <div class="card-header">
@@ -479,7 +551,7 @@
                                             <td>{{ $customer->name }}</td>
                                             <td>{{ $customer->email }}</td>
                                             <td>{{ $customer->orders_count ?? 0 }}</td>
-                                            <td>₦{{ number_format($customer->total_spent ?? 0, 2) }}</td>
+                                            <td>₦{{ number_format($customer->orders_sum_charge ?? 0, 2) }}</td>
                                             <td>{{ $customer->created_at->format('M d, Y') }}</td>
                                         </tr>
                                         @endforeach
@@ -524,7 +596,7 @@
                                             <td>{{ $order->service_name }}</td>
                                             <td>{{ number_format($order->quantity) }}</td>
                                             <td>₦{{ number_format($order->charge, 2) }}</td>
-                                            <td>₦{{ number_format($order->profit, 2) }}</td>
+                                            <td>₦{{ number_format($order->reseller_profit, 2) }}</td>
                                             <td>
                                                 <span class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'info') }}">
                                                     {{ ucfirst($order->status) }}
@@ -624,5 +696,3 @@ function verifyDomainAgain() {
 </script>
 
 @include('components.g-footer')
-</body>
-</html>

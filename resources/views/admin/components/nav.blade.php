@@ -2,7 +2,7 @@
     <div class="navbar-wrapper">
         <div class="m-header">
             <a href="{{ route('admin.dashboard') }}" class="b-brand">
-                <img src="{{ asset('assets/images/logo-full.png') }}"
+                <img src="{{ asset('assets/images/LOGO.png') }}"
                      alt=""
                      class="logo logo-lg"
                      style="width: 140px; height: auto; display: block; margin: 0 auto;" />
@@ -129,6 +129,13 @@
                 </li>
                 @endif
 
+                <li class="nxl-item">
+                    <a href="{{ route('admin.newsletters.index') }}" class="nxl-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
+                        <span class="nxl-micon"><i class="feather-mail"></i></span>
+                        <span class="nxl-mtext">Newsletters</span>
+                    </a>
+                </li>
+
                 <!-- Support Tickets -->
                 <li class="nxl-item">
                     <a href="{{ route('admin.support.index') }}"
@@ -140,7 +147,7 @@
 
                 <!-- Admins Management -->
                 @if(auth('admin')->user()->canManageAdmins())
-                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.admins.*') ? 'nxl-trigger' : '' }}">
+                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.roles.*') ? 'nxl-trigger' : '' }}">
                     <a href="javascript:void(0);" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-shield"></i></span>
                         <span class="nxl-mtext">Admins</span>
@@ -154,6 +161,10 @@
                         <li class="nxl-item">
                             <a class="nxl-link {{ request()->routeIs('admin.admins.create') ? 'active' : '' }}"
                                href="{{ route('admin.admins.create') }}">Add New Admin</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}"
+                               href="{{ route('admin.roles.index') }}">Roles</a>
                         </li>
                     </ul>
                 </li>

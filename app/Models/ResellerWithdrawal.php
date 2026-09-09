@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ResellerWithdrawal extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
         'reseller_id', 'amount', 'currency',
         'bank_name', 'bank_code', 'account_number', 'account_name',
@@ -18,11 +21,6 @@ class ResellerWithdrawal extends Model
     protected function casts(): array
     {
         return ['amount' => 'decimal:4', 'processed_at' => 'datetime'];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(fn (self $w) => $w->uuid ??= (string) \Illuminate\Support\Str::uuid());
     }
 
     public function reseller(): BelongsTo

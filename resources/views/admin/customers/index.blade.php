@@ -27,7 +27,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
+ 
         @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show">
                 <i class="feather-alert-circle me-2"></i>

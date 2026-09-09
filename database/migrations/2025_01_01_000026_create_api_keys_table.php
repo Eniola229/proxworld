@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('api_keys', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('key_hash')->unique(); // sha256, used for fast lookup on every API request
             $table->text('key_encrypted'); // encrypted cast, decrypted only for display/copy

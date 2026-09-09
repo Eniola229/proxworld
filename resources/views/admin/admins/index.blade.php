@@ -21,11 +21,7 @@
                     <a href="{{ route('admin.admins.create') }}" class="btn btn-primary">
                         <i class="feather-plus me-2"></i> Add New Admin
                     </a>
-                    @if(auth('admin')->user()->canViewAdminLogs())
-                        <a href="{{ route('admin.admins.logs') }}" class="btn btn-danger">
-                            <i class="feather-shield me-2"></i> View Admin Logs
-                        </a>
-                    @endif
+
                 </div>
             </div>
         </div>
@@ -210,7 +206,7 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if($admin->status == 'active')
+                                                    @if($admin->is_active)
                                                         <span class="badge bg-soft-success text-success">Active</span>
                                                     @else
                                                         <span class="badge bg-soft-danger text-danger">Inactive</span>

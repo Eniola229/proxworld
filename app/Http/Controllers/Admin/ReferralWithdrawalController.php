@@ -17,17 +17,41 @@ class ReferralWithdrawalController extends Controller
 {
     public function index(Request $request)
     {
+        $status = $request->get('status', 'pending');
+        $search = $request->get('search');
+        $filterMethod = $request->get('method');
+        $amountMin = $request->get('amount_min');
+        $amountMax = $request->get('amount_max');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        $stats = [
+            'pending' => ReferralWithdrawal::where('status', WithdrawalStatus::PENDING)->count(),
+            'processing' => ReferralWithdrawal::where('status', WithdrawalStatus::PROCESSING)->count(),
+            'success' => ReferralWithdrawal::where('status', WithdrawalStatus::SUCCESS)->count(),
+            'failed' => ReferralWithdrawal::where('status', WithdrawalStatus::FAILED)->count(),
+        ];
+        
         $withdrawals = ReferralWithdrawal::query()
-            ->with('user:id,name,email')
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('method'), fn ($q) => $q->where('method', $request->method))
+            ->with('user:id,name,email') // see note below — may need to be 'referral.user'
+            ->when($status !== 'all', fn ($q) => $q->where('status', $status))
+            ->when($filterMethod, fn ($q) => $q->where('method', $filterMethod)) // see note — blade uses withdrawal_method
+            ->when($search, function ($q) use ($search) {
+                $q->where('reference', 'like', "%{$search}%");
+            })
+            ->when($amountMin, fn ($q) => $q->where('amount', '>=', $amountMin))
+            ->when($amountMax, fn ($q) => $q->where('amount', '<=', $amountMax))
+            ->when($dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('created_at', '<=', $dateTo))
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.referral.withdrawals.index', ['withdrawals' => $withdrawals]);
+        return view('admin.referral.withdrawals.index', compact(
+            'withdrawals', 'stats', 'status', 'search', 'filterMethod',
+            'amountMin', 'amountMax', 'dateFrom', 'dateTo'
+        ));
     }
-
     public function show(ReferralWithdrawal $withdrawal)
     {
         return view('admin.referral.withdrawals.show', ['withdrawal' => $withdrawal->load('user')]);

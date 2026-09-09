@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReferralWithdrawal extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
         'user_id', 'amount', 'currency', 'method',
         'bank_name', 'bank_code', 'account_number', 'account_name',
@@ -24,11 +27,6 @@ class ReferralWithdrawal extends Model
             'balance_after' => 'decimal:4',
             'processed_at' => 'datetime',
         ];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(fn (self $w) => $w->uuid ??= (string) \Illuminate\Support\Str::uuid());
     }
 
     public function user(): BelongsTo

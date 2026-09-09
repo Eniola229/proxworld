@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ResellerServiceOverride extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['reseller_id', 'provider_id', 'external_service_id', 'markup_percent', 'is_hidden'];
 
     protected function casts(): array

@@ -14,9 +14,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wallet_transactions', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('reference')->unique();
             $table->string('type'); // App\Types\WalletTransactionDirection (credit/debit)
             $table->string('purpose')->nullable(); // App\Types\TransactionType (topup/order_debit/...)

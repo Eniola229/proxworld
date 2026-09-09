@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class WalletTransaction extends Model
 {
+    use HasUuids;
+
     protected $table = 'wallet_transactions';
 
     protected $fillable = [
@@ -28,13 +31,6 @@ class WalletTransaction extends Model
             'balance_after' => 'decimal:4',
             'meta' => 'array',
         ];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(function (WalletTransaction $t) {
-            $t->uuid ??= (string) \Illuminate\Support\Str::uuid();
-        });
     }
 
     public function user(): BelongsTo

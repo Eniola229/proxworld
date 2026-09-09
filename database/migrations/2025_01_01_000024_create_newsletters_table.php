@@ -27,7 +27,7 @@ return new class extends Migration
             $table->boolean('show_on_blog')->default(true);
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('sent_at')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('admins')->nullOnDelete();
+            $table->foreignUuid('created_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->unsignedInteger('recipients_total')->default(0);
             $table->unsignedInteger('recipients_sent')->default(0);
             $table->unsignedInteger('recipients_failed')->default(0);

@@ -225,7 +225,7 @@
                     @endif
 
                     <!-- Transaction Logs -->
-                    <div class="card">
+                 <!--    <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">Transaction Activity Logs</h5>
                         </div>
@@ -325,7 +325,7 @@
                             {{ $logs->links() }}
                         </div>
                         @endif
-                    </div>
+                    </div> -->
 
                 </div>
 

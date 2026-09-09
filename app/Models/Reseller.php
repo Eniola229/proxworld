@@ -3,16 +3,20 @@
 namespace App\Models;
 
 use App\Types\ResellerStatus;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Reseller extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
         'owner_id', 'panel_name', 'subdomain', 'custom_domain', 'logo_path', 'primary_color',
         'default_markup_percent', 'support_email', 'support_telegram', 'support_whatsapp',
         'status', 'is_suspended', 'rejection_reason', 'approved_at', 'server_ip',
+        'custom_domain_status', 'custom_domain_verified_at', 'custom_domain_error',
     ];
 
     // Same write-protection pattern as User — only ResellerWalletService /
@@ -31,11 +35,9 @@ class Reseller extends Model
         ];
     }
 
-    protected static function booted(): void
+    public function customers(): HasMany
     {
-        static::creating(function (Reseller $r) {
-            $r->uuid ??= (string) \Illuminate\Support\Str::uuid();
-        });
+        return $this->hasMany(User::class, 'reseller_id');
     }
 
     public function owner(): BelongsTo
@@ -58,11 +60,6 @@ class Reseller extends Model
         return $this->hasMany(ResellerWalletTransaction::class);
     }
 
-    public function profitTransactions(): HasMany
-    {
-        return $this->hasMany(ResellerProfitTransaction::class);
-    }
-
     public function withdrawals(): HasMany
     {
         return $this->hasMany(ResellerWithdrawal::class);
@@ -74,7 +71,7 @@ class Reseller extends Model
     }
 
     /** Markup % to apply for a given provider service, honoring per-plan overrides. */
-    public function markupPercentFor(int $providerId, string $externalServiceId): float
+    public function markupPercentFor(string $providerId, string $externalServiceId): float
     {
         $override = $this->serviceOverrides()
             ->where('provider_id', $providerId)
@@ -83,4 +80,66 @@ class Reseller extends Model
 
         return (float) ($override?->markup_percent ?? $this->default_markup_percent);
     }
+
+    /** Turns a free-text Telegram handle/link into a clickable t.me URL. */
+    public function getTelegramLinkAttribute(): ?string
+    {
+        if (!$this->support_telegram) {
+            return null;
+        }
+
+        $value = trim($this->support_telegram);
+
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+
+        return 'https://t.me/' . ltrim($value, '@');
+    }
+
+    /** Turns a free-text WhatsApp number/link into a clickable wa.me URL. */
+    public function getWhatsappLinkAttribute(): ?string
+    {
+        if (!$this->support_whatsapp) {
+            return null;
+        }
+
+        $value = trim($this->support_whatsapp);
+
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+
+        $digits = preg_replace('/\D/', '', $value);
+
+        return $digits ? 'https://wa.me/' . $digits : null;
+    }
+
+    public function profitTransactions(): HasMany
+    {
+        return $this->hasMany(ResellerProfitTransaction::class);
+    }
+
+    /**
+     * Lifetime profit earned from orders — NOT the current withdrawable
+     * balance (that's $reseller->profit_balance). This is a running total
+     * of every profit credit ever posted, regardless of what's since been
+     * withdrawn or spent.
+     */
+    public function totalProfitEarned(): float
+    {
+        return (float) $this->profitTransactions()
+            ->where('type', 'credit')
+            ->sum('amount');
+    }
+
+       /**
+         * Withdrawable profit balance — what's actually available to cash out,
+         * as opposed to totalProfitEarned() which is the lifetime running total
+         * regardless of what's since been withdrawn.
+         */
+        public function availableProfitBalance(): float
+        {
+            return (float) $this->profit_balance;
+        }
 }

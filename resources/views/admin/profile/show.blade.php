@@ -62,7 +62,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                                     <span class="text-muted">Status:</span>
-                                    @if($admin->status == 'active')
+                                    @if($admin->is_active == 1)
                                         <span class="badge bg-soft-success text-success">Active</span>
                                     @else
                                         <span class="badge bg-soft-danger text-danger">Inactive</span>
@@ -148,7 +148,7 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $admin->email) }}" required>
+                                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $admin->email) }}" readonly>
                                         @error('email')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

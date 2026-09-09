@@ -64,39 +64,15 @@
                                     @enderror
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
-                                        <label for="password" class="form-label fw-bold">New Password (Optional)</label>
-                                        <input type="password" 
-                                               class="form-control @error('password') is-invalid @enderror" 
-                                               id="password" 
-                                               name="password" 
-                                               placeholder="Leave blank to keep current password">
-                                        @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">Only fill this if you want to change the password</small>
-                                    </div>
-
-                                    <div class="col-md-6 mb-4">
-                                        <label for="password_confirmation" class="form-label fw-bold">Confirm New Password</label>
-                                        <input type="password" 
-                                               class="form-control" 
-                                               id="password_confirmation" 
-                                               name="password_confirmation" 
-                                               placeholder="Re-enter new password">
-                                    </div>
-                                </div>
-
                                 <div class="mb-4">
                                     <label for="role" class="form-label fw-bold">Admin Role <span class="text-danger">*</span></label>
                                     <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
-                                        <option value="super_admin" {{ old('role', $admin->role) == 'super_admin' ? 'selected' : '' }}>Super Admin (Full Access)</option>
-                                        <option value="accountant" {{ old('role', $admin->role) == 'accountant' ? 'selected' : '' }}>Accountant (Edit Orders & Wallet)</option>
-                                        <option value="hr" {{ old('role', $admin->role) == 'hr' ? 'selected' : '' }}>HR (Manage Admins Only)</option>
-                                        <option value="admin" {{ old('role', $admin->role) == 'admin' ? 'selected' : '' }}>Admin (View & Reply Tickets)</option>
-                                        <option value="manager" {{ old('role', $admin->role) == 'manager' ? 'selected' : '' }}>Manager (View & Reply Tickets)</option>
-                                        <option value="support" {{ old('role', $admin->role) == 'support' ? 'selected' : '' }}>Support (View & Reply Tickets)</option>
+                                        <option value="">Select Role</option>
+                                        @foreach($roles as $role)
+                                            <option value="{{ $role }}" {{ old('role', $admin->role) == $role ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $role)) }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -104,12 +80,12 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label for="status" class="form-label fw-bold">Status <span class="text-danger">*</span></label>
-                                    <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
-                                        <option value="active" {{ old('status', $admin->status) == 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ old('status', $admin->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    <label for="is_active" class="form-label fw-bold">Status <span class="text-danger">*</span></label>
+                                    <select name="is_active" id="is_active" class="form-select @error('is_active') is-invalid @enderror" required>
+                                        <option value="1" {{ old('is_active', $admin->is_active) == 1 ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ old('is_active', $admin->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
                                     </select>
-                                    @error('status')
+                                    @error('is_active')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

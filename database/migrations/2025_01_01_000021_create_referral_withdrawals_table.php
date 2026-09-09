@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('referral_withdrawals', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('method')->default('bank'); // "bank" or "wallet" — see admin.referral.withdrawals.approve-bank/approve-wallet
             $table->decimal('amount', 16, 4);
             $table->string('currency', 3)->default('NGN');
@@ -21,7 +20,7 @@ return new class extends Migration
             $table->string('reference')->unique();
             $table->string('status')->default('pending'); // App\Types\WithdrawalStatus
             $table->text('failure_reason')->nullable();
-            $table->foreignId('processed_by')->nullable()->constrained('admins')->nullOnDelete();
+            $table->foreignUuid('processed_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
 

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ResellerWalletTransaction extends Model
 {
+    use HasUuids;
+
     protected $table = 'reseller_wallet_transactions';
 
     protected $fillable = [
@@ -17,11 +20,6 @@ class ResellerWalletTransaction extends Model
     protected function casts(): array
     {
         return ['amount' => 'decimal:4', 'balance_before' => 'decimal:4', 'balance_after' => 'decimal:4'];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(fn (self $t) => $t->uuid ??= (string) \Illuminate\Support\Str::uuid());
     }
 
     public function reseller(): BelongsTo

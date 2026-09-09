@@ -10,9 +10,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reseller_wallet_transactions', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('reseller_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('reseller_id')->constrained()->cascadeOnDelete();
             $table->string('reference')->unique();
             $table->string('type'); // App\Types\WalletTransactionDirection
             $table->decimal('amount', 16, 4);

@@ -49,14 +49,14 @@
                         <h6 class="fw-bold mb-3">
                             <i class="feather-info me-2"></i>Custom Domain (Optional - After Approval)
                         </h6>
-                        
+
                         <div class="bg-white p-3 rounded">
                             <div class="alert alert-warning mb-3">
                                 <i class="feather-alert-circle me-2"></i>
-                                <strong>Note:</strong> You can only set up a custom domain AFTER your panel is approved. 
+                                <strong>Note:</strong> You can only set up a custom domain AFTER your panel is approved.
                                 The server IP address will be shown in your dashboard after approval.
                             </div>
-                            
+
                             <h6 class="fw-bold mb-2">What you'll need to do after approval:</h6>
                             <ol class="small mb-3">
                                 <li>Go to your panel dashboard → Domain Settings</li>
@@ -64,7 +64,7 @@
                                 <li>Add an A record at your domain registrar pointing to that IP</li>
                                 <li>Enter your domain in the panel and verify</li>
                             </ol>
-                            
+
                             <div class="alert alert-success mb-0 small">
                                 <i class="feather-check-circle me-2"></i>
                                 <strong>While waiting for approval:</strong> Your panel will be available at:<br>
@@ -167,6 +167,34 @@
                                     </div>
                                 </div>
 
+                                {{-- Row: Telegram + WhatsApp (optional) --}}
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-semibold">Support Telegram <span class="text-muted fw-normal">(optional)</span></label>
+                                        <input type="text"
+                                               name="support_telegram"
+                                               class="form-control @error('support_telegram') is-invalid @enderror"
+                                               placeholder="@yourpanelsupport or t.me/yourpanel"
+                                               value="{{ old('support_telegram') }}" />
+                                        @error('support_telegram')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text text-muted">Telegram username or link for customer support.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-semibold">Support WhatsApp <span class="text-muted fw-normal">(optional)</span></label>
+                                        <input type="text"
+                                               name="support_whatsapp"
+                                               class="form-control @error('support_whatsapp') is-invalid @enderror"
+                                               placeholder="+234 800 000 0000"
+                                               value="{{ old('support_whatsapp') }}" />
+                                        @error('support_whatsapp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text text-muted">WhatsApp number or link for customer support.</div>
+                                    </div>
+                                </div>
+
                                 {{-- Info Note --}}
                                 <div class="alert alert-soft-warning d-flex align-items-start gap-3 mb-4">
                                     <i class="feather-info fs-5 mt-1 text-warning"></i>
@@ -200,8 +228,7 @@
         const clean = val.toLowerCase().replace(/[^a-z0-9-_]/g, '');
         const preview = (clean || 'yourpanel') + '.{{ config('proxworld.base_domain') }}';
         document.getElementById('subdomain-preview').textContent = preview;
-        
-        // Also update the note about pending URL
+
         const pendingNote = document.querySelector('.alert-warning code');
         if (pendingNote) {
             pendingNote.textContent = preview;
@@ -211,10 +238,9 @@
     document.querySelector('input[name="primary_color"]').addEventListener('input', function () {
         document.getElementById('color-hex').value = this.value;
     });
-    
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(function() {
-            // Optional: Show a temporary tooltip
             alert('Server IP copied to clipboard!');
         });
     }

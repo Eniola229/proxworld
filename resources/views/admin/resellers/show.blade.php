@@ -201,6 +201,37 @@
                             @endif
                         </dd>
 
+                        @if($reseller->custom_domain)
+                        <dt class="col-sm-5 text-muted fs-13">Custom Domain</dt>
+                        <dd class="col-sm-7">
+                            <a href="https://{{ $reseller->custom_domain }}" target="_blank" class="fw-semibold">
+                                {{ $reseller->custom_domain }}
+                                <i class="feather-external-link ms-1" style="font-size:11px;"></i>
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-5 text-muted fs-13">Domain Status</dt>
+                        <dd class="col-sm-7">
+                            @if($reseller->custom_domain_status === 'active')
+                                <span class="badge bg-soft-success text-success">Active</span>
+                            @elseif($reseller->custom_domain_status === 'failed')
+                                <span class="badge bg-soft-danger text-danger">Failed</span>
+                            @else
+                                <span class="badge bg-soft-warning text-warning">Pending Verification</span>
+                            @endif
+                        </dd>
+
+                        @if($reseller->custom_domain_verified_at)
+                        <dt class="col-sm-5 text-muted fs-13">Domain Verified At</dt>
+                        <dd class="col-sm-7">{{ $reseller->custom_domain_verified_at->format('M d, Y H:i') }}</dd>
+                        @endif
+
+                        @if($reseller->custom_domain_status === 'failed' && $reseller->custom_domain_error)
+                        <dt class="col-sm-5 text-muted fs-13">Domain Error</dt>
+                        <dd class="col-sm-7 text-danger">{{ $reseller->custom_domain_error }}</dd>
+                        @endif
+                        @endif
+
                         @if($reseller->approved_at)
                         <dt class="col-sm-5 text-muted fs-13">Approved At</dt>
                         <dd class="col-sm-7">
@@ -215,6 +246,13 @@
 
                         <dt class="col-sm-5 text-muted fs-13">Support Email</dt>
                         <dd class="col-sm-7">{{ $reseller->support_email ?? '—' }}</dd>
+
+                        <dt class="col-sm-5 text-muted fs-13">Support Telegram</dt>
+                        <dd class="col-sm-7">{{ $reseller->support_telegram ?? '—' }}</dd>
+
+                        <dt class="col-sm-5 text-muted fs-13">Support WhatsApp</dt>
+                        <dd class="col-sm-7">{{ $reseller->support_whatsapp ?? '—' }}</dd>
+
 
                         <dt class="col-sm-5 text-muted fs-13">Accent Colour</dt>
                         <dd class="col-sm-7 d-flex align-items-center gap-2">

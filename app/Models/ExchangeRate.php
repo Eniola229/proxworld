@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class ExchangeRate extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['from_currency', 'to_currency', 'rate', 'source', 'fetched_at'];
 
     protected function casts(): array

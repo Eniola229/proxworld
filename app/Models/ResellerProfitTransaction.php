@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ResellerProfitTransaction extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['reseller_id', 'order_id', 'type', 'amount', 'balance_before', 'balance_after', 'description'];
 
     protected function casts(): array

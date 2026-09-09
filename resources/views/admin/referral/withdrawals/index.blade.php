@@ -64,8 +64,8 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h3 class="fw-bold mb-1">{{ $stats['approved'] }}</h3>
-                        <p class="text-muted mb-0">Approved</p>
+                        <h3 class="fw-bold mb-1">{{ $stats['processing'] }}</h3>
+                        <p class="text-muted mb-0">Processing</p>
                     </div>
                     <div class="avatar-text avatar-lg bg-info-subtle">
                         <i class="feather-check text-info"></i>
@@ -197,9 +197,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ $status == 'approved' ? 'active' : '' }}"
-                   href="?status=approved&search={{ $search ?? '' }}&method={{ $filterMethod ?? '' }}&amount_min={{ $amountMin ?? '' }}&amount_max={{ $amountMax ?? '' }}&date_from={{ $dateFrom ?? '' }}&date_to={{ $dateTo ?? '' }}">
-                    Approved ({{ $stats['approved'] }})
+                <a class="nav-link {{ $status == 'processing' ? 'active' : '' }}"
+                   href="?status=processing&search={{ $search ?? '' }}&method={{ $filterMethod ?? '' }}&amount_min={{ $amountMin ?? '' }}&amount_max={{ $amountMax ?? '' }}&date_from={{ $dateFrom ?? '' }}&date_to={{ $dateTo ?? '' }}">
+                    Processing ({{ $stats['processing'] }})
                 </a>
             </li>
             <li class="nav-item">
@@ -281,9 +281,9 @@
                                     <span class="badge bg-soft-warning text-warning">
                                         <i class="feather-clock me-1"></i> Pending
                                     </span>
-                                @elseif($withdrawal->status == 'approved')
+                                @elseif($withdrawal->status == 'processing')
                                     <span class="badge bg-soft-info text-info">
-                                        <i class="feather-check me-1"></i> Approved
+                                        <i class="feather-check me-1"></i> Processing
                                     </span>
                                 @else
                                     <span class="badge bg-soft-danger text-danger">

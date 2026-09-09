@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Provider extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
         'name', 'slug', 'driver', 'auth_type', 'api_url', 'api_key', 'api_secret',
         'priority', 'is_active', 'notes',
@@ -28,7 +31,6 @@ class Provider extends Model
     protected static function booted(): void
     {
         static::creating(function (Provider $p) {
-            $p->uuid ??= (string) \Illuminate\Support\Str::uuid();
             $p->slug ??= \Illuminate\Support\Str::slug($p->name);
         });
     }

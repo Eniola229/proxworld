@@ -9,8 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -37,7 +36,7 @@ return new class extends Migration
             $table->timestamp('reseller_approved_at')->nullable();
 
             $table->string('referral_code')->unique()->nullable();
-            $table->foreignId('referred_by_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('referred_by_id')->nullable()->constrained('users')->nullOnDelete();
             // Referral program earnings — separate again from wallet `balance` and
             // reseller `profit_balance`. Also write-protected; only
             // App\Services\ReferralService may touch this.

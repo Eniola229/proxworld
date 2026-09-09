@@ -16,9 +16,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resellers', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('owner_id')->constrained('users')->cascadeOnDelete();
             $table->string('panel_name');
             $table->string('subdomain')->unique();
             $table->string('custom_domain')->nullable()->unique();

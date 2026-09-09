@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('reseller_id')->nullable()->constrained('resellers')->nullOnDelete();
-            $table->foreignId('provider_id')->nullable()->constrained('providers')->nullOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('reseller_id')->nullable()->constrained('resellers')->nullOnDelete();
+            $table->foreignUuid('provider_id')->nullable()->constrained('providers')->nullOnDelete();
             $table->string('api_order_id')->nullable(); // the provider's own order/reference id
             $table->string('external_service_id')->nullable(); // ties back to provider_services_cache
             $table->string('service_name'); // snapshot — survives provider catalog changes/renames

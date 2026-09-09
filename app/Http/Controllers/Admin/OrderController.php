@@ -15,24 +15,46 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = Order::query()
+        $filtered = Order::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->when($request->filled('channel'), fn ($q) => $q->where('channel', $request->channel))
-            ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->from))
-            ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to))
-            ->when($request->filled('search'), fn ($q) => $q->where('id', 'like', "%{$request->search}%")
-                ->orWhere('service_name', 'like', "%{$request->search}%"))
+            ->when($request->filled('provider_id'), fn ($q) => $q->where('provider_id', $request->provider_id))
+            ->when($request->filled('date_from'), fn ($q) => $q->whereDate('created_at', '>=', $request->date_from))
+            ->when($request->filled('date_to'), fn ($q) => $q->whereDate('created_at', '<=', $request->date_to))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->search;
+                $q->where(fn ($q2) => $q2
+                    ->where('id', 'like', "%{$search}%")
+                    ->orWhere('service_name', 'like', "%{$search}%"));
+            });
+
+        $orders = (clone $filtered)
             ->with(['user:id,name,email', 'provider:id,name'])
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.orders.index', ['orders' => $orders]);
+        return view('admin.orders.index', [
+            'orders' => $orders,
+            'totalOrders' => (clone $filtered)->count(),
+            'pendingOrders' => (clone $filtered)->where('status', OrderStatus::PENDING)->count(),
+            'processingOrders' => (clone $filtered)->where('status', OrderStatus::PROCESSING)->count(),
+            'completedOrders' => (clone $filtered)->where('status', OrderStatus::COMPLETED)->count(),
+            'cancelledOrders' => (clone $filtered)->where('status', OrderStatus::CANCELLED)->count(),
+            'totalRevenue' => (clone $filtered)->where('status', OrderStatus::COMPLETED)->sum('charge'),
+        ]);
     }
 
     public function show(Order $order)
     {
-        return view('admin.orders.show', ['order' => $order->load(['user', 'reseller', 'provider'])]);
+        return view('admin.orders.show', [
+            'order' => $order->load(['user', 'reseller', 'provider']),
+            'customerBalance' => $order->user->balance,
+            'logs' => \App\Models\ActivityLog::where('subject_type', Order::class)
+                ->where('subject_id', $order->id)
+                ->latest()
+                ->paginate(15),
+        ]);
     }
 
     public function checkStatus(Order $order)
@@ -69,7 +91,6 @@ class OrderController extends Controller
         return back()->with('success', 'Order refunded.');
     }
 
-    /** Manual status override — for edge cases the automated pipeline can't resolve on its own. Refunds if moved to refunded/cancelled and not already. */
     public function updateStatus(Request $request, Order $order, WalletService $wallet, ResellerWalletService $resellerWallet)
     {
         $data = $request->validate(['status' => ['required', 'in:pending,processing,completed,cancelled,refunded']]);
@@ -95,8 +116,6 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        // Financial records are never hard-deleted for real orders in production —
-        // this exists for cleaning up genuine test/duplicate rows only.
         abort_unless(in_array($order->status, [OrderStatus::CANCELLED, OrderStatus::REFUNDED]), 422, 'Only cancelled/refunded orders can be deleted.');
         $order->delete();
 

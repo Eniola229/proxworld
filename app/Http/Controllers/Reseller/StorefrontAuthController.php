@@ -21,9 +21,13 @@ use Illuminate\Validation\ValidationException;
  * RegisterController: those render the main-site branded views, these
  * render the reseller-branded `reseller.auth.*` views (panel_name, logo,
  * primary_color pulled from the $reseller shared by
- * App\Http\Middleware\ResolveResellerFromSubdomain). Both still
- * authenticate against the same `web` guard/users table — a storefront
- * customer is a regular User, not a separate account type.
+ * App\Http\Middleware\ResolveResellerFromSubdomain).
+ *
+ * A storefront customer is a regular User row, tagged with the reseller_id
+ * they registered under (see register()). login() enforces that a customer
+ * can only log into the storefront they belong to — a customer who signed
+ * up on Reseller A's panel can't authenticate on Reseller B's subdomain
+ * with the same credentials, even though it's the same `web` guard/table.
  */
 class StorefrontAuthController extends Controller
 {
@@ -52,6 +56,18 @@ class StorefrontAuthController extends Controller
             throw ValidationException::withMessages(['email' => 'This account is suspended. Contact support for help.']);
         }
 
+        // The 'storefront' middleware (ResolveResellerFromSubdomain) already
+        // ran and set this before we got here.
+        $reseller = $request->attributes->get('storefront_reseller');
+
+        if ($reseller && $user->reseller_id !== $reseller->id) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw ValidationException::withMessages(['email' => 'Your account is not registered on this panel.']);
+        }
+
         return redirect()->intended(route('storefront.welcome'));
     }
 
@@ -62,7 +78,9 @@ class StorefrontAuthController extends Controller
 
     public function register(RegisterRequest $request): RedirectResponse
     {
-        $user = DB::transaction(function () use ($request) {
+        $reseller = $request->attributes->get('storefront_reseller');
+
+        $user = DB::transaction(function () use ($request, $reseller) {
             $newUser = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -72,6 +90,10 @@ class StorefrontAuthController extends Controller
                 'status' => AccountStatus::ACTIVE,
                 'terms_accepted_at' => now(),
             ]);
+
+            if ($reseller) {
+                $newUser->forceFill(['reseller_id' => $reseller->id])->save();
+            }
 
             if ($request->filled('referral_code')) {
                 $referrer = User::where('referral_code', $request->referral_code)->first();

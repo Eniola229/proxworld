@@ -40,10 +40,9 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Runs on every single response — web, admin, api, storefront —
-        // regardless of guard or route group.
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+    $middleware->trustProxies(at: '*');
 
+    $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->alias([
             // Runs BEFORE the `web` group on admin routes so the session
             // cookie name is swapped out before StartSession boots the
@@ -58,11 +57,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'api_key' => \App\Http\Middleware\AuthenticateApiKey::class,
             'api_key.ability' => \App\Http\Middleware\EnsureApiKeyHasAbility::class,
             'storefront' => \App\Http\Middleware\ResolveResellerFromSubdomain::class,
-        ]);
+            'storefront.customer' => \App\Http\Middleware\EnsureStorefrontCustomerBelongsToReseller::class,
 
-        // Spatie permission middleware aliases (role/permission checks work
-        // per-guard automatically — an admin's roles never leak to `web`).
-        $middleware->alias([
+            // Spatie permission middleware aliases (role/permission checks work
+            // per-guard automatically — an admin's roles never leak to `web`).
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,

@@ -16,8 +16,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('providers', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('driver'); // FQCN of the Driver class, e.g. App\ProxyProviders\Drivers\SmartproxyDriver

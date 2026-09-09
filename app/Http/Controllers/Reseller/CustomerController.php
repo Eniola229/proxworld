@@ -12,7 +12,7 @@ class CustomerController extends Controller
     {
         $reseller = $request->user()->reseller;
 
-        $customers = User::whereHas('orders', fn ($q) => $q->where('reseller_id', $reseller->id))
+        $customers = $reseller->customers()
             ->withCount(['orders' => fn ($q) => $q->where('reseller_id', $reseller->id)])
             ->paginate(20);
 

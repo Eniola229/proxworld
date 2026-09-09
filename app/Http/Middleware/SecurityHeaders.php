@@ -55,12 +55,12 @@ class SecurityHeaders
         // this list then rather than leaving the wildcard in permanently.
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://checkout.flutterwave.com https://cdnjs.cloudflare.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://checkout.flutterwave.com https://cdnjs.cloudflare.com https://unpkg.com",
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.bunny.net https://unpkg.com",
             "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:",
-            "img-src 'self' data: https: blob:",
-            "media-src 'self' https://res.cloudinary.com",
-            "connect-src 'self' https://api.flutterwave.com https://developersandbox-api.flutterwave.com",
+            "img-src 'self' data: https: blob: https://res.cloudinary.com",
+            "media-src 'self' https://res.cloudinary.com blob:",
+            "connect-src 'self' https://api.cloudinary.com https://*.cloudinary.com https://api.flutterwave.com https://developersandbox-api.flutterwave.com",
             "frame-src 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.cloud",
             "object-src 'none'",
             "base-uri 'self'",

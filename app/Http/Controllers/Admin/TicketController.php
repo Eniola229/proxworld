@@ -12,22 +12,37 @@ use Illuminate\Http\Request;
 /** Admin side of the same AJAX live-chat pattern as the customer TicketController. */
 class TicketController extends Controller
 {
+
     public function index(Request $request)
     {
+        $status = $request->get('status', 'all');
+
         $tickets = Ticket::query()
             ->with(['user:id,name,email', 'latestMessage'])
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+            ->when($status !== 'all', fn ($q) => $q->where('status', $status))
             ->when($request->filled('search'), fn ($q) => $q->where('subject', 'like', "%{$request->search}%"))
             ->latest('updated_at')
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.support.index', ['tickets' => $tickets]);
-    }
+        $stats = [
+            'total' => Ticket::count(),
+            'open' => Ticket::where('status', TicketStatus::OPEN)->count(),
+            'in_progress' => Ticket::where('status', TicketStatus::IN_PROGRESS)->count(),
+            'closed' => Ticket::where('status', TicketStatus::CLOSED)->count(),
+        ];
 
+        return view('admin.support.index', compact('tickets', 'stats', 'status'));
+    }
+    
     public function show(Ticket $ticket)
     {
-        return view('admin.support.show', ['ticket' => $ticket->load('user', 'messages.senderAdmin')]);
+        $ticket->load('user', 'messages.senderAdmin');
+
+        return view('admin.support.show', [
+            'ticket' => $ticket,
+            'messages' => $ticket->messages,
+        ]);
     }
 
     public function messages(Request $request, Ticket $ticket)

@@ -14,10 +14,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admin_invitations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('admin_id')->constrained('admins')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('admin_id')->constrained('admins')->cascadeOnDelete();
             $table->string('token')->unique();
-            $table->foreignId('invited_by')->nullable()->constrained('admins')->nullOnDelete();
+            $table->foreignUuid('invited_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestamp('expires_at');
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();

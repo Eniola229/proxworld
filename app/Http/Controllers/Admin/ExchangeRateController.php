@@ -20,11 +20,16 @@ class ExchangeRateController extends Controller
     }
 
     /** Refresh a single currency's rate from the live provider. */
-    public function refresh(Currency $currency, ExchangeRateService $service)
+    public function refresh(Request $request, ExchangeRateService $service)
     {
+        $data = $request->validate([
+            'from' => ['required', 'string', 'size:3'],
+            'to' => ['required', 'string', 'size:3'],
+        ]);
+
         $service->syncAll(); // API returns the full rate table in one call; cheap to just resync all
 
-        return back()->with('success', "Rate for {$currency->currency} refreshed.");
+        return back()->with('success', "Rate for {$data['from']} → {$data['to']} refreshed.");
     }
 
     public function refreshAll(ExchangeRateService $service)

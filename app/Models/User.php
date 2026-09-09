@@ -6,6 +6,7 @@ use App\Types\AccountStatus;
 use App\Types\NewsletterAudience;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,7 +17,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasUuids;
 
     protected $guard_name = 'web';
 
@@ -33,9 +34,8 @@ class User extends Authenticatable
      * or mass-assignment path may ever touch these three columns directly.
      */
     protected $guarded = [
-        'id', 'balance', 'profit_balance', 'referral_balance', 'status', 'is_reseller', 'reseller_status',
+        'id', 'balance', 'profit_balance', 'referral_balance', 'status', 'is_reseller', 'reseller_status', 'reseller_id',
     ];
-
     protected $hidden = ['password', 'remember_token', 'two_factor_secret'];
 
     protected function casts(): array
@@ -55,7 +55,6 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::creating(function (User $user) {
-            $user->uuid ??= (string) \Illuminate\Support\Str::uuid();
             $user->referral_code ??= strtoupper(\Illuminate\Support\Str::random(8));
         });
     }
@@ -123,4 +122,11 @@ class User extends Authenticatable
     {
         return $this->status === AccountStatus::ACTIVE;
     }
+
+    public function storefrontReseller(): BelongsTo
+    {
+        return $this->belongsTo(Reseller::class, 'reseller_id');
+    }
+
+ 
 }

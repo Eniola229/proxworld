@@ -12,8 +12,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
+
 class ResellerWithdrawalController extends Controller
 {
+    
     public function index(Request $request)
     {
         $withdrawals = ResellerWithdrawal::query()
@@ -23,7 +25,10 @@ class ResellerWithdrawalController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.reseller-withdrawals.index', ['withdrawals' => $withdrawals]);
+        return view('admin.reseller-withdrawals.index', [
+            'withdrawals' => $withdrawals,
+            'totalPending' => ResellerWithdrawal::where('status', WithdrawalStatus::PENDING)->sum('amount'),
+        ]);
     }
 
     public function show(ResellerWithdrawal $withdrawal)
@@ -60,7 +65,7 @@ class ResellerWithdrawalController extends Controller
         }
 
         $withdrawal->update([
-            'status' => WithdrawalStatus::PROCESSING ?? WithdrawalStatus::APPROVED,
+            'status' => WithdrawalStatus::PROCESSING,
             'flutterwave_transfer_id' => $transfer['id'] ?? null,
             'processed_by' => $request->user('admin')->id,
             'processed_at' => now(),

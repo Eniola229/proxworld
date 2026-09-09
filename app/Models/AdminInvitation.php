@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AdminInvitation extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['admin_id', 'token', 'invited_by', 'expires_at', 'accepted_at'];
 
     protected function casts(): array

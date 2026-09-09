@@ -27,7 +27,14 @@ class AdminManagementController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.admins.index', ['admins' => $admins, 'roles' => Role::where('guard_name', 'admin')->pluck('name')]);
+        return view('admin.admins.index', [
+            'admins' => $admins,
+            'roles' => Role::where('guard_name', 'admin')->pluck('name'),
+            'totalAdmins' => Admin::count(),
+            'activeAdmins' => Admin::where('is_active', true)->count(),
+            'inactiveAdmins' => Admin::where('is_active', false)->count(),
+            'superAdmins' => Admin::where('role', 'super_admin')->count(),
+        ]);
     }
 
     public function create()
@@ -99,7 +106,15 @@ class AdminManagementController extends Controller
 
     public function show(Admin $admin)
     {
-        return view('admin.admins.show', ['admin' => $admin]);
+        return view('admin.admins.show', [
+            'admin' => $admin,
+            'lastLogin' => $admin->last_login_at,
+            'totalLogins' => $admin->actions()->where('event', 'login')->count(),
+            'totalActions' => $admin->actions()->count(),
+            'logs' => auth('admin')->user()->canViewAdminLogs()
+                ? $admin->actions()->latest()->paginate(15)
+                : null,
+        ]);
     }
 
     public function edit(Admin $admin)

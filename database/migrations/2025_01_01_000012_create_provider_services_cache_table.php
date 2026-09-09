@@ -16,8 +16,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('provider_services_cache', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('provider_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('provider_id')->constrained()->cascadeOnDelete();
             $table->string('external_service_id'); // the provider's own product/plan id
             $table->string('name');
             $table->string('type')->nullable(); // App\Types\ProductType — best-effort guess from provider category
