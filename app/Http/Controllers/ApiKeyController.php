@@ -17,18 +17,21 @@ class ApiKeyController extends Controller
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:100']]);
 
-        $plainKey = ApiKey::generatePlainKey();
+        $plainKey = \App\Models\ApiKey::generatePlainKey();
 
-        $apiKey = ApiKey::create([
-            'user_id' => $request->user()->id,
-            'name' => $data['name'],
-            'key_hash' => ApiKey::hashKey($plainKey),
+        $apiKey = \App\Models\ApiKey::create([
+            'user_id'       => $request->user()->id,
+            'name'          => $request->name,
+            'status'        => 'active',
+            'key_hash'      => \App\Models\ApiKey::hashKey($plainKey),
             'key_encrypted' => $plainKey,
-            'key_preview' => Str::substr($plainKey, -6),
-            'status' => 'active',
+            'key_preview'   => substr($plainKey, -8),
         ]);
 
-        return back()->with('success', 'API key created.')->with('plain_key', $plainKey);
+        return back()->with([
+            'success'   => 'API key created. Copy it now — you won\'t be able to see it again.',
+            'plain_key' => $plainKey,
+        ]);
     }
 
     public function destroy(Request $request, ApiKey $apiKey)

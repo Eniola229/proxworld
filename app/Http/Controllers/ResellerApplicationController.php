@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Services\CloudinaryService;
 
 class ResellerApplicationController extends Controller
 {
+
+    public function __construct(private CloudinaryService $cloudinary) {}
+    
     public function index(Request $request)
     {
         $reseller = $request->user()->reseller;
@@ -350,5 +354,29 @@ class ResellerApplicationController extends Controller
         } catch (\Exception $e) {
             Log::error('cPanel AutoSSL trigger exception: ' . $e->getMessage());
         }
+    }
+
+     public function updateLogo(Request $request)
+    {
+        $reseller = $request->user()->reseller;
+        abort_unless($reseller, 404);
+
+        $request->validate([
+            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+        ]);
+
+        // delete old logo from Cloudinary first, if one exists
+        if ($reseller->logo_public_id) {
+            $this->cloudinary->delete($reseller->logo_public_id, 'image');
+        }
+
+        $upload = $this->cloudinary->uploadImage($request->file('logo'), 'resellers/logos');
+
+        $reseller->update([
+            'logo_path' => $upload['url'],
+            'logo_public_id' => $upload['public_id'],
+        ]);
+
+        return back()->with('success', 'Logo updated.');
     }
 }

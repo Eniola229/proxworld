@@ -48,6 +48,21 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label fw-bold">Driver <span class="text-danger">*</span></label>
+                                    <select name="driver" id="driver-select" class="form-select @error('driver') is-invalid @enderror" required>
+                                        <option value="" disabled {{ old('driver') ? '' : 'selected' }}>Select a driver...</option>
+                                        @foreach($drivers as $class => $label)
+                                            <option value="{{ $class }}" {{ old('driver') === $class ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="form-text">
+                                        Pick "Configurable HTTP Provider" for a standard REST API — no code or deploy needed, just fill the JSON config below.
+                                        Pick a named driver only if a developer has already added a class for this exact provider.
+                                    </div>
+                                    @error('driver')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label fw-bold">API Endpoint URL <span class="text-danger">*</span></label>
                                     <input type="url" name="api_url" class="form-control @error('api_url') is-invalid @enderror"
                                            value="{{ old('api_url') }}" placeholder="https://provider.com/api/v2" required>
@@ -60,6 +75,17 @@
                                     <input type="text" name="api_key" class="form-control @error('api_key') is-invalid @enderror"
                                            value="{{ old('api_key') }}" placeholder="Your secret API key" required>
                                     @error('api_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                {{-- Only shown/required for ConfigurableHttpProviderDriver --}}
+                                <div class="mb-3" id="config-field-wrapper" style="display:none;">
+                                    <label class="form-label fw-bold">Driver Config (JSON) <span class="text-danger">*</span></label>
+                                    <textarea name="config" id="config-field" rows="14" class="form-control font-monospace @error('config') is-invalid @enderror"
+                                              placeholder='{"auth":{"type":"bearer"},"endpoints":{"products":"/products","balance":"/account/balance","orders_create":"/orders","order_status":"/orders/{id}","order_proxies":"/orders/{id}/proxies"},"request_fields":{"product_id_key":"product_id","quantity_key":"quantity"},"response_paths":{"products_list":"data","product_id":"id","product_name":"name","product_rate":"price","balance":"balance","order_id":"order_id","order_status":"status","proxies_list":"data"},"currency":"USD","supports_extend":false}'>{{ old('config') }}</textarea>
+                                    <div class="form-text">
+                                        Describes this provider's endpoints, auth style, and JSON field names. See <code>ConfigurableHttpProviderDriver</code> docblock for the full schema.
+                                    </div>
+                                    @error('config')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
                                 <div class="row">
@@ -109,3 +135,21 @@
 </main>
 
 @include('admin.components.footer')
+
+<script>
+    (function () {
+        var CONFIGURABLE_DRIVER = "App\\ProxyProviders\\Drivers\\ConfigurableHttpProviderDriver";
+        var select = document.getElementById('driver-select');
+        var wrapper = document.getElementById('config-field-wrapper');
+        var field = document.getElementById('config-field');
+
+        function sync() {
+            var isConfigurable = select.value === CONFIGURABLE_DRIVER;
+            wrapper.style.display = isConfigurable ? '' : 'none';
+            field.required = isConfigurable;
+        }
+
+        select.addEventListener('change', sync);
+        sync();
+    })();
+</script>

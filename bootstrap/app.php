@@ -27,12 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->as('reseller.')
                 ->group(base_path('routes/reseller.php'));
 
-            // White-label storefront (a reseller's own end customers) — its
-            // own auth controller/views, no path prefix or name prefix: it
-            // lives at the subdomain root, not under /reseller.
-            \Illuminate\Support\Facades\Route::middleware(['web'])
-                ->group(base_path('routes/storefront.php'));
-
             // Public "pay for API" surface — token auth via Sanctum.
             \Illuminate\Support\Facades\Route::prefix('api/v1')
                 ->as('api.')

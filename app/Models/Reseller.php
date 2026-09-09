@@ -16,7 +16,7 @@ class Reseller extends Model
         'owner_id', 'panel_name', 'subdomain', 'custom_domain', 'logo_path', 'primary_color',
         'default_markup_percent', 'support_email', 'support_telegram', 'support_whatsapp',
         'status', 'is_suspended', 'rejection_reason', 'approved_at', 'server_ip',
-        'custom_domain_status', 'custom_domain_verified_at', 'custom_domain_error',
+        'custom_domain_status', 'custom_domain_verified_at', 'custom_domain_error', 'logo_path', 'logo_public_id',
     ];
 
     // Same write-protection pattern as User — only ResellerWalletService /
@@ -67,7 +67,7 @@ class Reseller extends Model
 
     public function isActive(): bool
     {
-        return $this->status === ResellerStatus::APPROVED && ! $this->is_suspended;
+        return $this->status === 'active' && ! $this->is_suspended;
     }
 
     /** Markup % to apply for a given provider service, honoring per-plan overrides. */

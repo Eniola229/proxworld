@@ -20,7 +20,7 @@ class SendSingleNewsletterEmail implements ShouldQueue
 
     public int $tries = 3;
 
-    public function __construct(public string $newsletterId, public int $userId)
+    public function __construct(public string $newsletterId, public string $userId)
     {
     }
 

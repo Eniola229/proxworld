@@ -12,7 +12,7 @@ class Provider extends Model
 
     protected $fillable = [
         'name', 'slug', 'driver', 'auth_type', 'api_url', 'api_key', 'api_secret',
-        'priority', 'is_active', 'notes',
+        'priority', 'is_active', 'notes', 'config',
     ];
 
     protected $hidden = ['api_key', 'api_secret'];
@@ -23,6 +23,7 @@ class Provider extends Model
             'is_active' => 'boolean',
             'api_key' => 'encrypted',
             'api_secret' => 'encrypted',
+            'config' => 'array',
             'cached_balance' => 'decimal:4',
             'balance_checked_at' => 'datetime',
         ];

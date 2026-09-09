@@ -5,17 +5,10 @@ namespace App\Http\Middleware;
 use App\Models\Reseller;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Resolves the Reseller behind a white-label storefront request, by
- * subdomain (e.g. acme.proxworld.test) or a verified custom_domain, and
- * shares it with every storefront view as $reseller. If nothing matches
- * an active reseller, 404s rather than falling through to the main site —
- * a mistyped/deactivated reseller subdomain shouldn't silently show the
- * main platform.
- */
 class ResolveResellerFromSubdomain
 {
     public function handle(Request $request, Closure $next): Response
@@ -34,6 +27,13 @@ class ResolveResellerFromSubdomain
 
         View::share('reseller', $reseller);
         $request->attributes->set('storefront_reseller', $reseller);
+
+        // Route group is now Route::domain('{domain}'), so the parameter
+        // for URL generation is 'domain', not 'subdomain'. Reusing the
+        // actual request host is correct for BOTH subdomain and custom
+        // domain resellers — it just echoes back whatever host the
+        // customer is currently on.
+        URL::defaults(['domain' => $host]);
 
         return $next($request);
     }

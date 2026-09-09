@@ -28,7 +28,6 @@
             
             <form method="POST" action="{{ route('admin.resellers.approve', $reseller) }}">
                 @csrf
-                @method('PATCH')
                 <button class="btn btn-sm btn-success" onclick="return confirm('Approve this panel? Server IP will be assigned.')">
                     <i class="feather-check-circle me-1"></i> Approve Panel
                 </button>
@@ -68,7 +67,6 @@
         <div class="modal-content">
             <form method="POST" action="{{ route('admin.resellers.reject', $reseller) }}">
                 @csrf
-                @method('PATCH')
                 <div class="modal-header">
                     <h5 class="modal-title">Reject Panel: {{ $reseller->panel_name }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -155,6 +153,26 @@
             <div class="card stretch stretch-full">
                 <div class="card-header"><h5 class="card-title">Panel Info</h5></div>
                 <div class="card-body">
+                {{-- Reseller Logo --}}
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    @if($reseller->logo_path)
+                        <img src="{{ $reseller->logo_path }}"
+                             alt="{{ $reseller->panel_name }}"
+                             class="rounded"
+                             style="width:64px;height:64px;object-fit:contain;border:1px solid #dee2e6;padding:6px;background:#fff;">
+                    @else
+                        <div class="avatar-text avatar-xl bg-soft-secondary text-secondary rounded"
+                             style="width:64px;height:64px;font-size:1.5rem;">
+                            {{ strtoupper(substr($reseller->panel_name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div>
+                        <div class="fw-semibold">{{ $reseller->panel_name }}</div>
+                        <div class="fs-12 text-muted">
+                            {{ $reseller->logo_path ? 'Logo uploaded' : 'No logo uploaded' }}
+                        </div>
+                    </div>
+                </div>
                     <dl class="row mb-0">
                         <dt class="col-sm-5 text-muted fs-13">Panel Name</dt>
                         <dd class="col-sm-7 fw-semibold">{{ $reseller->panel_name }}</dd>

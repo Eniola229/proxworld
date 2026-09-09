@@ -48,17 +48,25 @@ class HeaderTokenProviderDriver implements ProxyProviderContract
             throw new ProviderOrderException('Failed to fetch products: '.$response->body());
         }
 
-        return collect($response->json('products', $response->json()))->map(fn ($p) => [
-            'external_service_id' => (string) ($p['id'] ?? $p['sku']),
-            'name' => $p['name'] ?? $p['title'] ?? 'Unnamed plan',
-            'type' => $p['category'] ?? $p['type'] ?? null,
-            'unit' => $p['unit'] ?? 'GB',
-            'rate' => (float) ($p['price'] ?? 0),
-            'currency' => $p['currency'] ?? 'USD',
-            'raw' => $p,
-        ])->all();
-    }
+        $products = [];
 
+        foreach ($response->json('data', []) as $product) {
+            foreach ($product['plans'] ?? [] as $plan) {
+                $products[] = [
+                    'external_service_id' => (string) $plan['id'],
+                    'name' => $product['name'].' — '.$plan['name'],
+                    'type' => strtolower($product['name']),
+                    'unit' => 'GB',
+                    'rate' => (float) $plan['price'],
+                    'currency' => $plan['currency'] ?? $product['currency'] ?? 'USD',
+                    'raw' => $plan,
+                ];
+            }
+        }
+
+        return $products;
+    }
+    
     public function getBalance(): float
     {
         $response = $this->client()->get('/balance');

@@ -16,12 +16,12 @@
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="{{ $reseller->panel_name }}" />
 
-    {{-- Favicon: use reseller logo if set, else default --}}
-    @if($reseller->logo_path)
-        <link rel="shortcut icon" type="image/x-icon" href="{{ $reseller->logo_path }}" />
-    @else
-        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/B.png') }}" />
-    @endif
+        {{-- Favicon: reseller logo if set, else default --}}
+        @if($reseller->logo_path)
+            <link rel="shortcut icon" type="image/x-icon" href="{{ $reseller->logo_path }}" />
+        @else
+            <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.png') }}" />
+        @endif
 
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/vendors.min.css') }}" />

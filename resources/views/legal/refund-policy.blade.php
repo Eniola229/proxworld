@@ -217,7 +217,7 @@
                                                                     ['title'=>'Completed Orders',          'text'=>'Orders marked as "Completed" are not eligible for refunds.'],
                                                                     ['title'=>'Change of Mind',             'text'=>'Once an order is placed and being processed, refunds cannot be issued due to change of mind.'],
                                                                     ['title'=>'Incorrect Order Configuration',   'text'=>'If you select the wrong plan, protocol, or configuration and the order is fulfilled as requested, refunds will not be issued.'],
-                                                                    ['title'=>'Account Issues',            'text'=>'If a target website you use the proxy against blocks or restricts access for reasons outside our control (e.g. that site's own anti-bot rules).'],
+                                                                    ['title'=>'Account Issues',            'text'=>"If a target website you use the proxy against blocks or restricts access for reasons outside our control (e.g. that site's own anti-bot rules)."],
                                                                     ['title'=>'Natural Drop-offs',         'text'=>'Some target websites blacklist individual IPs over time. Occasional IP rotation/blacklisting is normal for proxy usage and is not refundable on its own — see our Replacement Policy below.'],
                                                                     ['title'=>'Excessive Refund Requests', 'text'=>'Accounts with a pattern of excessive refund requests may be subject to review and potential suspension.'],
                                                                 ];

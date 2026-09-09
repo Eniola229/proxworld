@@ -11,7 +11,10 @@ class ApiKey extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['user_id', 'name', 'abilities', 'status'];
+    protected $fillable = [
+        'user_id', 'name', 'abilities', 'status',
+        'key_hash', 'key_encrypted', 'key_preview',
+    ];
 
     protected $hidden = ['key_encrypted', 'key_hash'];
 
@@ -29,7 +32,6 @@ class ApiKey extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** Generates + attaches a new plain key, returns the plain value ONCE — store it in key_encrypted/key_hash/key_preview. */
     public static function generatePlainKey(): string
     {
         return 'pxw_'.Str::random(40);

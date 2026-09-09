@@ -1327,7 +1327,7 @@
         <p class="reveal">Join 50,000+ developers, marketers, and businesses running on ProxWorld's network.</p>
         <a href="{{ route('register') }}" class="btn btn-solid btn-large reveal">Create Free Account</a>
     </section>
-
+ 
     <footer id="contact">
         <div class="footer-top">
             <div class="footer-brand">
@@ -1350,14 +1350,18 @@
                     <li><a href="#platforms">Platforms</a></li>
                 </ul>
             </div>
-            <div class="footer-col">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="/faq">FAQ</a></li>
-                    <li><a href="/terms-of-use">Terms of Use</a></li>
-                    <li><a href="/refund-policy">Refund Policy</a></li>
-                </ul>
-            </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="{{ route('faq') }}">FAQ</a></li>
+                        <li><a href="{{ route('terms-of-use') }}">Terms of Use</a></li>
+                        <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ route('refund-policy') }}">Refund Policy</a></li>
+                        <li><a href="{{ route('acceptable-use-policy') }}">Acceptable Use Policy</a></li>
+                        <li><a href="{{ route('reseller-agreement') }}">Reseller Agreement</a></li>
+                        <li><a href="{{ route('cookie-policy') }}">Cookie Policy</a></li>
+                    </ul>
+                </div>
             <div class="footer-col">
                 <h4>Contact</h4>
                 <div class="contact-item"><i class="fas fa-envelope"></i> info@proxworld.xyz</div>

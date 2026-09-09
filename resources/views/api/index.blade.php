@@ -42,7 +42,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Key Name</label>
                                     <input type="text" name="name" class="form-control"
-                                           placeholder="e.g. My Bot, Production" required maxlength="50">
+                                           placeholder="e.g. Production" required maxlength="50">
                                     <small class="text-muted">Max 3 API keys allowed</small>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">
@@ -55,7 +55,7 @@
                             <div class="alert alert-info mb-0">
                                 <h6 class="fw-bold mb-2"><i class="feather-info me-2"></i>API Endpoint</h6>
                                 <code class="d-block mb-2" style="font-size: 11px; word-break: break-all;">
-                                    {{ url('/api/v2') }}
+                                    {{ url('/api/v1') }}
                                 </code>
                                 <small>All requests are POST. Pass <strong>key</strong> and <strong>action</strong> parameters.</small>
                             </div>
@@ -92,13 +92,13 @@
                                     <!-- API Key Display -->
                                     <div class="input-group mb-2">
                                         <input type="password" class="form-control form-control-sm font-monospace"
-                                               id="key_{{ $apiKey->id }}" value="{{ $apiKey->key }}" readonly>
+                                               id="key_{{ $apiKey->id }}" value="{{ $apiKey->key_encrypted }}" readonly>
                                         <button class="btn btn-sm btn-outline-secondary" type="button"
                                                 onclick="toggleKeyVisibility('{{ $apiKey->id }}')">
                                             <i class="feather-eye" id="eye_{{ $apiKey->id }}"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-secondary" type="button"
-                                                onclick="copyKey('{{ $apiKey->key }}')">
+                                                onclick="copyKey('{{ $apiKey->key_encrypted }}')">
                                             <i class="feather-copy"></i>
                                         </button>
                                     </div>

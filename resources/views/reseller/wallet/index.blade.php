@@ -57,7 +57,7 @@
                                 <p class="mb-0"><span id="va-status" class="badge bg-warning">Waiting for payment…</span></p>
                             </div>
                         @else
-                            <form method="POST" action="{{ route('reseller.wallet.topup') }}">
+                            <form method="POST" action="{{ $walletTopupUrl ?? route('reseller.wallet.topup') }}">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-8">
@@ -130,7 +130,7 @@
 
         const poll = setInterval(async () => {
             try {
-                const res = await fetch(`{{ route('reseller.wallet.topup-status') }}?reference=${encodeURIComponent(reference)}`);
+                const res = await fetch(`{{ $walletTopupStatusUrl ?? route('reseller.wallet.topup-status') }}?reference=${encodeURIComponent(reference)}`);
                 const json = await res.json();
 
                 if (json.status === 'success') {

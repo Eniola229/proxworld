@@ -57,6 +57,20 @@
                 <div class="col-xxl-4 col-md-6 mb-4">
                     <div class="card stretch stretch-full h-100">
                         <div class="card-body">
+
+                            <form action="{{ route('reseller-panel.update-logo') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+                            @csrf
+                            @method('PUT')
+                            <label class="form-label fw-semibold">Panel Logo</label>
+                            <div class="d-flex align-items-center gap-3">
+                                @if($reseller->logo_path)
+                                    <img src="{{ $reseller->logo_path }}" alt="logo" style="height:40px;">
+                                @endif
+                                <input type="file" name="logo" accept="image/*" class="form-control @error('logo') is-invalid @enderror">
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </div>
+                            @error('logo')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        </form>
                             <div class="d-flex align-items-start justify-content-between mb-3">
                                 <div class="d-flex gap-3 align-items-center">
                                     <div class="avatar-text avatar-lg bg-gray-200">
@@ -214,6 +228,7 @@
                         <div class="card-body">
                             <form action="{{ route('reseller-panel.update') }}" method="POST">
                                 @csrf
+                                @method('PUT')
 
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold">Panel Name <span class="text-danger">*</span></label>

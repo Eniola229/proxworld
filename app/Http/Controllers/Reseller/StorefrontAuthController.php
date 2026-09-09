@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+
+
 /**
  * Auth for a reseller's white-label storefront (their end customers).
  *
@@ -31,6 +33,7 @@ use Illuminate\Validation\ValidationException;
  */
 class StorefrontAuthController extends Controller
 {
+
     public function showLogin()
     {
         return view('reseller.auth.login');
@@ -68,7 +71,7 @@ class StorefrontAuthController extends Controller
             throw ValidationException::withMessages(['email' => 'Your account is not registered on this panel.']);
         }
 
-        return redirect()->intended(route('storefront.welcome'));
+        return redirect()->intended(route('storefront.dashboard'));
     }
 
     public function showRegister()
@@ -122,4 +125,5 @@ class StorefrontAuthController extends Controller
 
         return redirect()->route('storefront.login');
     }
+
 }

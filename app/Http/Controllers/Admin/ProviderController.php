@@ -9,11 +9,18 @@ use Illuminate\Http\Request;
 
 class ProviderController extends Controller
 {
+    /**
+     * The last entry (ConfigurableHttpProviderDriver) needs no new file and
+     * no deploy — it's driven entirely by the `config` JSON on the provider
+     * row, filled in from the admin form. Add a new option here only when a
+     * provider's API genuinely can't be expressed by that config schema.
+     */
     protected function driverOptions(): array
     {
         return [
             \App\ProxyProviders\Drivers\BearerTokenProviderDriver::class => 'Bearer Token Provider',
             \App\ProxyProviders\Drivers\HeaderTokenProviderDriver::class => 'Header Token Provider',
+            \App\ProxyProviders\Drivers\ConfigurableHttpProviderDriver::class => 'Configurable HTTP Provider (no code — configure via JSON)',
         ];
     }
 
@@ -31,12 +38,24 @@ class ProviderController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
-            'driver' => ['required', 'string'],
+            'driver' => ['required', 'string', 'in:'.implode(',', array_keys($this->driverOptions()))],
             'api_url' => ['required', 'url'],
             'api_key' => ['required', 'string'],
             'priority' => ['required', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
+            // Only relevant/required for ConfigurableHttpProviderDriver — validated
+            // as syntactically valid JSON here; the driver itself validates the
+            // keys it actually needs the first time it's used.
+            'config' => ['nullable', 'json'],
         ]);
+
+        if ($data['driver'] === \App\ProxyProviders\Drivers\ConfigurableHttpProviderDriver::class && empty($data['config'])) {
+            return back()->withErrors(['config' => 'Config JSON is required for the Configurable HTTP Provider driver.'])->withInput();
+        }
+
+        if (! empty($data['config'])) {
+            $data['config'] = json_decode($data['config'], true);
+        }
 
         Provider::create(array_merge($data, ['is_active' => true]));
 
@@ -57,10 +76,17 @@ class ProviderController extends Controller
             'priority' => ['required', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'notes' => ['nullable', 'string'],
+            'config' => ['nullable', 'json'],
         ]);
 
         if (empty($data['api_key'])) {
             unset($data['api_key']);
+        }
+
+        if (! empty($data['config'])) {
+            $data['config'] = json_decode($data['config'], true);
+        } else {
+            unset($data['config']);
         }
 
         $provider->update(array_merge($data, ['is_active' => $request->boolean('is_active', $provider->is_active)]));

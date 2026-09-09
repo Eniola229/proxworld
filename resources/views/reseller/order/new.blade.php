@@ -101,9 +101,31 @@
                                                 <li>Search and select the exact plan</li>
                                                 <li>Enter a quantity and place your order</li>
                                             </ol>
-                                            @if($reseller->support_email)
-                                                <p class="mb-0">Need help? Email us at <a href="mailto:{{ $reseller->support_email }}">{{ $reseller->support_email }}</a></p>
+
+                                            @if($reseller->support_email || $reseller->telegram_link || $reseller->whatsapp_link)
+                                                <p class="fw-bold mb-2">Need help?</p>
+                                                <ul class="list-unstyled mb-0">
+                                                    @if($reseller->telegram_link)
+                                                        <li class="mb-1">
+                                                            <i class="fab fa-telegram me-1" style="color:#0088cc;"></i>
+                                                            <a href="{{ $reseller->telegram_link }}" target="_blank">Message us on Telegram</a>
+                                                        </li>
+                                                    @endif
+                                                    @if($reseller->whatsapp_link)
+                                                        <li class="mb-1">
+                                                            <i class="fab fa-whatsapp me-1" style="color:#25D366;"></i>
+                                                            <a href="{{ $reseller->whatsapp_link }}" target="_blank">Message us on WhatsApp</a>
+                                                        </li>
+                                                    @endif
+                                                    @if($reseller->support_email)
+                                                        <li>
+                                                            <i class="fas fa-envelope me-1"></i>
+                                                            Email us at <a href="mailto:{{ $reseller->support_email }}">{{ $reseller->support_email }}</a>
+                                                        </li>
+                                                    @endif
+                                                </ul>
                                             @endif
+                                            
                                         </div>
                                     </div>
                                 </div>

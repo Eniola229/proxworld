@@ -9,12 +9,25 @@ use App\Http\Controllers\WelcomeModalController;
 use App\Http\Controllers\ReferralWithdrawalController;
 use Illuminate\Support\Facades\Route;
 
+// RESELLER SUBDOMAIN ROUTES — must be registered first, before any
+// unscoped route below exists, or Laravel matches the unscoped one first.
+$appHost = config('proxworld.base_domain') ?: (parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost');
+$excluded = collect([$appHost, 'localhost', '127.0.0.1'])->map(fn($h) => preg_quote($h, '/'))->implode('|');
+
+Route::domain('{domain}')
+    ->where(['domain' => '^(?!('.$excluded.')$).+$'])
+    ->middleware('storefront')
+    ->group(function () {
+        require base_path('routes/storefront.php');
+    });
+
 /*
 |--------------------------------------------------------------------------
 | Public / marketing
 |--------------------------------------------------------------------------
 */
 Route::view('/', 'welcome')->name('welcome');
+
 
 Route::get('/r/{code}', function (string $code) {
     session(['referral_code' => $code]);
@@ -35,7 +48,6 @@ Route::get('/blog/{newsletter:slug}', [\App\Http\Controllers\BlogController::cla
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
-// Flutterwave server-to-server webhook — no auth, verified by signature header instead (see FlutterwaveController::webhook).
 Route::post('/wallet/flutterwave-webhook', [\App\Http\Controllers\FlutterwaveController::class, 'webhook'])->name('flutterwave.webhook');
 
 /*
@@ -74,36 +86,31 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::post('/welcome-modal/dismiss', [WelcomeModalController::class, 'dismiss'])->name('welcome-modal.dismiss');
 
-    // Orders
     Route::get('/order/new', [\App\Http\Controllers\OrderController::class, 'create'])->name('order.create');
     Route::post('/order', [\App\Http\Controllers\OrderController::class, 'store'])->middleware('sufficient.balance')->name('order.store');
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/check-status', [\App\Http\Controllers\OrderController::class, 'checkStatus'])->name('orders.check-status');
 
-    // Wallet
     Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
     Route::post('/wallet/topup', [\App\Http\Controllers\WalletController::class, 'fund'])->name('wallet.topup');
     Route::get('/wallet/callback', [\App\Http\Controllers\FlutterwaveController::class, 'callback'])->name('wallet.callback');
     Route::get('/wallet/topup-status', [\App\Http\Controllers\WalletController::class, 'topupStatus'])->name('wallet.topup-status');
 
-    // API keys
     Route::get('/api', [\App\Http\Controllers\ApiKeyController::class, 'index'])->name('api.index');
     Route::post('/api/generate', [\App\Http\Controllers\ApiKeyController::class, 'store'])->name('api.generate');
     Route::post('/api/{apiKey}/toggle', [\App\Http\Controllers\ApiKeyController::class, 'toggle'])->name('api.toggle');
     Route::delete('/api/{apiKey}', [\App\Http\Controllers\ApiKeyController::class, 'destroy'])->name('api.destroy');
     Route::get('/api/{apiKey}/test', [\App\Http\Controllers\ApiKeyController::class, 'test'])->name('api.test');
     Route::get('/api-docs', [\App\Http\Controllers\ApiKeyController::class, 'docs'])->name('api.docs');
-    
-    // Referral program
+
     Route::get('/referral', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referral.index');
     Route::get('/referral/withdraw', [ReferralWithdrawalController::class, 'create'])->name('referral.withdraw');
     Route::post('/referral/withdraw/wallet', [ReferralWithdrawalController::class, 'withdrawToWallet'])->name('referral.withdraw.wallet');
     Route::post('/referral/withdraw/bank', [ReferralWithdrawalController::class, 'withdrawToBank'])->name('referral.withdraw.bank');
     Route::post('/referral/withdraw/resolve-account', [ReferralWithdrawalController::class, 'resolveAccount'])->name('referral.withdraw.resolve-account');
-
-    // Become a reseller — application + self-service settings, all under
-    // the customer's own account (no separate reseller login).
+    Route::put('/reseller/logo', [\App\Http\Controllers\ResellerApplicationController::class, 'updateLogo'])
+    ->name('reseller-panel.update-logo');
     Route::get('/reseller-panel', [\App\Http\Controllers\ResellerApplicationController::class, 'index'])->name('reseller-panel.index');
     Route::get('/reseller-panel/create', [\App\Http\Controllers\ResellerApplicationController::class, 'create'])->name('reseller-panel.create');
     Route::post('/reseller-panel', [\App\Http\Controllers\ResellerApplicationController::class, 'store'])->name('reseller-panel.store');
@@ -113,7 +120,6 @@ Route::middleware(['auth:web'])->group(function () {
     Route::put('/reseller-panel/domain', [\App\Http\Controllers\ResellerApplicationController::class, 'updateDomain'])->name('reseller-panel.update-domain');
     Route::post('/reseller-panel/domain/verify', [\App\Http\Controllers\ResellerApplicationController::class, 'verifyDomain'])->name('reseller-panel.verify-domain');
 
-    // Support tickets — AJAX live chat, no attachments (Telegram for images).
     Route::get('/support', [\App\Http\Controllers\TicketController::class, 'index'])->name('support.index');
     Route::post('/support', [\App\Http\Controllers\TicketController::class, 'store'])->name('support.store');
     Route::get('/support/{ticket}', [\App\Http\Controllers\TicketController::class, 'show'])->name('support.show');

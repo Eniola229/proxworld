@@ -36,7 +36,7 @@ class BearerTokenProviderDriver implements ProxyProviderContract
     protected function client()
     {
         return Http::baseUrl($this->baseUrl)
-            ->withToken($this->apiKey)
+            ->withToken($this->apiKey)   // sends "Authorization: Bearer <key>" — the 'Token' override was wrong
             ->acceptJson()
             ->timeout(20);
     }

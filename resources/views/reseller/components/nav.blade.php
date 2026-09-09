@@ -1,36 +1,36 @@
 <nav class="nxl-navigation">
     <div class="navbar-wrapper">
-        <div class="m-header">
-            <a href="/" class="b-brand">
-                @if($reseller->logo_path)
-                    <img src="{{ $reseller->logo_path }}"
-                         alt="{{ $reseller->panel_name }}"
-                         class="logo logo-lg"
-                         style="width: 140px; height: auto; display: block; margin: 0 auto;" />
-                    <span class="logo logo-sm fw-bold fs-4 d-flex align-items-center justify-content-center"
-                          style="color: var(--reseller-primary);">
-                        {{ strtoupper(substr($reseller->panel_name, 0, 1)) }}
-                    </span>
-                @else
-                    <span class="logo logo-lg d-flex align-items-center justify-content-center fw-bold"
-                          style="color: var(--reseller-primary); font-size: 1.2rem; letter-spacing: 1px;">
-                        {{ $reseller->panel_name }}
-                    </span>
-                    <span class="logo logo-sm fw-bold fs-4 d-flex align-items-center justify-content-center"
-                          style="color: var(--reseller-primary);">
-                        {{ strtoupper(substr($reseller->panel_name, 0, 1)) }}
-                    </span>
-                @endif 
-            </a>
-        </div>
+    <div class="m-header" style="display:flex;align-items:center;height:64px;padding:0 1rem;">
+        <a href="/dashboard" class="b-brand" style="display:flex;align-items:center;">
+            @if($reseller->logo_path)
+                <img src="{{ $reseller->logo_path }}"
+                     alt="{{ $reseller->panel_name }}"
+                     class="logo logo-lg"
+                     style="max-width: 160px; height: 48px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ $reseller->logo_path }}"
+                     alt="{{ $reseller->panel_name }}"
+                     class="logo logo-sm"
+                     style="width: 36px; height: 36px; object-fit: cover; border-radius: 6px; display: none;">
+            @else
+                <span class="logo logo-lg d-flex align-items-center justify-content-center fw-bold"
+                      style="color: var(--reseller-primary); font-size: 1.2rem; letter-spacing: 1px;">
+                    {{ $reseller->panel_name }}
+                </span>
+                <span class="logo logo-sm fw-bold fs-4 d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px; color: var(--reseller-primary); display: none;">
+                    {{ strtoupper(substr($reseller->panel_name, 0, 1)) }}
+                </span>
+            @endif 
+        </a>
+    </div>
 
         <div class="navbar-content">
             <ul class="nxl-navbar">
                 <li class="nxl-item nxl-caption"><label>Menu</label></li>
 
                 {{-- Dashboard --}}
-                <li class="nxl-item {{ request()->is('/') ? 'active' : '' }}">
-                    <a href="/" class="nxl-link">
+                <li class="nxl-item {{ request()->is('dashboard') ? 'active' : '' }}">
+                    <a href="/dashboard" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-airplay"></i></span>
                         <span class="nxl-mtext">Dashboard</span>
                     </a>

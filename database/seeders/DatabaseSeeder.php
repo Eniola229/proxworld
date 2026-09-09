@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
 
         // First super admin — change this password immediately after first login.
         $superAdmin = Admin::firstOrCreate(
-            ['email' => 'joshuaadeyemi445@gmail.com'],
-            ['name' => 'ProxWorld Owner', 'password' => Hash::make('Adeyemi2025$!'), 'role' => 'super_admin', 'is_active' => true]
+            ['email' => 'hi@gmail.com'],
+            ['name' => 'ProxWorld Owner', 'password' => Hash::make('ChangeMe123!'), 'role' => 'super_admin', 'is_active' => true]
         );
         $superAdmin->assignRole('super_admin');
     }

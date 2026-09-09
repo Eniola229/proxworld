@@ -2,37 +2,40 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', fn () => view('reseller.welcome'))->name('storefront.welcome');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'showLogin'])->name('storefront.login');
+    Route::post('/login', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'login'])->name('storefront.login.attempt');
+    Route::get('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'showRegister'])->name('storefront.register');
+    Route::post('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'register'])->name('storefront.register.attempt');
+});
+Route::post('/logout', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'logout'])
+    ->middleware('auth:web')
+    ->name('storefront.logout');
+
 /*
 |--------------------------------------------------------------------------
-| White-label storefront (a reseller's own end customers)
+| Storefront customer self-service — dashboard, orders, wallet, profile.
+| Deliberately separate controllers from App\Http\Controllers\Reseller\*,
+| which is the RESELLER OWNER's admin panel (different money flow — see
+| App\Http\Controllers\Storefront\OrderController's class doc). Registered
+| here (not routes/reseller.php) so these ONLY exist on the reseller's
+| domain, never on the main app domain.
 |--------------------------------------------------------------------------
-| Subdomain-based, resolved via App\Http\Middleware\ResolveResellerFromSubdomain
-| (shares $reseller with every storefront view). End customers are regular
-| platform Users; their orders are simply tagged reseller_id.
-|
-| Registered directly in bootstrap/app.php with no path prefix / name
-| prefix (unlike routes/reseller.php, the reseller's own dashboard) so a
-| storefront lives at the subdomain root — subdomain.domain/login — not
-| subdomain.domain/reseller/login.
 */
-Route::domain('{subdomain}.'.(config('proxworld.base_domain') ?: (parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost')))
-    ->middleware('storefront')
-    ->group(function () {
-        Route::get('/', fn () => view('reseller.welcome'))->name('storefront.welcome');
+Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Storefront\DashboardController::class, 'index'])->name('storefront.dashboard');
 
-        // Reseller-branded auth — its own controller/views, separate from
-        // the main site's Auth\LoginController/RegisterController, so a
-        // reseller's storefront login page carries their own panel_name
-        // and colours instead of the main ProxWorld login screen. Still
-        // authenticates against the same `web` guard/users table — a
-        // storefront customer is a regular User, just tagged reseller_id.
-        Route::middleware('guest')->group(function () {
-            Route::get('/login', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'showLogin'])->name('storefront.login');
-            Route::post('/login', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'login'])->name('storefront.login.attempt');
-            Route::get('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'showRegister'])->name('storefront.register');
-            Route::post('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'register'])->name('storefront.register.attempt');
-        });
-        Route::post('/logout', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'logout'])
-            ->middleware('auth:web')
-            ->name('storefront.logout');
-    });
+    Route::get('/orders/new', [\App\Http\Controllers\Storefront\OrderController::class, 'create'])->name('storefront.orders.create');
+    Route::post('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'store'])->name('storefront.orders.store');
+    Route::get('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'index'])->name('storefront.orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Storefront\OrderController::class, 'show'])->name('storefront.orders.show');
+
+    Route::get('/wallet', [\App\Http\Controllers\Storefront\WalletController::class, 'index'])->name('storefront.wallet.index');
+    Route::post('/wallet/topup', [\App\Http\Controllers\Storefront\WalletController::class, 'fund'])->name('storefront.wallet.topup');
+    Route::get('/wallet/topup-status', [\App\Http\Controllers\Storefront\WalletController::class, 'topupStatus'])->name('storefront.wallet.topup-status');
+
+    Route::get('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'edit'])->name('storefront.profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'update'])->name('storefront.profile.update');
+});

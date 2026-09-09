@@ -77,6 +77,12 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label fw-bold">Driver</label>
+                                    <input type="text" class="form-control" value="{{ $drivers[$provider->driver] ?? $provider->driver }}" disabled>
+                                    <div class="form-text">Driver can't be changed after creation — delete and re-add the provider to switch drivers.</div>
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label fw-bold">API Endpoint URL <span class="text-danger">*</span></label>
                                     <input type="url" name="api_url" class="form-control @error('api_url') is-invalid @enderror"
                                            value="{{ old('api_url', $provider->api_url) }}" required>
@@ -84,11 +90,21 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">API Key <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-bold">API Key</label>
                                     <input type="text" name="api_key" class="form-control @error('api_key') is-invalid @enderror"
-                                           value="{{ old('api_key', $provider->api_key) }}" required>
+                                           value="" placeholder="Leave blank to keep the current key">
+                                    <div class="form-text">Stored encrypted — left blank on this page for safety. Only fill this in to rotate the key.</div>
                                     @error('api_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
+
+                                @if($provider->driver === \App\ProxyProviders\Drivers\ConfigurableHttpProviderDriver::class)
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Driver Config (JSON) <span class="text-danger">*</span></label>
+                                        <textarea name="config" rows="14" class="form-control font-monospace @error('config') is-invalid @enderror"
+                                                  required>{{ old('config', json_encode($provider->config, JSON_PRETTY_PRINT)) }}</textarea>
+                                        @error('config')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                @endif
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
