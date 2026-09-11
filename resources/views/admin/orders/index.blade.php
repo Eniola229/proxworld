@@ -237,8 +237,8 @@
                             <span class="badge bg-info text-white fs-12 px-3 py-2">
                                 <i class="feather-server me-1"></i>
                                 Filtered by provider: <strong>{{ $filteredProv->name }}</strong>
-                                <a href="{{ route('admin.orders.index', array_except(request()->query(), ['provider_id'])) }}"
-                                   class="text-white ms-2"><i class="feather-x"></i></a>
+                                <a href="{{ route('admin.orders.index', \Illuminate\Support\Arr::except(request()->query(), ['provider_id'])) }}"
+   class="text-white ms-2"><i class="feather-x"></i></a>
                             </span>
                         </div>
                         @endif
