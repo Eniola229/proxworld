@@ -15,22 +15,8 @@ use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
 
-/**
- * Storefront customer ordering — a customer buying from a reseller's
- * white-label panel. Deliberately separate from App\Http\Controllers\Reseller\OrderController,
- * which is the reseller buying their OWN stock from their OWN wallet at
- * wholesale price. Here, the CUSTOMER's own wallet is debited at the
- * reseller's marked-up price (customerCharge), and the reseller's markup
- * is recorded as reseller_profit for their payout balance — the reseller's
- * own wallet is never touched by a customer order.
- */
 class OrderController extends Controller
 {
-    /**
-     * Lightweight page load: just the distinct proxy types visible on this
-     * reseller's storefront, no service rows, no pricing math. Actual plans
-     * are fetched on demand via services().
-     */
     public function create(Request $request)
     {
         $reseller = $request->attributes->get('storefront_reseller');
@@ -46,12 +32,6 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * AJAX: distinct countries available for a type on this reseller's
-     * storefront, resolved live from service names (no country column
-     * needed). Excludes anything the reseller has hidden, same as
-     * services(). Returns [code, name] pairs sorted by name.
-     */
     public function countries(Request $request)
     {
         $reseller = $request->attributes->get('storefront_reseller');
@@ -77,11 +57,6 @@ class OrderController extends Controller
         return response()->json(['data' => $countries]);
     }
 
-    /**
-     * AJAX: paginated, priced (with reseller markup) services for one type,
-     * optionally filtered to one country. Country is resolved live from
-     * `name` on every request — nothing is stored.
-     */
     public function services(Request $request, PricingService $pricing, ExchangeRateService $rates)
     {
         $reseller = $request->attributes->get('storefront_reseller');
@@ -98,10 +73,6 @@ class OrderController extends Controller
 
         $wantedCode = ! empty($data['country_code']) ? strtoupper($data['country_code']) : null;
 
-        // Hidden-service filtering is per (provider_id, external_service_id) pair,
-        // which isn't a clean SQL whereNotIn — filter in PHP, same as before, but
-        // now scoped to one type/search term instead of the whole catalog. Country
-        // filtering is done the same way, since it isn't a real column either.
         $matching = ProviderServiceCache::with('provider')
             ->where('type', $data['type'])
             ->where('is_active', true)
@@ -123,7 +94,7 @@ class OrderController extends Controller
         $items = $matching->slice(($page - 1) * $perPage, $perPage)->values()
             ->map(function (ProviderServiceCache $service) use ($pricing, $rates, $reseller) {
                 $costPriceBase = $rates->convert((float) $service->raw_rate, $service->raw_currency, 'NGN');
-                $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type);
+                $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
                 $markupPercent = $reseller->markupPercentFor($service->provider_id, $service->external_service_id);
                 $displayPrice = $sellPriceBase * (1 + $markupPercent / 100);
 
@@ -156,7 +127,7 @@ class OrderController extends Controller
         $service = ProviderServiceCache::with('provider')->findOrFail($data['service_id']);
 
         $costPriceBase = $rates->convert((float) $service->raw_rate * $data['quantity'], $service->raw_currency, 'NGN');
-        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type);
+        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
         $markupPercent = $reseller->markupPercentFor($service->provider_id, $service->external_service_id);
         $customerChargeBase = $sellPriceBase * (1 + $markupPercent / 100);
         $chargeInUserCurrency = $rates->convert($customerChargeBase, 'NGN', $user->preferred_currency);

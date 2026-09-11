@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdatePricingSettingsRequest;
+use App\Models\PricingRule;
+use App\Models\Provider;
 use App\Models\Setting;
 use App\Types\ProductType;
 
@@ -17,9 +19,6 @@ class PricingSettingsController extends Controller
             'maximum_markup' => 200,
             'currency_buffer' => 3,
             'round_prices' => true,
-            'service_type_markup' => [],
-            'platform_markup' => [],
-            'combined_markup' => [],
         ];
 
         $pricing = array_merge($defaults, Setting::get('pricing_config', []));
@@ -27,15 +26,15 @@ class PricingSettingsController extends Controller
         return view('admin.settings.pricing', [
             'pricing' => $pricing,
             'productTypes' => ProductType::all(),
+            'providers' => Provider::orderBy('name')->get(),
+            'rules' => PricingRule::with('provider')->latest()->get(),
         ]);
     }
+
     public function update(UpdatePricingSettingsRequest $request)
     {
         $data = $request->validated();
         $data['round_prices'] = $request->boolean('round_prices');
-        $data['service_type_markup'] = array_filter($data['service_type_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
-        $data['platform_markup'] = array_filter($data['platform_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
-        $data['combined_markup'] = array_filter($data['combined_markup'] ?? [], fn ($v) => $v !== null && $v !== '');
 
         Setting::set('pricing_config', $data);
 

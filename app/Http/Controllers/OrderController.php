@@ -38,12 +38,6 @@ class OrderController extends Controller
         return view('order.new', ['providersByType' => $providersByType]);
     }
 
-    /**
-     * AJAX: distinct countries available for a provider+type, resolved live
-     * from service names (no country column needed). Pulls every active
-     * row's name for that provider+type, parses the trailing "— Country"
-     * segment, dedupes, and returns [code, name] pairs sorted by name.
-     */
     public function countries(Request $request)
     {
         $data = $request->validate([
@@ -66,11 +60,6 @@ class OrderController extends Controller
         return response()->json(['data' => $countries]);
     }
 
-    /**
-     * AJAX: paginated, priced services for one provider + type, optionally
-     * filtered to one country. Country is resolved live from `name` on
-     * every request — nothing is stored.
-     */
     public function services(Request $request, PricingService $pricing, ExchangeRateService $rates)
     {
         $data = $request->validate([
@@ -86,8 +75,6 @@ class OrderController extends Controller
             ->where('is_active', true)
             ->when($data['search'] ?? null, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"));
 
-        // Country filter: resolve every candidate row's name and keep only
-        // matches. Done in PHP since the country isn't a real column.
         if (! empty($data['country_code'])) {
             $wantedCode = strtoupper($data['country_code']);
 
@@ -113,7 +100,7 @@ class OrderController extends Controller
                 'id' => $service->id,
                 'name' => $service->name,
                 'unit' => $service->unit,
-                'price' => round($pricing->calculateSellPrice($costPriceBase, $service->type), 2),
+                'price' => round($pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id), 2),
             ];
         });
 
@@ -137,7 +124,7 @@ class OrderController extends Controller
 
         $costPriceInServiceCurrency = (float) $service->raw_rate * $data['quantity'];
         $costPriceBase = $rates->convert($costPriceInServiceCurrency, $service->raw_currency, 'NGN');
-        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type);
+        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
         $chargeInUserCurrency = $rates->convert($sellPriceBase, 'NGN', $user->preferred_currency);
 
         try {
@@ -161,7 +148,7 @@ class OrderController extends Controller
             'charge' => $chargeInUserCurrency,
             'currency' => $user->preferred_currency,
             'exchange_rate_snapshot' => $rates->rate('NGN', $user->preferred_currency),
-            'markup_percentage' => $pricing->getMarkupPercentage($service->type),
+            'markup_percentage' => $pricing->getMarkupPercentage($service->type, providerId: $service->provider_id),
             'profit' => $pricing->calculateProfit($sellPriceBase, $costPriceBase),
             'channel' => OrderChannel::DIRECT,
             'status' => OrderStatus::PENDING,

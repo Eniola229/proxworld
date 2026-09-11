@@ -24,7 +24,7 @@ class OrderController extends Controller
             ->reject(fn ($s) => $hiddenKeys->contains($s->provider_id.'_'.$s->external_service_id))
             ->map(function (ProviderServiceCache $s) use ($reseller) {
                 $costPriceBase = app(ExchangeRateService::class)->convert((float) $s->raw_rate, $s->raw_currency, 'NGN');
-                $resellerPrice = $costPriceBase * (1 + app(\App\Services\PricingService::class)->getMarkupPercentage($s->type) / 100);
+                $resellerPrice = $costPriceBase * (1 + app(\App\Services\PricingService::class)->getMarkupPercentage($s->type, providerId: $s->provider_id) / 100);
                 $markupPercent = $reseller->markupPercentFor($s->provider_id, $s->external_service_id);
                 $s->display_price = round($resellerPrice * (1 + $markupPercent / 100), 2);
 
@@ -46,7 +46,7 @@ class OrderController extends Controller
         $service = ProviderServiceCache::with('provider')->findOrFail($data['service_id']);
 
         $costPriceBase = $rates->convert((float) $service->raw_rate * $data['quantity'], $service->raw_currency, 'NGN');
-        $resellerPrice = $costPriceBase * (1 + app(\App\Services\PricingService::class)->getMarkupPercentage($service->type) / 100); // platform's wholesale price to the reseller
+        $resellerPrice = $costPriceBase * (1 + app(\App\Services\PricingService::class)->getMarkupPercentage($service->type, providerId: $service->provider_id) / 100); // platform's wholesale price to the reseller
         $markupPercent = $reseller->markupPercentFor($service->provider_id, $service->external_service_id);
         $customerCharge = $resellerPrice * (1 + $markupPercent / 100);
 

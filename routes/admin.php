@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\PricingSettingsController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\PricingRuleController;
+
 
 // Mounted at /control-panel, name prefix "admin.", admin.session + web
 // middleware already applied — see bootstrap/app.php.
@@ -119,8 +121,14 @@ Route::middleware('admin.auth')->group(function () {
 
     Route::middleware('permission:pricing.view,admin')->group(function () {
         Route::get('/settings/pricing', [PricingSettingsController::class, 'edit'])->name('settings.pricing.index');
-        Route::put('/settings/pricing', [PricingSettingsController::class, 'update'])
+        Route::post('/settings/pricing', [PricingSettingsController::class, 'update'])
             ->middleware('permission:pricing.manage,admin')->name('settings.pricing.update');
+        Route::post('/pricing-rules', [PricingRuleController::class, 'store'])
+            ->middleware('permission:pricing.manage,admin')->name('pricing-rules.store');
+        Route::post('/pricing-rules/{rule}/toggle', [PricingRuleController::class, 'toggle'])
+            ->middleware('permission:pricing.manage,admin')->name('pricing-rules.toggle');
+        Route::delete('/pricing-rules/{rule}', [PricingRuleController::class, 'destroy'])
+            ->middleware('permission:pricing.manage,admin')->name('pricing-rules.destroy');
     });
 
     Route::middleware('permission:currencies.manage,admin')->group(function () {

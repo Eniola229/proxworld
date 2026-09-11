@@ -34,6 +34,16 @@ class Provider extends Model
         static::creating(function (Provider $p) {
             $p->slug ??= \Illuminate\Support\Str::slug($p->name);
         });
+
+        static::updating(function (Provider $p) {
+            // Only regenerate the slug when the name actually changed AND the
+            // slug wasn't deliberately set to something else in this same update
+            // (e.g. via tinker or a future "custom slug" field) — otherwise every
+            // save would silently overwrite a manually-chosen slug.
+            if ($p->isDirty('name') && ! $p->isDirty('slug')) {
+                $p->slug = \Illuminate\Support\Str::slug($p->name);
+            }
+        });
     }
 
     public function orders(): HasMany

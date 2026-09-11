@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Provider;
 use App\ProxyProviders\ProxyProviderFactory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProviderController extends Controller
 {
@@ -31,7 +32,7 @@ class ProviderController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100', Rule::unique('providers', 'name')],
             'driver' => ['required', 'string', 'in:'.implode(',', array_keys($this->driverOptions()))],
             'api_url' => ['required', 'url'],
             'api_key' => ['required', 'string'],
@@ -62,7 +63,7 @@ class ProviderController extends Controller
     public function update(Request $request, Provider $provider)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100', Rule::unique('providers', 'name')->ignore($provider->id)],
             'api_url' => ['required', 'url'],
             'api_key' => ['nullable', 'string'],
             'api_secret' => ['nullable', 'string'],

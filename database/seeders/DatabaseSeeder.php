@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             SettingsSeeder::class,
             CurrencySeeder::class,
+            PricingSettingsSeeder::class,
         ]);
 
         // First super admin — change this password immediately after first login.
