@@ -37,11 +37,11 @@
                         @csrf
                         
                         <!-- Password Reset Token -->
-                        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+                        <input type="hidden" name="token" value="{{ request()->route('token') }}">
                         
                         <!-- Email Address -->
                         <div class="mb-4">
-                            <input id="email" type="email" class="form-control" name="email" placeholder="Email Address" value="{{ old('email', $request->email) }}" required autofocus autocomplete="username">
+                            <input id="email" type="email" class="form-control" name="email" placeholder="Email Address" value="{{ old('email', request()->email) }}" required autofocus autocomplete="username">
                         </div>
                         
                         <!-- Password -->
