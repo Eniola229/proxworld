@@ -24,30 +24,6 @@
         <div class="main-content">
             <div class="row">
                 
-                <!-- [ Partner Section: accpond Banner ] Start -->
-                <div class="col-12 mb-4">
-                    <div class="card border-0 bg-primary text-white overflow-hidden position-relative">
-                        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                            <div>
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="badge bg-white text-primary text-uppercase fs-11 fw-bold">Partner Marketplace</span>
-                                    <span class="badge bg-white bg-opacity-20 text-white fs-11">Verified Accounts</span>
-                                </div>
-                                <h4 class="text-white fw-bold mb-1">Buy & Sell Verified Social Accounts on accpond</h4>
-                                <p class="fs-13 text-white-50 mb-0">
-                                    Need an established social media account or asset? Visit our trusted partner <strong>accpond</strong> for fast, secure account trading.
-                                </p>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <a href="https://www.accpond.com.ng" target="_blank" class="btn btn-light fw-bold text-primary px-4 d-inline-flex align-items-center gap-2">
-                                    Visit accpond.com.ng <i class="feather-external-link fs-12"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- [ Partner Section: accpond Banner ] End -->
-
                 <div class="col-12">
                     <div class="card stretch stretch-full">
                         <div class="card-header">
@@ -196,4 +172,45 @@
     </div>
 </main>
 
+<!-- Accpond Partner Modal -->
+<div class="modal fade" id="accpondModal" tabindex="-1" aria-labelledby="accpondModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center px-4 pb-4">
+                <div class="mb-3">
+                    <span class="badge bg-soft-primary text-primary text-uppercase fs-11 fw-bold px-3 py-1">Partner Marketplace</span>
+                </div>
+                <h4 class="mb-2 fw-bold">Buy & Sell Verified Social Accounts</h4>
+                <p class="text-muted mb-4 fs-13">
+                    Need an established social media account or asset? Visit our trusted partner <strong>accpond</strong> for fast and secure account trading.
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="https://www.accpond.com.ng" target="_blank" class="btn btn-primary fw-bold">
+                        <i class="feather-external-link me-2"></i> Visit accpond.com.ng
+                    </a>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        Maybe Later
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include('components.g-footer')
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Triggers the Accpond pop-up modal on page load (1-second delay)
+        setTimeout(function() {
+            const modalElement = document.getElementById('accpondModal');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        }, 1000);
+    });
+</script>
