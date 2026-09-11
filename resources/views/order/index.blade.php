@@ -23,6 +23,31 @@
 
         <div class="main-content">
             <div class="row">
+                
+                <!-- [ Partner Section: accpond Banner ] Start -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 bg-primary text-white overflow-hidden position-relative">
+                        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-white text-primary text-uppercase fs-11 fw-bold">Partner Marketplace</span>
+                                    <span class="badge bg-white bg-opacity-20 text-white fs-11">Verified Accounts</span>
+                                </div>
+                                <h4 class="text-white fw-bold mb-1">Buy & Sell Verified Social Accounts on accpond</h4>
+                                <p class="fs-13 text-white-50 mb-0">
+                                    Need an established social media account or asset? Visit our trusted partner <strong>accpond</strong> for fast, secure account trading.
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <a href="https://www.accpond.com.ng" target="_blank" class="btn btn-light fw-bold text-primary px-4 d-inline-flex align-items-center gap-2">
+                                    Visit accpond.com.ng <i class="feather-external-link fs-12"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ Partner Section: accpond Banner ] End -->
+
                 <div class="col-12">
                     <div class="card stretch stretch-full">
                         <div class="card-header">
