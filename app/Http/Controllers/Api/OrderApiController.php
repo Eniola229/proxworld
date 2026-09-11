@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderResource;
 use App\Jobs\ProcessProxyOrder;
 use App\Models\Order;
 use App\Models\ProviderServiceCache;
@@ -23,14 +24,14 @@ class OrderApiController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($orders);
+        return OrderResource::collection($orders);
     }
 
     public function show(Request $request, Order $order)
     {
         abort_unless($order->user_id === $request->user()->id, 404);
 
-        return response()->json(['data' => $order]);
+        return new OrderResource($order);
     }
 
     public function store(Request $request, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet)
@@ -44,7 +45,7 @@ class OrderApiController extends Controller
         $service = ProviderServiceCache::with('provider')->findOrFail($data['service_id']);
 
         $costPriceBase = $rates->convert((float) $service->raw_rate * $data['quantity'], $service->raw_currency, 'NGN');
-        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type);
+        $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
         $charge = $rates->convert($sellPriceBase, 'NGN', $user->preferred_currency);
 
         try {
@@ -68,7 +69,7 @@ class OrderApiController extends Controller
             'charge' => $charge,
             'currency' => $user->preferred_currency,
             'exchange_rate_snapshot' => $rates->rate('NGN', $user->preferred_currency),
-            'markup_percentage' => $pricing->getMarkupPercentage($service->type),
+            'markup_percentage' => $pricing->getMarkupPercentage($service->type, providerId: $service->provider_id),
             'profit' => $pricing->calculateProfit($sellPriceBase, $costPriceBase),
             'channel' => OrderChannel::PUBLIC_API,
             'status' => OrderStatus::PENDING,
@@ -77,6 +78,6 @@ class OrderApiController extends Controller
         $walletTx->update(['order_id' => $order->id]);
         ProcessProxyOrder::dispatch($order->id);
 
-        return response()->json(['data' => $order], 201);
+        return (new OrderResource($order))->response()->setStatusCode(201);
     }
 }

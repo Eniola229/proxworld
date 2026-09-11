@@ -1243,9 +1243,9 @@
 
                 <div style="background:#020617;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:1rem 1.2rem;margin-bottom:2rem;font-family:'DM Mono',monospace;font-size:clamp(0.65rem, 1.5vw, 0.72rem);line-height:1.8;overflow-x:auto;">
                     <div style="color:#475569;margin-bottom:0.3rem;">// Get all services</div>
-                    <div><span style="color:#8B5CF6;">POST</span> <span style="color:#60A5FA;">{{ url('/api/v2') }}</span></div>
+                    <div><span style="color:#8B5CF6;">POST</span> <span style="color:#60A5FA;">{{ url('/api/v1') }}</span></div>
                     <div style="margin-top:0.5rem;"><span style="color:#94A3B8;">action</span> <span style="color:#475569;">=</span> <span style="color:#10B981;">"services"</span></div>
-                    <div><span style="color:#94A3B8;">key</span> <span style="color:#475569;">=</span> <span style="color:#10B981;">"bst_xxxxxxxxxxxx"</span></div>
+                    <div><span style="color:#94A3B8;">key</span> <span style="color:#475569;">=</span> <span style="color:#10B981;">"pxw_xxxxxxxxxxxx"</span></div>
                 </div>
 
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
