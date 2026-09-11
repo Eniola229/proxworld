@@ -87,6 +87,8 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/welcome-modal/dismiss', [WelcomeModalController::class, 'dismiss'])->name('welcome-modal.dismiss');
 
     Route::get('/order/new', [\App\Http\Controllers\OrderController::class, 'create'])->name('order.create');
+    Route::get('/order/services', [\App\Http\Controllers\OrderController::class, 'services'])->name('order.services');
+    Route::get('/order/countries', [\App\Http\Controllers\OrderController::class, 'countries'])->name('order.countries');
     Route::post('/order', [\App\Http\Controllers\OrderController::class, 'store'])->middleware('sufficient.balance')->name('order.store');
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');

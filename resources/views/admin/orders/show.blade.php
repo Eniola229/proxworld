@@ -47,7 +47,7 @@
         <div class="main-content">
             <div class="row">
 
-                <!-- Order Info -->
+                <!-- Order Info & Customer Info -->
                 <div class="col-xxl-4 col-xl-6">
                     <div class="card stretch stretch-full">
                         <div class="card-header">
@@ -215,8 +215,68 @@
                     </div>
                 </div>
 
-                <!-- Actions & Logs -->
+                <!-- Actions, Proxy Details & Logs -->
                 <div class="col-xxl-8 col-xl-6">
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="feather-key me-1"></i> Proxy Access Details</h5>
+                        </div>
+                        <div class="card-body">
+                            @if($order->status !== 'completed')
+                                <div class="text-muted fs-12">Proxy access details will appear here once this order completes.</div>
+                            @elseif($order->isDataBasedProduct())
+                                @php($access = $order->provider->config['static_proxy_access'] ?? null)
+                                @if($access)
+                                    <div class="alert alert-info fs-12">This is a shared account-wide connection, the same for every order on this provider:</div>
+                                    <table class="table table-sm mb-0">
+                                        <tr><td>Host</td><td><code>{{ $access['host'] }}</code></td></tr>
+                                        <tr><td>Port</td><td><code>{{ $access['port'] }}</code></td></tr>
+                                        <tr><td>Username</td><td><code>{{ $access['username'] }}</code></td></tr>
+                                        <tr><td>Password</td><td><code>{{ $access['password'] }}</code></td></tr>
+                                    </table>
+                                    @if(!empty($access['username_format']))
+                                        <div class="fs-11 text-muted mt-2">To target a country/session, format your username as: <code>{{ $access['username_format'] }}</code></div>
+                                    @endif
+                                @else
+                                    <div class="alert alert-warning fs-12 mb-0">Proxy access hasn't been configured for this provider yet.</div>
+                                @endif
+                            @elseif($order->hasProxyCredentials())
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr><th>IP</th><th>Port</th><th>Username</th><th>Password</th><th></th></tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($order->proxy_data as $proxy)
+                                                @php
+                                                    $ip = $proxy['ip'] ?? $proxy['host'] ?? '—';
+                                                    $port = $proxy['port'] ?? '—';
+                                                    $user = $proxy['username'] ?? $proxy['login'] ?? '—';
+                                                    $pass = $proxy['password'] ?? '—';
+                                                    $connString = "{$ip}:{$port}:{$user}:{$pass}";
+                                                @endphp
+                                                <tr>
+                                                    <td><code>{{ $ip }}</code></td>
+                                                    <td><code>{{ $port }}</code></td>
+                                                    <td><code>{{ $user }}</code></td>
+                                                    <td><code>{{ $pass }}</code></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-xs btn-light"
+                                                                onclick="navigator.clipboard.writeText('{{ $connString }}')">
+                                                            <i class="feather-copy"></i> Copy
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="alert alert-warning fs-12 mb-0">We couldn't fetch proxy details from the provider yet.</div>
+                            @endif
+                        </div>
+                    </div>
 
                     @if(auth('admin')->user()->canEditOrders())
                     <div class="card mb-3">
@@ -298,24 +358,22 @@
                                                         <span class="badge bg-soft-warning text-warning">{{ ucfirst($log->status) }}</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ $log->created_at->format('M d, H:i') }}</td>
+                                                <td class="fs-11 text-muted">{{ $log->created_at->format('M d, H:i') }}</td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="5" class="text-center py-3 text-muted">No activity logs</td></tr>
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-3">No activity logs recorded.</td>
+                                            </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        @if($logs->hasPages())
-                        <div class="card-footer">{{ $logs->links() }}</div>
-                        @endif
                     </div>
 
                 </div>
+
             </div>
         </div>
     </div>
 </main>
-
-@include('admin.components.footer')

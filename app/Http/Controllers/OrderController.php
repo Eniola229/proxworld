@@ -9,6 +9,7 @@ use App\Models\ProviderServiceCache;
 use App\Services\ExchangeRateService;
 use App\Services\PricingService;
 use App\Services\WalletService;
+use App\Support\CountryCodeResolver;
 use App\Types\OrderChannel;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
@@ -16,27 +17,118 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function create(PricingService $pricing, ExchangeRateService $rates)
+    public function create()
     {
-        $services = ProviderServiceCache::with('provider')
-            ->where('is_active', true)
-            ->whereHas('provider', fn ($q) => $q->where('is_active', true))
+        $providersByType = Provider::active()
+            ->withCount(['services as service_count' => fn ($q) => $q->where('is_active', true)])
             ->get()
-            ->map(function (ProviderServiceCache $service) use ($pricing, $rates) {
-                $costPriceBase = $rates->convert((float) $service->raw_rate, $service->raw_currency, 'NGN');
-                $service->display_price = $pricing->calculateSellPrice($costPriceBase, $service->type);
-
-                return $service;
+            ->flatMap(function (Provider $provider) {
+                return ProviderServiceCache::where('provider_id', $provider->id)
+                    ->where('is_active', true)
+                    ->distinct()
+                    ->pluck('type')
+                    ->map(fn ($type) => [
+                        'type' => $type,
+                        'provider_id' => $provider->id,
+                        'provider_name' => $provider->name,
+                    ]);
             })
-            ->groupBy('type'); // App\Types\ProductType: residential, datacenter, isp, mobile
+            ->groupBy('type');
 
-        return view('order.new', ['groupedServices' => $services]);
+        return view('order.new', ['providersByType' => $providersByType]);
+    }
+
+    /**
+     * AJAX: distinct countries available for a provider+type, resolved live
+     * from service names (no country column needed). Pulls every active
+     * row's name for that provider+type, parses the trailing "— Country"
+     * segment, dedupes, and returns [code, name] pairs sorted by name.
+     */
+    public function countries(Request $request)
+    {
+        $data = $request->validate([
+            'provider_id' => ['required', 'uuid', 'exists:providers,id'],
+            'type' => ['required', 'string'],
+        ]);
+
+        $names = ProviderServiceCache::where('provider_id', $data['provider_id'])
+            ->where('type', $data['type'])
+            ->where('is_active', true)
+            ->pluck('name');
+
+        $countries = $names
+            ->map(fn ($name) => CountryCodeResolver::resolve($name))
+            ->filter()
+            ->unique('code')
+            ->sortBy('name')
+            ->values();
+
+        return response()->json(['data' => $countries]);
+    }
+
+    /**
+     * AJAX: paginated, priced services for one provider + type, optionally
+     * filtered to one country. Country is resolved live from `name` on
+     * every request — nothing is stored.
+     */
+    public function services(Request $request, PricingService $pricing, ExchangeRateService $rates)
+    {
+        $data = $request->validate([
+            'provider_id' => ['required', 'uuid', 'exists:providers,id'],
+            'type' => ['required', 'string'],
+            'country_code' => ['nullable', 'string', 'size:2'],
+            'search' => ['nullable', 'string', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $query = ProviderServiceCache::where('provider_id', $data['provider_id'])
+            ->where('type', $data['type'])
+            ->where('is_active', true)
+            ->when($data['search'] ?? null, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"));
+
+        // Country filter: resolve every candidate row's name and keep only
+        // matches. Done in PHP since the country isn't a real column.
+        if (! empty($data['country_code'])) {
+            $wantedCode = strtoupper($data['country_code']);
+
+            $matchingIds = ProviderServiceCache::where('provider_id', $data['provider_id'])
+                ->where('type', $data['type'])
+                ->where('is_active', true)
+                ->pluck('name', 'id')
+                ->filter(function ($name) use ($wantedCode) {
+                    $resolved = CountryCodeResolver::resolve($name);
+                    return $resolved && $resolved['code'] === $wantedCode;
+                })
+                ->keys();
+
+            $query->whereIn('id', $matchingIds);
+        }
+
+        $services = $query->orderBy('name')->paginate(25, page: $data['page'] ?? 1);
+
+        $services->getCollection()->transform(function (ProviderServiceCache $service) use ($pricing, $rates) {
+            $costPriceBase = $rates->convert((float) $service->raw_rate, $service->raw_currency, 'NGN');
+
+            return [
+                'id' => $service->id,
+                'name' => $service->name,
+                'unit' => $service->unit,
+                'price' => round($pricing->calculateSellPrice($costPriceBase, $service->type), 2),
+            ];
+        });
+
+        return response()->json([
+            'data' => $services->items(),
+            'current_page' => $services->currentPage(),
+            'last_page' => $services->lastPage(),
+            'total' => $services->total(),
+        ]);
     }
 
     public function store(Request $request, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet)
     {
         $data = $request->validate([
-            'service_id' => ['required', 'integer', 'exists:provider_services_cache,id'],
+            'service_id' => ['required', 'uuid', 'exists:provider_services_cache,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:10000'],
         ]);
 

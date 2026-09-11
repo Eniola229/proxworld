@@ -10,7 +10,7 @@ Schedule::command('exchange-rates:sync')->everySixHours();
 
 Schedule::command('providers:sync-balances')->hourly();
 
-Schedule::command('providers:sync-services')->everyThirtyMinutes();
+Schedule::command('providers:sync-services')->daily();
 
 Schedule::command('newsletter:dispatch-scheduled')->everyMinute()->withoutOverlapping();
 

@@ -1,0 +1,4 @@
+Quick clarification on static_proxy_access first
+
+It's not code — it's just extra info you type into the same JSON config box, for Residential and Mobile only. Here's why: for ISP/Datacenter, the app calls the provider's API after each order and gets back a fresh IP+login automatically. For Residential/Mobile, there's no such API call — everyone on your account uses the same one login forever. So there's nothing to fetch automatically; you just log into that provider's dashboard once, find the page that shows "your proxy connection details" (host, port, username, password), and paste those 4 values into the config so the app can display them to the customer instead of trying to fetch something that doesn't exist. I've already put it into the configs below with placeholder text — just swap in your real values.
+

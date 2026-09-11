@@ -74,10 +74,23 @@ class ProcessProxyOrder implements ShouldQueue
                 'provider_synced_at' => now(),
             ]);
 
-            // Record platform profit now that fulfillment is confirmed.
+            // Fetch the actual proxy credentials now that the order exists at the
+            // provider. Data-based products (Residential/Mobile) don't have these —
+            // the driver throws for them, which is expected, so this must never
+            // undo an order that already succeeded and was already paid for.
+            try {
+                $proxies = $driver->listProxies($result['api_order_id']);
+
+                $order->update([
+                    'proxy_data' => $proxies,
+                    'proxy_synced_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::info("No per-order proxy data for order {$order->id}: ".$e->getMessage());
+            }
+
             $profitService->recordForOrder($order->fresh());
 
-            // Credit the reseller's markup, if this came through a reseller channel.
             if ($order->reseller_id && $order->reseller_profit > 0) {
                 $resellerProfitService->credit(
                     $order->reseller,
@@ -100,9 +113,6 @@ class ProcessProxyOrder implements ShouldQueue
     protected function refundAndFail(Order $order, WalletService $wallet, ResellerWalletService $resellerWallet, ResellerProfitService $resellerProfitService, string $reason): void
     {
         if ($order->reseller_id) {
-            // The reseller's wallet was debited at reseller_price when the order
-            // was placed — refund that, not the end customer (the end customer
-            // paid the reseller directly, outside this platform's wallet).
             $resellerWallet->credit($order->reseller, (float) $order->platform_price_snapshot, [
                 'description' => "Refund for failed order #{$order->id}",
                 'order_id' => $order->id,

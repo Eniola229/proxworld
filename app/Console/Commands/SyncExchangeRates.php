@@ -8,12 +8,15 @@ use Illuminate\Console\Command;
 class SyncExchangeRates extends Command
 {
     protected $signature = 'exchange-rates:sync';
-    protected $description = 'Refresh cached currency exchange rates from the configured provider.';
 
-    public function handle(ExchangeRateService $service): int
+    protected $description = 'Refresh cached exchange rates from the free provider APIs (open.er-api.com, fallback frankfurter.dev)';
+
+    public function handle(ExchangeRateService $rates): int
     {
         $this->info('Syncing exchange rates...');
-        $service->syncAll();
+
+        $rates->syncAll();
+
         $this->info('Done.');
 
         return self::SUCCESS;

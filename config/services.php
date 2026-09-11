@@ -20,7 +20,7 @@ return [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
-        ],
+        ], 
     ],
 
     'google' => [
@@ -47,9 +47,9 @@ return [
     ],
     
     'exchange' => [
-        'api_key' => env('EXCHANGE_RATE_API_KEY'),
-        'base_url' => env('EXCHANGE_RATE_BASE_URL', 'https://v6.exchangerate-api.com/v6'),
-        'base_currency' => env('DEFAULT_CURRENCY', 'NGN'),
+        'base_currency' => env('EXCHANGE_BASE_CURRENCY', 'NGN'),
+        'primary_base_url' => env('EXCHANGE_PRIMARY_URL', 'https://open.er-api.com/v6/latest'),
+        'backup_base_url' => env('EXCHANGE_BACKUP_BASE_URL', 'https://api.frankfurter.dev/v1/latest'),
     ],
 
     'telegram' => [

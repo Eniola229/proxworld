@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        {{-- Filter Bar — built strictly from App\Types\OrderStatus, nothing invented --}}
+                        {{-- Filter Bar --}}
                         <div class="card-body border-bottom p-3">
                             <form method="GET" action="{{ route('orders.index') }}" class="d-flex flex-wrap gap-2 align-items-center">
                                 @php
@@ -63,59 +63,72 @@
                             </form>
                         </div>
 
-                        <div class="card-body custom-card-action p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Service</th>
-                                            <th>Type</th>
-                                            <th>Quantity</th>
-                                            <th>Charge</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php
-                                            $badgeClass = [
-                                                \App\Types\OrderStatus::PENDING    => 'bg-soft-primary text-primary',
-                                                \App\Types\OrderStatus::PROCESSING => 'bg-soft-warning text-warning',
-                                                \App\Types\OrderStatus::COMPLETED  => 'bg-soft-success text-success',
-                                                \App\Types\OrderStatus::CANCELLED  => 'bg-soft-danger text-danger',
-                                                \App\Types\OrderStatus::REFUNDED   => 'bg-soft-info text-info',
-                                            ];
-                                            $badgeIcon = [
-                                                \App\Types\OrderStatus::PENDING    => 'feather-clock',
-                                                \App\Types\OrderStatus::PROCESSING => 'feather-loader',
-                                                \App\Types\OrderStatus::COMPLETED  => 'feather-check-circle',
-                                                \App\Types\OrderStatus::CANCELLED  => 'feather-x-circle',
-                                                \App\Types\OrderStatus::REFUNDED   => 'feather-rotate-ccw',
-                                            ];
-                                            $statusLabels = \App\Types\OrderStatus::labels();
-                                        @endphp
+                        {{-- Orders Card Grid --}}
+                        <div class="card-body p-3">
+                            @php
+                                $badgeClass = [
+                                    \App\Types\OrderStatus::PENDING    => 'bg-soft-primary text-primary',
+                                    \App\Types\OrderStatus::PROCESSING => 'bg-soft-warning text-warning',
+                                    \App\Types\OrderStatus::COMPLETED  => 'bg-soft-success text-success',
+                                    \App\Types\OrderStatus::CANCELLED  => 'bg-soft-danger text-danger',
+                                    \App\Types\OrderStatus::REFUNDED   => 'bg-soft-info text-info',
+                                ];
+                                $badgeIcon = [
+                                    \App\Types\OrderStatus::PENDING    => 'feather-clock',
+                                    \App\Types\OrderStatus::PROCESSING => 'feather-loader',
+                                    \App\Types\OrderStatus::COMPLETED  => 'feather-check-circle',
+                                    \App\Types\OrderStatus::CANCELLED  => 'feather-x-circle',
+                                    \App\Types\OrderStatus::REFUNDED   => 'feather-rotate-ccw',
+                                ];
+                                $statusLabels = \App\Types\OrderStatus::labels();
+                            @endphp
 
-                                        @forelse($orders as $order)
-                                            <tr>
-                                                <td>#{{ substr($order->id, 0, 8) }}...</td>
-                                                <td>{{ $order->service_name }}</td>
-                                                <td>
-                                                    <span class="badge bg-soft-secondary text-secondary text-uppercase">{{ $order->product_type ?? '—' }}</span>
-                                                </td>
-                                                <td>{{ number_format($order->quantity) }}</td>
-                                                <td>₦{{ number_format($order->charge, 2) }}</td>
-                                                <td>
-                                                    <span class="badge {{ $badgeClass[$order->status] ?? 'bg-soft-secondary text-secondary' }}">
-                                                        <i class="{{ $badgeIcon[$order->status] ?? 'feather-help-circle' }} me-1"></i>
-                                                        {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $order->created_at->diffForHumans() }}</td>
-                                                <td class="d-flex gap-2">
-                                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-light" title="View Details">
-                                                        <i class="feather-eye"></i>
+                            <div class="row g-3">
+                                @forelse($orders as $order)
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="card h-100 border shadow-none mb-0">
+                                            <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <!-- Top Bar: Order ID & Status Badge -->
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold text-dark fs-13">#{{ substr($order->id, 0, 8) }}...</span>
+                                                        <span class="badge {{ $badgeClass[$order->status] ?? 'bg-soft-secondary text-secondary' }}">
+                                                            <i class="{{ $badgeIcon[$order->status] ?? 'feather-help-circle' }} me-1"></i>
+                                                            {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Service Name & Product Type -->
+                                                    <h6 class="fw-bold mb-1 text-truncate" title="{{ $order->service_name }}">
+                                                        {{ $order->service_name }}
+                                                    </h6>
+                                                    <div class="mb-3">
+                                                        <span class="badge bg-soft-secondary text-secondary text-uppercase fs-11">
+                                                            {{ $order->product_type ?? '—' }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Details Grid -->
+                                                    <div class="bg-light p-2 rounded mb-3">
+                                                        <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
+                                                            <span class="text-muted"><i class="feather-layers me-1"></i>Quantity:</span>
+                                                            <span class="fw-semibold text-dark">{{ number_format($order->quantity) }}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
+                                                            <span class="text-muted"><i class="feather-credit-card me-1"></i>Charge:</span>
+                                                            <span class="fw-bold text-primary">₦{{ number_format($order->charge, 2) }}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center fs-12">
+                                                            <span class="text-muted"><i class="feather-calendar me-1"></i>Date:</span>
+                                                            <span class="text-muted">{{ $order->created_at->diffForHumans() }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Action Buttons -->
+                                                <div class="d-flex gap-2 pt-2 border-top">
+                                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-light flex-grow-1 text-center">
+                                                        View Details <i class="feather-eye ms-1"></i>
                                                     </a>
                                                     @if($order->api_order_id && in_array($order->status, [\App\Types\OrderStatus::PENDING, \App\Types\OrderStatus::PROCESSING]))
                                                         <a href="{{ route('orders.check-status', $order->id) }}"
@@ -124,27 +137,27 @@
                                                             <i class="feather-refresh-cw"></i>
                                                         </a>
                                                     @endif
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="8" class="text-center py-5">
-                                                    <div class="text-muted mb-3">
-                                                        @if($current)
-                                                            No {{ $statusLabels[$current] ?? ucfirst($current) }} orders found.
-                                                        @else
-                                                            No orders found.
-                                                        @endif
-                                                    </div>
-                                                    @if($current)
-                                                        <a href="{{ route('orders.index') }}" class="btn btn-light btn-sm me-2">View All Orders</a>
-                                                    @endif
-                                                    <a href="{{ route('order.create') }}" class="btn btn-primary btn-sm">Place Your First Order</a>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="text-center py-5">
+                                            <div class="text-muted mb-3">
+                                                @if($current)
+                                                    No {{ $statusLabels[$current] ?? ucfirst($current) }} orders found.
+                                                @else
+                                                    No orders found.
+                                                @endif
+                                            </div>
+                                            @if($current)
+                                                <a href="{{ route('orders.index') }}" class="btn btn-light btn-sm me-2">View All Orders</a>
+                                            @endif
+                                            <a href="{{ route('order.create') }}" class="btn btn-primary btn-sm">Place Your First Order</a>
+                                        </div>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
 

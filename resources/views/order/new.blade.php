@@ -4,7 +4,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* ── Custom Service Picker ─────────────────────────────────────────── */
 .service-picker-wrapper { position: relative; }
 
 .service-picker-trigger {
@@ -16,7 +15,6 @@
     border: 1px solid #dee2e6 !important;
     border-radius: 8px !important;
     background: #ffffff !important;
-    background-image: none !important;
     cursor: pointer !important;
     font-size: 14px !important;
     color: #212529 !important;
@@ -24,153 +22,82 @@
     box-shadow: none !important;
     transition: border-color 0.15s, box-shadow 0.15s !important;
     line-height: 1.5 !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
 }
-.service-picker-trigger:hover,
-.service-picker-trigger:focus {
-    border-color: #adb5bd !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: #ffffff !important;
-    color: #212529 !important;
+.service-picker-trigger:hover, .service-picker-trigger:focus {
+    border-color: #adb5bd !important; outline: none !important;
 }
 .service-picker-trigger.open {
     border-color: #0d6efd !important;
     box-shadow: 0 0 0 3px rgba(13,110,253,0.12) !important;
     border-radius: 8px 8px 0 0 !important;
-    background: #ffffff !important;
 }
-.service-picker-trigger.no-type {
-    cursor: default !important;
-    color: #6c757d !important;
-    background: #ffffff !important;
-}
+.service-picker-trigger.no-type { cursor: default !important; color: #6c757d !important; }
 .service-picker-trigger .trigger-text {
-    flex: 1 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    display: block !important;
-    color: #212529 !important;
+    flex: 1 !important; overflow: hidden !important; text-overflow: ellipsis !important;
+    white-space: nowrap !important; color: #212529 !important;
 }
 .service-picker-trigger .trigger-text.placeholder { color: #adb5bd !important; }
-.service-picker-trigger .trigger-meta {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    flex-shrink: 0 !important;
-    margin-left: 10px !important;
-}
+.service-picker-trigger .trigger-meta { display: flex !important; align-items: center !important; gap: 8px !important; margin-left: 10px !important; }
 .service-picker-trigger .trigger-price {
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    color: #0d6efd !important;
-    background: #e7f1ff !important;
-    padding: 2px 8px !important;
-    border-radius: 20px !important;
-    white-space: nowrap !important;
+    font-size: 12px !important; font-weight: 600 !important; color: #0d6efd !important;
+    background: #e7f1ff !important; padding: 2px 8px !important; border-radius: 20px !important; white-space: nowrap !important;
 }
-.service-picker-trigger .trigger-chevron {
-    font-size: 11px !important;
-    color: #6c757d !important;
-    transition: transform 0.2s;
-    flex-shrink: 0 !important;
-}
+.service-picker-trigger .trigger-flag { width: 18px !important; height: 13px !important; object-fit: cover !important; border-radius: 2px !important; margin-right: 8px !important; vertical-align: middle !important; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
+.service-picker-trigger .trigger-chevron { font-size: 11px !important; color: #6c757d !important; transition: transform 0.2s; }
 .service-picker-trigger.open .trigger-chevron { transform: rotate(180deg); }
 
-/* Dropdown panel */
 .service-picker-panel {
-    display: none;
-    position: absolute;
-    left: 0; right: 0; top: 100%;
-    z-index: 1000;
-    background: #fff;
-    border: 1px solid #0d6efd;
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-    overflow: hidden;
+    display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 1000;
+    background: #fff; border: 1px solid #0d6efd; border-top: none;
+    border-radius: 0 0 10px 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.10); overflow: hidden;
 }
-.service-picker-panel.open {
-    display: block;
-    animation: spSlideIn 0.15s ease;
-}
-@keyframes spSlideIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+.service-picker-panel.open { display: block; animation: spSlideIn 0.15s ease; }
+@keyframes spSlideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Search bar */
-.service-picker-search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #f8f9fa;
-}
-.service-picker-search i { color: #adb5bd; font-size: 13px; flex-shrink: 0; }
-.service-picker-search input {
-    flex: 1; border: none; background: transparent;
-    outline: none; font-size: 13px; color: #212529;
-}
+.service-picker-search { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; background: #f8f9fa; }
+.service-picker-search i { color: #adb5bd; font-size: 13px; }
+.service-picker-search input { flex: 1; border: none; background: transparent; outline: none; font-size: 13px; color: #212529; }
 .service-picker-search input::placeholder { color: #adb5bd; }
-.sp-count { font-size: 11px; color: #adb5bd; flex-shrink: 0; }
+.sp-count { font-size: 11px; color: #adb5bd; white-space: nowrap; }
 
-/* List */
-.service-picker-list {
-    max-height: 300px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
+.service-picker-list { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; min-height: 80px; position: relative; }
 .service-picker-list::-webkit-scrollbar { width: 5px; }
 .service-picker-list::-webkit-scrollbar-track { background: #f8f9fa; }
 .service-picker-list::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 10px; }
 
-/* Each item */
-.sp-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 11px 14px;
-    cursor: pointer;
-    transition: background 0.1s;
-    border-bottom: 1px solid #f5f5f5;
-}
+.sp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f5f5f5; }
 .sp-item:last-child { border-bottom: none; }
 .sp-item:hover { background: #f0f7ff; }
 .sp-item.selected { background: #e7f1ff; }
-.sp-item-name {
-    font-size: 13px; color: #212529; flex: 1; line-height: 1.4;
-}
-.sp-item-provider {
-    font-size: 11px; color: #adb5bd; display: block; margin-top: 2px;
-}
-.sp-item-name mark {
-    background: #fff3cd; color: #212529; border-radius: 2px; padding: 0 1px;
-}
+.sp-item-name { font-size: 13px; color: #212529; flex: 1; line-height: 1.4; display: flex; align-items: center; }
+.sp-item-name mark { background: #fff3cd; color: #212529; border-radius: 2px; padding: 0 1px; }
 .sp-item-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.sp-item-price {
-    font-size: 12px; font-weight: 600; color: #0d6efd;
-    background: #e7f1ff; padding: 3px 9px;
-    border-radius: 20px; white-space: nowrap;
-}
+.sp-item-price { font-size: 12px; font-weight: 600; color: #0d6efd; background: #e7f1ff; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
 .sp-item.selected .sp-item-price { background: #0d6efd; color: #fff; }
 .sp-item-check { font-size: 12px; color: #0d6efd; display: none; }
 .sp-item.selected .sp-item-check { display: block; }
 .sp-empty { padding: 24px; text-align: center; color: #adb5bd; font-size: 13px; }
 .sp-empty i { display: block; font-size: 22px; margin-bottom: 6px; }
+.sp-loading { padding: 24px; text-align: center; color: #adb5bd; font-size: 13px; }
+.sp-loading i { display: block; font-size: 18px; margin-bottom: 6px; animation: spSpin 0.8s linear infinite; }
+@keyframes spSpin { to { transform: rotate(360deg); } }
+
+.sp-pager { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-top: 1px solid #f0f0f0; background: #f8f9fa; font-size: 12px; color: #6c757d; }
+.sp-pager button { border: none; background: transparent; color: #0d6efd; font-weight: 600; padding: 4px 8px; cursor: pointer; }
+.sp-pager button:disabled { color: #ced4da; cursor: default; }
+
+/* Country picker — reuses the same visual language as the service picker */
+.country-picker-wrapper { position: relative; max-width: 320px; }
+.cp-item-name { display: flex; align-items: center; gap: 8px; }
+.cp-flag { width: 20px; height: 15px; object-fit: cover; border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
+.cp-item-name mark { background: #fff3cd; color: #212529; border-radius: 2px; padding: 0 1px; }
 </style>
 
 <main class="nxl-container">
     <div class="nxl-content">
         <div class="page-header">
             <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title">
-                    <h5 class="m-b-10">New Order</h5>
-                </div>
+                <div class="page-header-title"><h5 class="m-b-10">New Order</h5></div>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item">Order</li>
@@ -195,9 +122,7 @@
             <div class="row">
                 <div class="col-lg-8 mx-auto">
                     <div class="card stretch stretch-full">
-                        <div class="card-header">
-                            <h5 class="card-title">Buy Proxies</h5>
-                        </div>
+                        <div class="card-header"><h5 class="card-title">Buy Proxies</h5></div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('order.store') }}">
                                 @csrf
@@ -206,7 +131,7 @@
                                 <div class="mb-4">
                                     <label class="form-label mb-3">Select Proxy Type</label>
                                     <div class="d-flex flex-wrap gap-3" id="type-container">
-                                        @foreach($groupedServices as $type => $servicesOfType)
+                                        @foreach($providersByType as $type => $entries)
                                             <button type="button"
                                                     class="btn type-btn btn-outline-secondary d-flex flex-column align-items-center justify-content-center"
                                                     style="width: 110px; height: 80px; border-radius: 12px; padding: 10px 6px;"
@@ -223,7 +148,7 @@
                                             </button>
                                         @endforeach
                                     </div>
-                                    @if($groupedServices->isEmpty())
+                                    @if($providersByType->isEmpty())
                                         <div class="alert alert-warning mt-3 mb-0">
                                             No proxy plans are available right now — check back shortly, or contact
                                             <a href="{{ route('support.index') }}">support</a>.
@@ -231,23 +156,43 @@
                                     @endif
                                 </div>
 
-                                <!-- 2. Provider Selection (shown only when a type has more than one provider) -->
+                                <!-- 2. Provider Selection -->
                                 <div class="mb-3" id="provider-section" style="display: none;">
                                     <label class="form-label mb-2">Select Provider</label>
                                     <div class="d-flex flex-wrap gap-2" id="provider-container"></div>
                                     <div class="form-text mt-1">Same proxy type, different suppliers — pick whichever fits your budget.</div>
                                 </div>
 
-                                <!-- 3. Service/Plan Selection — Custom Picker -->
+                                <!-- 3. Country Selection -->
+                                <div class="mb-3" id="country-section" style="display: none;">
+                                    <label class="form-label mb-2">Filter by Country</label>
+                                    <div class="country-picker-wrapper" id="country-picker-wrapper">
+                                        <button type="button" class="service-picker-trigger no-type" id="cp-trigger" onclick="cpToggle()">
+                                            <span class="trigger-text placeholder" id="cp-trigger-text">🌍 All countries</span>
+                                            <div class="trigger-meta">
+                                                <i class="fas fa-chevron-down trigger-chevron"></i>
+                                            </div>
+                                        </button>
+                                        <div class="service-picker-panel" id="cp-panel">
+                                            <div class="service-picker-search">
+                                                <i class="fas fa-search"></i>
+                                                <input type="text" id="cp-search" placeholder="Search country…" oninput="cpSearchInput(this.value)" autocomplete="off">
+                                                <span class="sp-count" id="cp-count"></span>
+                                            </div>
+                                            <div class="service-picker-list" id="cp-list"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-text mt-1">Optional — narrows plans down to one country.</div>
+                                </div>
+
+                                <!-- 4. Plan Selection -->
                                 <div class="mb-3">
                                     <label class="form-label">Select Plan</label>
 
-                                    <!-- Hidden real select (submitted with form) -->
                                     <select name="service_id" id="service_id" style="display:none;" required>
                                         <option value="">-- select --</option>
                                     </select>
 
-                                    <!-- Custom picker UI -->
                                     <div class="service-picker-wrapper" id="service-picker-wrapper">
                                         <button type="button" class="service-picker-trigger no-type" id="sp-trigger" onclick="spToggle()">
                                             <span class="trigger-text placeholder" id="sp-trigger-text">👆 Select a proxy type first</span>
@@ -259,25 +204,31 @@
                                         <div class="service-picker-panel" id="sp-panel">
                                             <div class="service-picker-search">
                                                 <i class="fas fa-search"></i>
-                                                <input type="text" id="sp-search" placeholder="Search plans…" oninput="spSearch(this.value)" autocomplete="off">
+                                                <input type="text" id="sp-search" placeholder="Search plans…" oninput="spSearchInput(this.value)" autocomplete="off">
                                                 <span class="sp-count" id="sp-count"></span>
                                             </div>
                                             <div class="service-picker-list" id="sp-list"></div>
+                                            <div class="sp-pager" id="sp-pager" style="display:none;">
+                                                <span id="sp-pager-info"></span>
+                                                <div>
+                                                    <button type="button" id="sp-prev" onclick="spGoPage(-1)"><i class="fas fa-chevron-left"></i> Prev</button>
+                                                    <button type="button" id="sp-next" onclick="spGoPage(1)">Next <i class="fas fa-chevron-right"></i></button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="form-text mt-1" id="service_info"></div>
                                 </div>
 
-                                <!-- Description Button -->
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#orderDescription">
                                         <i class="fas fa-info-circle me-1"></i> How Proxy Orders Work
                                     </button>
                                     <div class="collapse mt-3" id="orderDescription">
                                         <div class="card card-body bg-light">
-                                            <p class="mb-2">Pick a proxy type, choose a plan, and enter the quantity you need — {{ __('e.g. number of GB of bandwidth, or number of IPs, depending on the plan.') }}</p>
-                                            <p class="mb-3">Once your order is placed, we provision it with the provider automatically. Your proxy credentials (host, port, username, password) will show up on the order page as soon as it's ready — usually within a few minutes.</p>
+                                            <p class="mb-2">Pick a proxy type, choose a provider, then a plan, and enter the quantity you need.</p>
+                                            <p class="mb-3">Once your order is placed, we provision it with the provider automatically. Your proxy credentials will show up on the order page as soon as it's ready.</p>
                                             <h6 class="fw-bold mb-2">Proxy types</h6>
                                             <ul class="mb-3">
                                                 <li><strong>Residential</strong> — IPs from real home internet connections. Best for avoiding blocks.</li>
@@ -290,20 +241,16 @@
                                     </div>
                                 </div>
 
-                                <!-- Hidden Service Name -->
                                 <input type="hidden" name="service_name" id="service_name">
 
-                                <!-- Quantity -->
                                 <div class="mb-3">
                                     <label class="form-label">Quantity <span id="quantity_unit_label"></span></label>
                                     <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Select a plan first" disabled min="1" oninput="calculateTotal()">
                                     <div class="form-text" id="quantity_info">Select a plan to see pricing.</div>
                                 </div>
 
-                                <!-- Total Charge Display -->
                                 <div class="d-flex justify-content-between align-items-center mb-3 px-3 py-3 rounded-3"
-                                     id="charge_alert"
-                                     style="border: 1px solid #f7c1c1; background: #fcebeb; transition: all 0.3s ease;">
+                                     id="charge_alert" style="border: 1px solid #f7c1c1; background: #fcebeb; transition: all 0.3s ease;">
                                     <div>
                                         <div id="charge_status_text" style="font-size: 13px; font-weight: 500; color: #a32d2d;">
                                             <i class="fas fa-lock me-1"></i> Select a plan and quantity
@@ -320,10 +267,8 @@
 
                                 <input type="hidden" name="charge" id="charge" value="0">
 
-                                <!-- Submit Button -->
                                 <div class="d-grid">
-                                    <button type="submit" id="submit_btn" class="btn btn-lg btn-secondary" disabled
-                                            style="transition: all 0.3s ease;">
+                                    <button type="submit" id="submit_btn" class="btn btn-lg btn-secondary" disabled style="transition: all 0.3s ease;">
                                         <i class="fas fa-lock me-2"></i> Place Order
                                     </button>
                                 </div>
@@ -331,7 +276,6 @@
                                 @error('service_id')
                                     <div class="text-danger mt-2">{{ $message }}</div>
                                 @enderror
-
                             </form>
                         </div>
                     </div>
@@ -344,23 +288,31 @@
 @include('components.g-footer')
 
 <script>
-// groupedData: { residential: [{id, name, price, unit, provider}, ...], datacenter: [...], ... }
-const groupedData = {!! json_encode($groupedServices->map(fn ($services) => $services->map(fn ($s) => [
-    'id' => $s->id,
-    'name' => $s->name,
-    'provider' => $s->provider?->name ?? 'Provider',
-    'price' => $s->display_price,
-    'unit' => $s->unit,
-]))) !!};
+// providersByType: { residential: [{type, provider_id, provider_name}, ...], ... }
+const providersByType = {!! json_encode($providersByType) !!};
+const servicesUrl  = "{{ route('order.services') }}";
+const countriesUrl = "{{ route('order.countries') }}";
 
-let currentType      = null;
-let currentProvider  = null;
-let currentServiceId = null;
-let spServices       = [];
-let spOpen           = false;
-let allTypeServices   = []; // full list for the current type, before provider filter
+let currentType        = null;
+let currentProvider     = null;
+let currentServiceId     = null;
+let currentCountryCode    = '';   // '' = all countries
+let spServices              = [];   // current page of services
+let spOpen                    = false;
+let spPage                     = 1;
+let spLastPage                  = 1;
+let spTotal                      = 0;
+let spSearchTerm                  = '';
+let spSearchDebounce               = null;
+let spRequestToken                  = 0; // guards against out-of-order AJAX responses
 
-// ── Highlight search match ────────────────────────────────────────────────────
+// country picker state
+let cpCountries      = [];   // full list for the current provider+type: [{code, name}]
+let cpFilteredCountries = [];
+let cpOpen            = false;
+let cpSearchTerm       = '';
+let cpRequestToken      = 0;
+
 function highlight(text, query) {
     if (!query) return escHtml(text);
     const esc = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -370,27 +322,44 @@ function escHtml(t) {
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Picker: open / close ──────────────────────────────────────────────────────
+// Converts a 2-letter ISO country code into its flag emoji, e.g. "NG" -> 🇳🇬
+// Used only as a fallback if the flagcdn.com image fails to load.
+function countryFlagEmoji(code) {
+    if (!code || code.length !== 2) return '🏳️';
+    return code.toUpperCase().replace(/./g, function (char) {
+        return String.fromCodePoint(127397 + char.charCodeAt(0));
+    });
+}
+
+// Builds a real flag image URL from flagcdn.com for a 2-letter ISO country code
+// e.g. "ng" -> https://flagcdn.com/24x18/ng.png
+function countryFlagUrl(code) {
+    if (!code) return '';
+    return 'https://flagcdn.com/24x18/' + code.toLowerCase() + '.png';
+}
+
+/* ───────────────────────── Service picker ───────────────────────── */
+
 function spToggle() {
     if (document.getElementById('sp-trigger').classList.contains('no-type')) {
-        const typeContainer = document.getElementById('type-container');
-        typeContainer.style.transition = 'transform 0.1s';
-        typeContainer.style.transform = 'translateX(6px)';
-        setTimeout(function(){ typeContainer.style.transform = 'translateX(-6px)'; }, 100);
-        setTimeout(function(){ typeContainer.style.transform = 'translateX(4px)'; },  200);
-        setTimeout(function(){ typeContainer.style.transform = 'translateX(0)'; },    300);
+        const c = document.getElementById('type-container');
+        c.style.transition = 'transform 0.1s';
+        c.style.transform = 'translateX(6px)';
+        setTimeout(() => c.style.transform = 'translateX(-6px)', 100);
+        setTimeout(() => c.style.transform = 'translateX(4px)', 200);
+        setTimeout(() => c.style.transform = 'translateX(0)', 300);
         return;
     }
     spOpen ? spClose() : spOpen_();
 }
 function spOpen_() {
     spOpen = true;
+    cpClose();
     document.getElementById('sp-trigger').classList.add('open');
     document.getElementById('sp-panel').classList.add('open');
     const search = document.getElementById('sp-search');
-    search.value = '';
-    spRenderItems('');
-    setTimeout(function(){ search.focus(); }, 50);
+    search.value = spSearchTerm;
+    setTimeout(() => search.focus(), 50);
 }
 function spClose() {
     spOpen = false;
@@ -400,84 +369,96 @@ function spClose() {
 document.addEventListener('click', function(e) {
     const wrapper = document.getElementById('service-picker-wrapper');
     if (wrapper && !wrapper.contains(e.target)) spClose();
+
+    const cpWrapper = document.getElementById('country-picker-wrapper');
+    if (cpWrapper && !cpWrapper.contains(e.target)) cpClose();
 });
 
-// ── Render picker list ────────────────────────────────────────────────────────
-function spRenderItems(query) {
+// ── Fetch a page of services from the server ──────────────────────────────
+async function fetchServices(page) {
+    const list = document.getElementById('sp-list');
+    list.innerHTML = '<div class="sp-loading"><i class="fas fa-circle-notch"></i>Loading plans…</div>';
+    document.getElementById('sp-pager').style.display = 'none';
+
+    const myToken = ++spRequestToken;
+    const params = new URLSearchParams({
+        provider_id: currentProvider,
+        type: currentType,
+        page: page,
+        search: spSearchTerm,
+    });
+    if (currentCountryCode) {
+        params.set('country_code', currentCountryCode);
+    }
+
+    try {
+        const res = await fetch(servicesUrl + '?' + params.toString(), {
+            headers: { 'Accept': 'application/json' },
+        });
+        if (!res.ok) throw new Error('Request failed');
+        const json = await res.json();
+
+        if (myToken !== spRequestToken) return; // a newer request already superseded this one
+
+        spServices = json.data;
+        spPage = json.current_page;
+        spLastPage = json.last_page;
+        spTotal = json.total;
+
+        loadPickerServices(spServices);
+        spRenderItems();
+    } catch (e) {
+        if (myToken !== spRequestToken) return;
+        document.getElementById('sp-list').innerHTML =
+            '<div class="sp-empty"><i class="fas fa-triangle-exclamation"></i>Couldn\'t load plans. Try again.</div>';
+    }
+}
+
+function spRenderItems() {
     const list = document.getElementById('sp-list');
     const countEl = document.getElementById('sp-count');
-    const q = (query || '').toLowerCase().trim();
-    const filtered = q ? spServices.filter(function(s){ return s.name.toLowerCase().includes(q); }) : spServices;
-    countEl.textContent = filtered.length + ' plan' + (filtered.length !== 1 ? 's' : '');
-    if (filtered.length === 0) {
-        list.innerHTML = '<div class="sp-empty"><i class="fas fa-search-minus"></i>No plans match "' + escHtml(query) + '"</div>';
+    countEl.textContent = spTotal + ' plan' + (spTotal !== 1 ? 's' : '');
+
+    if (spServices.length === 0) {
+        list.innerHTML = '<div class="sp-empty"><i class="fas fa-search-minus"></i>No plans match "' + escHtml(spSearchTerm) + '"</div>';
+        document.getElementById('sp-pager').style.display = 'none';
         return;
     }
-    list.innerHTML = filtered.map(function(s) {
+
+    list.innerHTML = spServices.map(function(s) {
         const sel = s.id == currentServiceId ? 'selected' : '';
         return '<div class="sp-item ' + sel + '" data-id="' + s.id + '" onclick="spSelect(\'' + s.id + '\')">'
-            + '<span class="sp-item-name">' + highlight(s.name, query) + '<span class="sp-item-provider">' + escHtml(s.provider) + '</span></span>'
+            + '<span class="sp-item-name">' + highlight(s.name, spSearchTerm) + '</span>'
             + '<div class="sp-item-right">'
             + '<span class="sp-item-price">&#8358;' + parseFloat(s.price).toFixed(2) + '/' + escHtml(s.unit) + '</span>'
             + '<i class="fas fa-check sp-item-check"></i>'
             + '</div></div>';
     }).join('');
-}
-function spSearch(val) { spRenderItems(val); }
 
-// ── Select a plan ─────────────────────────────────────────────────────────────
-function spSelect(serviceId) {
-    const service = spServices.find(function(s){ return s.id == serviceId; });
-    if (!service) return;
-    currentServiceId = serviceId;
-
-    document.getElementById('service_id').value = serviceId;
-    document.getElementById('service_name').value = service.name;
-
-    const triggerText  = document.getElementById('sp-trigger-text');
-    const triggerPrice = document.getElementById('sp-trigger-price');
-    triggerText.textContent = service.name + ' (' + service.provider + ')';
-    triggerText.classList.remove('placeholder');
-    triggerPrice.textContent = '\u20a6' + parseFloat(service.price).toFixed(2) + '/' + service.unit;
-    triggerPrice.style.display = '';
-
-    document.getElementById('service_info').innerHTML =
-        'Provider: <strong>' + escHtml(service.provider) + '</strong>&nbsp;&nbsp;|&nbsp;&nbsp;Priced per <strong>' + escHtml(service.unit) + '</strong>';
-
-    const qty = document.getElementById('quantity');
-    qty.disabled = false;
-    qty.min = 1;
-    qty.placeholder = 'e.g. 5';
-    qty.value = '';
-
-    document.getElementById('quantity_unit_label').textContent = '(in ' + service.unit + ')';
-    document.getElementById('quantity_info').innerHTML =
-        'Total = quantity &times; \u20a6' + parseFloat(service.price).toFixed(2) + ' per ' + escHtml(service.unit) + '.';
-
-    calculateTotal();
-    spClose();
+    const pager = document.getElementById('sp-pager');
+    if (spLastPage > 1) {
+        pager.style.display = 'flex';
+        document.getElementById('sp-pager-info').textContent = 'Page ' + spPage + ' of ' + spLastPage;
+        document.getElementById('sp-prev').disabled = spPage <= 1;
+        document.getElementById('sp-next').disabled = spPage >= spLastPage;
+    } else {
+        pager.style.display = 'none';
+    }
 }
 
-// ── Provider filter (only shown when a type has 2+ providers) ────────────────
-function selectProvider(providerName) {
-    currentProvider  = providerName;
-    currentServiceId = null;
-
-    document.querySelectorAll('.provider-btn').forEach(function(btn) {
-        const active = btn.dataset.provider === providerName;
-        btn.classList.toggle('btn-primary', active);
-        btn.classList.toggle('btn-outline-secondary', !active);
-    });
-
-    spServices = providerName === '__all__'
-        ? allTypeServices
-        : allTypeServices.filter(function(s){ return s.provider === providerName; });
-
-    loadPickerServices(spServices);
-    resetServiceSelection(spServices.length);
+function spGoPage(delta) {
+    const target = spPage + delta;
+    if (target < 1 || target > spLastPage) return;
+    fetchServices(target);
 }
 
-// ── Sync hidden <select> options with current spServices ─────────────────────
+function spSearchInput(val) {
+    spSearchTerm = val;
+    clearTimeout(spSearchDebounce);
+    spSearchDebounce = setTimeout(() => fetchServices(1), 300);
+}
+
+// ── Sync hidden <select> with current page's services ─────────────────────
 function loadPickerServices(services) {
     const sel = document.getElementById('service_id');
     sel.innerHTML = '<option value="">-- select --</option>';
@@ -492,12 +473,204 @@ function loadPickerServices(services) {
     });
 }
 
-function resetServiceSelection(count) {
+// ── Select a plan ──────────────────────────────────────────────────────────
+function spSelect(serviceId) {
+    const service = spServices.find(s => s.id == serviceId);
+    if (!service) return;
+    currentServiceId = serviceId;
+
+    document.getElementById('service_id').value = serviceId;
+    document.getElementById('service_name').value = service.name;
+
+    const triggerText  = document.getElementById('sp-trigger-text');
+    const triggerPrice = document.getElementById('sp-trigger-price');
+    triggerText.textContent = service.name;
+    triggerText.classList.remove('placeholder');
+    triggerPrice.textContent = '\u20a6' + parseFloat(service.price).toFixed(2) + '/' + service.unit;
+    triggerPrice.style.display = '';
+
+    document.getElementById('service_info').innerHTML =
+        'Priced per <strong>' + escHtml(service.unit) + '</strong>';
+
+    const qty = document.getElementById('quantity');
+    qty.disabled = false;
+    qty.min = 1;
+    qty.placeholder = 'e.g. 5';
+    qty.value = '';
+
+    document.getElementById('quantity_unit_label').textContent = '(in ' + service.unit + ')';
+    document.getElementById('quantity_info').innerHTML =
+        'Total = quantity &times; \u20a6' + parseFloat(service.price).toFixed(2) + ' per ' + escHtml(service.unit) + '.';
+
+    calculateTotal();
+    spClose();
+    spRenderItems(); // re-render to show the "selected" state
+}
+
+/* ───────────────────────── Country picker ───────────────────────── */
+
+function cpToggle() {
+    if (document.getElementById('cp-trigger').classList.contains('no-type')
+        && cpCountries.length === 0) {
+        return;
+    }
+    cpOpen ? cpClose() : cpOpen_();
+}
+function cpOpen_() {
+    cpOpen = true;
+    spClose();
+    document.getElementById('cp-trigger').classList.add('open');
+    document.getElementById('cp-panel').classList.add('open');
+    const search = document.getElementById('cp-search');
+    search.value = cpSearchTerm;
+    setTimeout(() => search.focus(), 50);
+}
+function cpClose() {
+    cpOpen = false;
+    document.getElementById('cp-trigger').classList.remove('open');
+    document.getElementById('cp-panel').classList.remove('open');
+}
+
+// ── Fetch the full country list for the current provider + type ──────────
+async function fetchCountries() {
+    const list = document.getElementById('cp-list');
+    list.innerHTML = '<div class="sp-loading"><i class="fas fa-circle-notch"></i>Loading countries…</div>';
+
+    const myToken = ++cpRequestToken;
+    const params = new URLSearchParams({
+        provider_id: currentProvider,
+        type: currentType,
+    });
+
+    try {
+        const res = await fetch(countriesUrl + '?' + params.toString(), {
+            headers: { 'Accept': 'application/json' },
+        });
+        if (!res.ok) throw new Error('Request failed');
+        const json = await res.json();
+
+        if (myToken !== cpRequestToken) return;
+
+        cpCountries = json.data || [];
+        cpSearchTerm = '';
+        document.getElementById('cp-trigger').classList.remove('no-type');
+        cpApplyFilter();
+    } catch (e) {
+        if (myToken !== cpRequestToken) return;
+        cpCountries = [];
+        document.getElementById('cp-list').innerHTML =
+            '<div class="sp-empty"><i class="fas fa-triangle-exclamation"></i>Couldn\'t load countries.</div>';
+    }
+}
+
+function cpApplyFilter() {
+    const term = cpSearchTerm.trim().toLowerCase();
+    cpFilteredCountries = term
+        ? cpCountries.filter(c => c.name.toLowerCase().includes(term))
+        : cpCountries;
+    cpRenderItems();
+}
+
+function cpRenderItems() {
+    const list = document.getElementById('cp-list');
+    const countEl = document.getElementById('cp-count');
+    countEl.textContent = cpCountries.length + ' countr' + (cpCountries.length !== 1 ? 'ies' : 'y');
+
+    let html = '';
+
+    // "All countries" option always sits at the top
+    const allSelected = currentCountryCode === '' ? 'selected' : '';
+    html += '<div class="sp-item ' + allSelected + '" data-code="" onclick="cpSelect(\'\')">'
+        + '<span class="sp-item-name cp-item-name"><span class="cp-flag">🌍</span>All countries</span>'
+        + '<div class="sp-item-right"><i class="fas fa-check sp-item-check"></i></div>'
+        + '</div>';
+
+    if (cpFilteredCountries.length === 0 && cpSearchTerm) {
+        html += '<div class="sp-empty"><i class="fas fa-search-minus"></i>No country matches "' + escHtml(cpSearchTerm) + '"</div>';
+    } else {
+        html += cpFilteredCountries.map(function(c) {
+            const sel = c.code === currentCountryCode ? 'selected' : '';
+            return '<div class="sp-item ' + sel + '" data-code="' + escHtml(c.code) + '" onclick="cpSelect(\'' + c.code + '\')">'
+                + '<span class="sp-item-name cp-item-name">'
+                + '<img class="cp-flag" src="' + countryFlagUrl(c.code) + '" alt="' + escHtml(c.code) + '" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;cp-flag&quot;>' + countryFlagEmoji(c.code) + '</span>\'">'
+                + highlight(c.name, cpSearchTerm) + '</span>'
+                + '<div class="sp-item-right"><i class="fas fa-check sp-item-check"></i></div>'
+                + '</div>';
+        }).join('');
+    }
+
+    list.innerHTML = html;
+}
+
+function cpSearchInput(val) {
+    cpSearchTerm = val;
+    cpApplyFilter();
+}
+
+function cpSelect(code) {
+    currentCountryCode = code;
+
+    const triggerText = document.getElementById('cp-trigger-text');
+    if (code === '') {
+        triggerText.innerHTML = '🌍 All countries';
+    } else {
+        const country = cpCountries.find(c => c.code === code);
+        const name = country ? country.name : code;
+        triggerText.innerHTML = '<img class="trigger-flag" src="' + countryFlagUrl(code) + '" alt="' + escHtml(code) + '" onerror="this.outerHTML=\'' + countryFlagEmoji(code) + '\'">' + escHtml(name);
+    }
+    triggerText.classList.remove('placeholder');
+
+    cpClose();
+    cpRenderItems();
+
+    // Re-fetch plans filtered to this country, and reset any selected plan
+    currentServiceId = null;
+    resetServiceSelection();
+    fetchServices(1);
+}
+
+function resetCountrySelection() {
+    currentCountryCode = '';
+    cpCountries = [];
+    cpFilteredCountries = [];
+    cpSearchTerm = '';
+
+    const trigger = document.getElementById('cp-trigger');
+    trigger.classList.add('no-type');
+    const triggerText = document.getElementById('cp-trigger-text');
+    triggerText.innerHTML = '🌍 All countries';
+    triggerText.classList.add('placeholder');
+    document.getElementById('cp-list').innerHTML = '';
+    document.getElementById('cp-count').textContent = '';
+}
+
+/* ───────────────────────── Provider / type steps ───────────────────────── */
+
+// ── Provider filter ─────────────────────────────────────────────────────────
+function selectProvider(providerId, providerName) {
+    currentProvider  = providerId;
+    currentServiceId = null;
+    spSearchTerm = '';
+
+    document.querySelectorAll('.provider-btn').forEach(function(btn) {
+        const active = btn.dataset.provider === String(providerId);
+        btn.classList.toggle('btn-primary', active);
+        btn.classList.toggle('btn-outline-secondary', !active);
+    });
+
+    resetServiceSelection();
+    resetCountrySelection();
+    document.getElementById('country-section').style.display = '';
+    fetchCountries();
+    fetchServices(1);
+}
+
+function resetServiceSelection() {
     const trigger = document.getElementById('sp-trigger');
     trigger.classList.remove('no-type');
     const triggerText  = document.getElementById('sp-trigger-text');
     const triggerPrice = document.getElementById('sp-trigger-price');
-    triggerText.textContent = '\ud83d\udd3d Click to select a plan (' + count + ' available)';
+    triggerText.textContent = '\ud83d\udd3d Click to select a plan';
     triggerText.classList.add('placeholder');
     triggerPrice.style.display = 'none';
 
@@ -511,11 +684,12 @@ function resetServiceSelection(count) {
     updateTotalDisplay(0);
 }
 
-// ── Step 1: Proxy type selected ───────────────────────────────────────────────
+// ── Step 1: Proxy type selected ───────────────────────────────────────────
 function selectType(type) {
     currentType     = type;
     currentProvider = null;
     currentServiceId = null;
+    spSearchTerm = '';
 
     document.querySelectorAll('.type-btn').forEach(function(btn) {
         const active = btn.dataset.type === type;
@@ -523,69 +697,61 @@ function selectType(type) {
         btn.classList.toggle('btn-outline-secondary', !active);
     });
 
-    allTypeServices = groupedData[type] || [];
+    const entries = providersByType[type] || [];
 
-    // ── Provider filter ────────────────────────────────────────────────────
     const providerSection   = document.getElementById('provider-section');
     const providerContainer = document.getElementById('provider-container');
+    const countrySection    = document.getElementById('country-section');
     providerContainer.innerHTML = '';
 
-    const providers = [...new Set(allTypeServices.map(function(s){ return s.provider; }))];
+    resetCountrySelection();
+    countrySection.style.display = 'none';
 
-    if (providers.length > 1) {
-        const allBtn = document.createElement('button');
-        allBtn.type = 'button';
-        allBtn.className = 'btn btn-sm btn-primary provider-btn';
-        allBtn.dataset.provider = '__all__';
-        allBtn.textContent = 'All providers';
-        allBtn.onclick = function(){ selectProvider('__all__'); };
-        providerContainer.appendChild(allBtn);
-
-        providers.forEach(function(p) {
+    if (entries.length > 1) {
+        entries.forEach(function(e) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-sm btn-outline-secondary provider-btn';
-            btn.dataset.provider = p;
-            btn.textContent = p;
-            btn.onclick = function(){ selectProvider(p); };
+            btn.dataset.provider = e.provider_id;
+            btn.textContent = e.provider_name;
+            btn.onclick = function(){ selectProvider(e.provider_id, e.provider_name); };
             providerContainer.appendChild(btn);
         });
-
         providerSection.style.display = '';
-        spServices = allTypeServices;
+        resetServiceSelection();
+        document.getElementById('sp-list').innerHTML = '';
+        document.getElementById('sp-count').textContent = '';
+        document.getElementById('sp-pager').style.display = 'none';
+    } else if (entries.length === 1) {
+        providerSection.style.display = 'none';
+        selectProvider(entries[0].provider_id, entries[0].provider_name);
     } else {
         providerSection.style.display = 'none';
-        spServices = allTypeServices;
+        resetServiceSelection();
     }
-
-    loadPickerServices(spServices);
-    resetServiceSelection(spServices.length);
 }
 
-// ── Calculate total ───────────────────────────────────────────────────────────
+// ── Calculate total ────────────────────────────────────────────────────────
 function calculateTotal() {
     if (!currentServiceId) { updateTotalDisplay(0); return; }
-    const service = spServices.find(function(s){ return s.id == currentServiceId; });
+    const service = spServices.find(s => s.id == currentServiceId);
     if (!service) { updateTotalDisplay(0); return; }
 
     const quantity = parseFloat(document.getElementById('quantity').value) || 0;
     const rate     = parseFloat(service.price) || 0;
-
-    const total = quantity * rate;
-    updateTotalDisplay(total, quantity > 0);
+    updateTotalDisplay(quantity * rate, quantity > 0);
 }
 
-// ── Update charge display + submit button ─────────────────────────────────────
 function updateTotalDisplay(total, ready) {
     const formattedTotal = (total || 0).toFixed(2);
     document.getElementById('total_charge').innerText = formattedTotal;
     document.getElementById('charge').value = formattedTotal;
 
-    const btn           = document.getElementById('submit_btn');
-    const alertBox       = document.getElementById('charge_alert');
+    const btn          = document.getElementById('submit_btn');
+    const alertBox      = document.getElementById('charge_alert');
     const statusText     = document.getElementById('charge_status_text');
-    const hint           = document.getElementById('charge_hint');
-    const chargeDisplay  = document.getElementById('total_charge_display');
+    const hint            = document.getElementById('charge_hint');
+    const chargeDisplay    = document.getElementById('total_charge_display');
 
     if (!ready) {
         alertBox.style.border     = '1px solid #f7c1c1';

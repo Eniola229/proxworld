@@ -77,6 +77,13 @@
                                     @error('api_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">API Secret <span class="text-muted fw-normal">(only for providers needing two keys, e.g. Byteful)</span></label>
+                                    <input type="text" name="api_secret" class="form-control @error('api_secret') is-invalid @enderror"
+                                           value="{{ old('api_secret') }}" placeholder="Leave blank if the provider only uses a single API key">
+                                    @error('api_secret')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
                                 {{-- Only shown/required for ConfigurableHttpProviderDriver --}}
                                 <div class="mb-3" id="config-field-wrapper" style="display:none;">
                                     <label class="form-label fw-bold">Driver Config (JSON) <span class="text-danger">*</span></label>

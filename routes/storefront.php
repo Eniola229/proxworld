@@ -28,8 +28,9 @@ Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Storefront\DashboardController::class, 'index'])->name('storefront.dashboard');
 
     Route::get('/orders/new', [\App\Http\Controllers\Storefront\OrderController::class, 'create'])->name('storefront.orders.create');
+    Route::get('/orders/countries', [\App\Http\Controllers\Storefront\OrderController::class, 'countries'])->name('storefront.orders.countries');
+    Route::get('/orders/services', [\App\Http\Controllers\Storefront\OrderController::class, 'services'])->name('storefront.orders.services');
     Route::post('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'store'])->name('storefront.orders.store');
-    Route::get('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'index'])->name('storefront.orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\Storefront\OrderController::class, 'show'])->name('storefront.orders.show');
 
     Route::get('/wallet', [\App\Http\Controllers\Storefront\WalletController::class, 'index'])->name('storefront.wallet.index');

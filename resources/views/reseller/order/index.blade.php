@@ -41,55 +41,78 @@
                         </form>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Service</th>
-                                    <th>Type</th>
-                                    <th>Quantity</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $badgeClass = [
-                                        \App\Types\OrderStatus::PENDING    => 'bg-warning',
-                                        \App\Types\OrderStatus::PROCESSING => 'bg-info',
-                                        \App\Types\OrderStatus::COMPLETED  => 'bg-success',
-                                        \App\Types\OrderStatus::CANCELLED  => 'bg-danger',
-                                        \App\Types\OrderStatus::REFUNDED   => 'bg-secondary',
-                                    ];
-                                    $statusLabels = \App\Types\OrderStatus::labels();
-                                @endphp
 
-                                @forelse($orders as $order)
-                                <tr>
-                                    <td>#{{ substr($order->id, 0, 8) }}...</td>
-                                    <td>{{ $order->service_name }}</td>
-                                    <td>
-                                        <span class="badge bg-secondary text-uppercase">{{ $order->product_type ?? '—' }}</span>
-                                    </td>
-                                    <td>{{ number_format($order->quantity) }}</td>
-                                    <td>₦{{ number_format($order->charge, 2) }}</td>
-                                    <td>
-                                        <span class="badge {{ $badgeClass[$order->status] ?? 'bg-secondary' }}">
-                                            {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center">No orders found</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                <div class="card-body p-3">
+                    @php
+                        $badgeClass = [
+                            \App\Types\OrderStatus::PENDING    => 'bg-warning text-dark',
+                            \App\Types\OrderStatus::PROCESSING => 'bg-info text-white',
+                            \App\Types\OrderStatus::COMPLETED  => 'bg-success text-white',
+                            \App\Types\OrderStatus::CANCELLED  => 'bg-danger text-white',
+                            \App\Types\OrderStatus::REFUNDED   => 'bg-secondary text-white',
+                        ];
+                        $statusLabels = \App\Types\OrderStatus::labels();
+                    @endphp
+
+                    <div class="row g-3">
+                        @forelse($orders as $order)
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="card h-100 border shadow-none mb-0">
+                                    <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <!-- Top Row: Order ID and Status -->
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold text-dark fs-13">#{{ substr($order->id, 0, 8) }}...</span>
+                                                <span class="badge {{ $badgeClass[$order->status] ?? 'bg-secondary' }}">
+                                                    {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Service Name -->
+                                            <h6 class="fw-bold mb-1 text-truncate" title="{{ $order->service_name }}">
+                                                {{ $order->service_name }}
+                                            </h6>
+
+                                            <!-- Product Type Tag -->
+                                            <div class="mb-3">
+                                                <span class="badge bg-secondary text-uppercase fs-11">
+                                                    {{ $order->product_type ?? '—' }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Key Details Container -->
+                                            <div class="bg-light p-2 rounded mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
+                                                    <span class="text-muted"><i class="feather-layers me-1"></i>Quantity:</span>
+                                                    <span class="fw-semibold text-dark">{{ number_format($order->quantity) }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
+                                                    <span class="text-muted"><i class="feather-credit-card me-1"></i>Amount:</span>
+                                                    <span class="fw-bold text-primary">₦{{ number_format($order->charge, 2) }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center fs-12">
+                                                    <span class="text-muted"><i class="feather-calendar me-1"></i>Date:</span>
+                                                    <span class="text-muted">{{ $order->created_at->format('M d, Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Button -->
+                                        <div class="pt-2 border-top">
+                                            <a href="{{ url('/orders/' . $order->id) }}" class="btn btn-sm btn-light w-100 text-center">
+                                                View Details <i class="feather-eye ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12">
+                                <div class="text-center py-5 text-muted">
+                                    No orders found.
+                                </div>
+                            </div>
+                        @endforelse
                     </div>
 
                     <div class="mt-4">

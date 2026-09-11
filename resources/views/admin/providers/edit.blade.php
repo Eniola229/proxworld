@@ -97,6 +97,14 @@
                                     @error('api_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">API Secret <span class="text-muted fw-normal">(only for providers needing two keys, e.g. Byteful)</span></label>
+                                    <input type="text" name="api_secret" class="form-control @error('api_secret') is-invalid @enderror"
+                                           value="" placeholder="Leave blank if the provider only uses a single API key">
+                                    <div class="form-text">Stored encrypted — left blank on this page for safety. Only fill this in to rotate the key.</div>
+                                    @error('api_secret')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
                                 @if($provider->driver === \App\ProxyProviders\Drivers\ConfigurableHttpProviderDriver::class)
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Driver Config (JSON) <span class="text-danger">*</span></label>

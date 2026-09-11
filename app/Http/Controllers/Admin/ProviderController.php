@@ -9,12 +9,6 @@ use Illuminate\Http\Request;
 
 class ProviderController extends Controller
 {
-    /**
-     * The last entry (ConfigurableHttpProviderDriver) needs no new file and
-     * no deploy — it's driven entirely by the `config` JSON on the provider
-     * row, filled in from the admin form. Add a new option here only when a
-     * provider's API genuinely can't be expressed by that config schema.
-     */
     protected function driverOptions(): array
     {
         return [
@@ -41,11 +35,9 @@ class ProviderController extends Controller
             'driver' => ['required', 'string', 'in:'.implode(',', array_keys($this->driverOptions()))],
             'api_url' => ['required', 'url'],
             'api_key' => ['required', 'string'],
+            'api_secret' => ['nullable', 'string'],
             'priority' => ['required', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
-            // Only relevant/required for ConfigurableHttpProviderDriver — validated
-            // as syntactically valid JSON here; the driver itself validates the
-            // keys it actually needs the first time it's used.
             'config' => ['nullable', 'json'],
         ]);
 
@@ -73,6 +65,7 @@ class ProviderController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'api_url' => ['required', 'url'],
             'api_key' => ['nullable', 'string'],
+            'api_secret' => ['nullable', 'string'],
             'priority' => ['required', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'notes' => ['nullable', 'string'],
@@ -81,6 +74,10 @@ class ProviderController extends Controller
 
         if (empty($data['api_key'])) {
             unset($data['api_key']);
+        }
+
+        if (empty($data['api_secret'])) {
+            unset($data['api_secret']);
         }
 
         if (! empty($data['config'])) {
@@ -96,7 +93,6 @@ class ProviderController extends Controller
 
     public function destroy(Provider $provider)
     {
-        // Orders using this provider are NOT deleted — only the provider row is removed.
         $provider->delete();
 
         return back()->with('success', 'Provider removed.');
