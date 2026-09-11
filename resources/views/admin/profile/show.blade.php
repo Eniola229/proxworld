@@ -192,7 +192,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">New Password <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="password" name="new_password" class="form-control @error('new_password') is-invalid @enderror" required>
+                                        <input type="password" name="password" class="form-control @error('new_password') is-invalid @enderror" required>
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
                                             <i class="feather-eye"></i>
                                         </button>
@@ -206,7 +206,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="password" name="new_password_confirmation" class="form-control" required>
+                                        <input type="password" name="password_confirmation" class="form-control" required>
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
                                             <i class="feather-eye"></i>
                                         </button>
