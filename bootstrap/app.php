@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -73,5 +74,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->is('api/*')) {
+                $status = $e instanceof \Illuminate\Http\Exceptions\HttpResponseException
+                    ? 500
+                    : (method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500);
+
+                $message = $status === 404
+                    ? 'Resource not found.'
+                    : ($e->getMessage() ?: 'Server error.');
+
+                return response()->json(['message' => $message], $status);
+            }
+        });
     })->create();

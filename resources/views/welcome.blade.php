@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -60,7 +61,7 @@
             border-radius: 50%;
             position: fixed;
             pointer-events: none;
-            z-index: 99999;
+            z-index: 2147483647; /* was 99999 — now always on top */
             transition: transform 0.1s;
             mix-blend-mode: multiply;
         }
@@ -70,7 +71,7 @@
             border-radius: 50%;
             position: fixed;
             pointer-events: none;
-            z-index: 99998;
+            z-index: 2147483646; /* was 99998 */
             transition: all 0.15s ease;
             opacity: 0.35;
         }
@@ -1530,5 +1531,474 @@
         });
     });
     </script>
+
+    <div id="proxOnboardOverlay" class="prox-onb-overlay">
+  <div class="prox-onb-modal" id="proxOnboardModal">
+
+    <button class="prox-onb-close" id="proxOnbCancel" title="Cancel" aria-label="Cancel">
+      <i class="fas fa-xmark"></i>
+    </button>
+
+    <div class="prox-onb-header">
+      <div class="prox-onb-eyebrow">ProxWorld Quick Start</div>
+      <div class="prox-onb-dots" id="proxOnbDots"></div>
+    </div>
+
+    <div class="prox-onb-body" id="proxOnbBody">
+      <!-- injected per step -->
+    </div>
+
+    <div class="prox-onb-footer">
+      <div class="prox-onb-footer-left">
+        <button class="prox-onb-btn prox-onb-ghost" id="proxOnbSkip">Skip</button>
+      </div>
+      <div class="prox-onb-footer-right">
+        <button class="prox-onb-btn prox-onb-ghost" id="proxOnbBack">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <button class="prox-onb-btn prox-onb-solid" id="proxOnbContinue">
+          Continue <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="prox-onb-progress-track">
+      <div class="prox-onb-progress-fill" id="proxOnbProgressFill"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ============ PROXWORLD ONBOARDING MODAL — SCOPED STYLES ============ */
+.prox-onb-overlay{
+  position:fixed; inset:0; z-index:99999;
+  background:rgba(15,23,42,0.62);
+  backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  padding:1.2rem;
+  opacity:0; visibility:hidden;
+  transition:opacity .35s ease, visibility .35s ease;
+  font-family:'Syne',sans-serif;
+}
+.prox-onb-overlay.is-open{ opacity:1; visibility:visible; }
+
+.prox-onb-modal{
+  background:#FFFFFF;
+  width:100%; max-width:560px;
+  border-radius:18px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 30px 80px rgba(15,23,42,0.35);
+  transform:translateY(28px) scale(0.97);
+  opacity:0;
+  transition:transform .45s cubic-bezier(.2,.9,.25,1), opacity .4s ease;
+  max-height:88vh;
+  display:flex; flex-direction:column;
+}
+.prox-onb-overlay.is-open .prox-onb-modal{
+  transform:translateY(0) scale(1);
+  opacity:1;
+}
+
+.prox-onb-close{
+  position:absolute; top:16px; right:16px;
+  width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(15,23,42,0.12);
+  background:#F5F7FF; color:#64748B;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:.9rem; z-index:5;
+  transition:all .25s;
+}
+.prox-onb-close:hover{ background:#0F172A; color:#fff; transform:rotate(90deg); }
+
+.prox-onb-header{
+  padding:1.6rem 2rem 0;
+  display:flex; flex-direction:column; gap:.9rem;
+}
+.prox-onb-eyebrow{
+  font-family:'DM Mono',monospace; font-size:.68rem;
+  letter-spacing:2.5px; text-transform:uppercase; color:#2563EB;
+  display:flex; align-items:center; gap:.6rem;
+}
+.prox-onb-eyebrow::before{ content:''; width:22px; height:1.5px; background:#2563EB; }
+
+.prox-onb-dots{ display:flex; gap:.4rem; }
+.prox-onb-dot{
+  width:26px; height:4px; border-radius:3px;
+  background:#E4E9F5; transition:background .3s, width .3s;
+}
+.prox-onb-dot.active{ background:#2563EB; width:38px; }
+.prox-onb-dot.done{ background:#93C5FD; }
+
+.prox-onb-body{
+  padding:1.6rem 2rem 2rem;
+  overflow-y:auto;
+  flex:1;
+}
+.prox-onb-step{
+  animation:proxStepIn .45s cubic-bezier(.2,.9,.25,1);
+}
+@keyframes proxStepIn{
+  from{ opacity:0; transform:translateX(18px); }
+  to{ opacity:1; transform:translateX(0); }
+}
+
+.prox-onb-icon{
+  width:60px; height:60px; border-radius:16px;
+  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.5rem; color:#fff; margin-bottom:1.2rem;
+  box-shadow:0 10px 26px rgba(37,99,235,0.3);
+  animation:proxIconPop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes proxIconPop{
+  0%{ transform:scale(0.4) rotate(-10deg); opacity:0; }
+  100%{ transform:scale(1) rotate(0deg); opacity:1; }
+}
+
+.prox-onb-step h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2.1rem; letter-spacing:.5px; line-height:1.05;
+  color:#0F172A; margin-bottom:.8rem;
+}
+.prox-onb-step h2 span{ color:#2563EB; }
+
+.prox-onb-step p{
+  color:#64748B; font-size:.95rem; line-height:1.65; margin-bottom:1rem;
+}
+.prox-onb-step p:last-child{ margin-bottom:0; }
+.prox-onb-step strong{ color:#0F172A; }
+
+.prox-onb-list{ list-style:none; display:flex; flex-direction:column; gap:.7rem; margin-top:1rem; }
+.prox-onb-list li{
+  display:flex; align-items:flex-start; gap:.7rem;
+  font-size:.9rem; color:#334155; line-height:1.55;
+  opacity:0; animation:proxLiIn .4s ease forwards;
+}
+.prox-onb-list li:nth-child(1){ animation-delay:.1s; }
+.prox-onb-list li:nth-child(2){ animation-delay:.2s; }
+.prox-onb-list li:nth-child(3){ animation-delay:.3s; }
+.prox-onb-list li:nth-child(4){ animation-delay:.4s; }
+.prox-onb-list li:nth-child(5){ animation-delay:.5s; }
+@keyframes proxLiIn{ from{opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+.prox-onb-list i{
+  width:22px; height:22px; flex-shrink:0; border-radius:6px;
+  background:#EFF6FF; color:#2563EB; font-size:.7rem;
+  display:flex; align-items:center; justify-content:center; margin-top:2px;
+}
+.prox-onb-list.prox-bad i{ background:#FEF2F2; color:#DC2626; }
+.prox-onb-list.prox-good i{ background:#ECFDF5; color:#059669; }
+
+/* type cards grid */
+.prox-onb-types{
+  display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:1.1rem;
+}
+.prox-onb-type-card{
+  border:1px solid #E4E9F5; border-radius:12px; padding:1rem;
+  background:#F5F7FF; opacity:0; animation:proxLiIn .4s ease forwards;
+}
+.prox-onb-type-card:nth-child(1){ animation-delay:.05s; }
+.prox-onb-type-card:nth-child(2){ animation-delay:.15s; }
+.prox-onb-type-card:nth-child(3){ animation-delay:.25s; }
+.prox-onb-type-card:nth-child(4){ animation-delay:.35s; }
+.prox-onb-type-icon{
+  width:34px; height:34px; border-radius:8px; color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:.85rem; margin-bottom:.6rem;
+}
+.prox-onb-type-card h4{ font-size:.9rem; color:#0F172A; margin-bottom:.3rem; }
+.prox-onb-type-card p{ font-size:.76rem; color:#64748B; line-height:1.5; margin:0; }
+.prox-onb-type-card .tag{
+  display:inline-block; margin-top:.5rem; font-family:'DM Mono',monospace;
+  font-size:.6rem; letter-spacing:.5px; text-transform:uppercase;
+  color:#2563EB; background:#EFF6FF; padding:.2rem .5rem; border-radius:4px;
+}
+
+/* order flow steps */
+.prox-onb-flow{ display:flex; flex-direction:column; gap:.8rem; margin-top:1.1rem; }
+.prox-onb-flow-item{
+  display:flex; align-items:center; gap:.9rem;
+  border:1px solid #E4E9F5; border-radius:10px; padding:.8rem .9rem;
+  background:#FAFBFF;
+}
+.prox-onb-flow-num{
+  width:28px; height:28px; border-radius:50%; background:#0F172A; color:#fff;
+  font-family:'Bebas Neue',sans-serif; font-size:1rem;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.prox-onb-flow-item div p{ margin:0; font-size:.85rem; color:#334155; }
+.prox-onb-flow-item div strong{ display:block; font-size:.88rem; color:#0F172A; margin-bottom:.1rem; }
+
+.prox-onb-callout{
+  margin-top:1.2rem; padding:.85rem 1rem; border-radius:10px;
+  background:#FFFBEB; border:1px solid #FDE68A; display:flex; gap:.7rem; align-items:flex-start;
+}
+.prox-onb-callout i{ color:#D97706; margin-top:2px; }
+.prox-onb-callout p{ margin:0; font-size:.82rem; color:#78350F; line-height:1.5; }
+
+.prox-onb-footer{
+  padding:1rem 2rem 1.4rem;
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid #EEF1FA;
+}
+.prox-onb-footer-right{ display:flex; gap:.6rem; }
+
+.prox-onb-btn{
+  font-family:'Syne',sans-serif; font-weight:700; font-size:.78rem;
+  letter-spacing:1px; text-transform:uppercase;
+  padding:.7rem 1.3rem; border-radius:7px; border:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.5rem;
+  transition:all .25s;
+}
+.prox-onb-ghost{ background:transparent; color:#64748B; border:1px solid rgba(100,116,139,0.28); }
+.prox-onb-ghost:hover{ color:#0F172A; border-color:#0F172A; }
+.prox-onb-solid{ background:#2563EB; color:#fff; box-shadow:0 6px 18px rgba(37,99,235,.3); }
+.prox-onb-solid:hover{ background:#3B82F6; transform:translateY(-1px); }
+#proxOnbBack[disabled]{ opacity:0; pointer-events:none; width:0; padding:0; overflow:hidden; }
+
+.prox-onb-progress-track{ height:3px; background:#EEF1FA; width:100%; }
+.prox-onb-progress-fill{
+  height:100%; background:linear-gradient(90deg,#2563EB,#3B82F6);
+  width:14%; transition:width .4s cubic-bezier(.2,.9,.25,1);
+}
+
+@media (max-width:560px){
+  .prox-onb-types{ grid-template-columns:1fr 1fr; }
+  .prox-onb-step h2{ font-size:1.7rem; }
+  .prox-onb-header, .prox-onb-body, .prox-onb-footer{ padding-left:1.3rem; padding-right:1.3rem; }
+}
+</style>
+
+<script>
+(function(){
+  var steps = [
+    {
+      icon: '<i class="fas fa-circle-question"></i>',
+      html: `
+        <h2>What Is a <span>Proxy?</span></h2>
+        <p>A proxy is a middleman server that sits between your device and the internet. Instead of websites seeing <strong>your</strong> real IP address and location, they see the proxy's.</p>
+        <p>Every request you make — loading a page, submitting a form, running a bot — is routed through that proxy first. This lets you appear to browse from a different city, country, or device network entirely.</p>
+        <ul class="prox-onb-list prox-good">
+          <li><i class="fas fa-check"></i> Hide your real IP and location</li>
+          <li><i class="fas fa-check"></i> Access geo-restricted content and prices</li>
+          <li><i class="fas fa-check"></i> Run multiple accounts without linking them</li>
+          <li><i class="fas fa-check"></i> Automate, scrape, and test at scale safely</li>
+        </ul>
+      `
+    },
+    {
+      icon: '<i class="fas fa-shield-halved"></i>',
+      html: `
+        <h2>Proxy vs <span>VPN</span></h2>
+        <p>They both mask your IP, but they're built for very different jobs — and using the wrong one can cost you accounts.</p>
+        <ul class="prox-onb-list prox-bad">
+          <li><i class="fas fa-triangle-exclamation"></i> VPN IPs are shared by thousands of users at once, so platforms flag them constantly — many accounts get <strong>banned or locked</strong> just for logging in through a popular VPN.</li>
+          <li><i class="fas fa-triangle-exclamation"></i> A large share of VPN IP ranges are already tagged as high‑risk by fraud‑detection systems because of how heavily they're reused for scams and abuse.</li>
+          <li><i class="fas fa-triangle-exclamation"></i> One IP, one location — no control over exactly where you appear from, and most VPNs throttle bandwidth during heavy use.</li>
+        </ul>
+        <ul class="prox-onb-list prox-good">
+          <li><i class="fas fa-check"></i> Proxies (especially residential, ISP &amp; mobile) carry a <strong>very low scam/fraud score</strong> — they look like real, everyday users.</li>
+          <li><i class="fas fa-check"></i> Pick the exact country, city, or carrier you need, down to the individual connection.</li>
+          <li><i class="fas fa-check"></i> Built for scale — rotate thousands of IPs, run automation, and manage many accounts side‑by‑side without tripping bans.</li>
+          <li><i class="fas fa-check"></i> No shared bandwidth ceiling — proxies are sized and priced for real workloads.</li>
+        </ul>
+      `
+    },
+    {
+      icon: '<i class="fas fa-diagram-project"></i>',
+      html: `
+        <h2>The 4 Types of <span>Proxies</span></h2>
+        <p>ProxWorld offers every proxy type — each suited to a different use case.</p>
+        <div class="prox-onb-types">
+          <div class="prox-onb-type-card">
+            <div class="prox-onb-type-icon" style="background:#2563EB"><i class="fas fa-house-user"></i></div>
+            <h4>Residential</h4>
+            <p>Real IPs assigned by ISPs to actual home users. Extremely low detection risk.</p>
+            <span class="tag">Highest trust</span>
+          </div>
+          <div class="prox-onb-type-card">
+            <div class="prox-onb-type-icon" style="background:#7C3AED"><i class="fas fa-server"></i></div>
+            <h4>Datacenter</h4>
+            <p>Hosted in data centers. Extremely fast and affordable for high-volume tasks.</p>
+            <span class="tag">Fastest &amp; cheapest</span>
+          </div>
+          <div class="prox-onb-type-card">
+            <div class="prox-onb-type-icon" style="background:#0D9488"><i class="fas fa-network-wired"></i></div>
+            <h4>ISP</h4>
+            <p>Datacenter speed with residential legitimacy. Static &amp; dedicated to you.</p>
+            <span class="tag">Best for account mgmt</span>
+          </div>
+          <div class="prox-onb-type-card">
+            <div class="prox-onb-type-icon" style="background:#EA580C"><i class="fas fa-mobile-screen"></i></div>
+            <h4>Mobile</h4>
+            <p>Routed through real carrier networks. Hardest of all to detect or block.</p>
+            <span class="tag">Ultimate stealth</span>
+          </div>
+        </div>
+      `
+    },
+    {
+      icon: '<i class="fas fa-user-plus"></i>',
+      html: `
+        <h2>Step 1 — <span>Register or Login</span></h2>
+        <p>Everything starts with an account. Create one in seconds, or log back in if you already have one.</p>
+        <div class="prox-onb-flow">
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">1</div>
+            <div><strong>Sign up</strong><p>Click "Get Started" and fill in your details — takes under a minute.</p></div>
+          </div>
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">2</div>
+            <div><strong>Verify &amp; log in</strong><p>Confirm your account and you're straight into your dashboard.</p></div>
+          </div>
+        </div>
+      `
+    },
+    {
+      icon: '<i class="fas fa-wallet"></i>',
+      html: `
+        <h2>Step 2 — <span>Top Up Your Balance</span></h2>
+        <p>Before you can place an order, you'll need funds in your wallet.</p>
+        <div class="prox-onb-flow">
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">1</div>
+            <div><strong>Go to Wallet / Top Up</strong><p>Found right on your dashboard.</p></div>
+          </div>
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">2</div>
+            <div><strong>Choose an amount &amp; pay</strong><p>Your balance updates instantly once payment confirms.</p></div>
+          </div>
+        </div>
+        <div class="prox-onb-callout">
+          <i class="fas fa-circle-info"></i>
+          <p>You must have a sufficient balance before you can create an order — orders are deducted directly from your wallet.</p>
+        </div>
+      `
+    },
+    {
+      icon: '<i class="fas fa-cart-shopping"></i>',
+      html: `
+        <h2>Step 3 — <span>Create New Order</span></h2>
+        <p>Once you're funded, click <strong>"Create New Order"</strong> from your dashboard and configure your proxy:</p>
+        <div class="prox-onb-flow">
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">1</div>
+            <div><strong>Pick a proxy type</strong><p>Residential, Datacenter, ISP, or Mobile.</p></div>
+          </div>
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">2</div>
+            <div><strong>Choose a country</strong><p>Where available for that proxy type.</p></div>
+          </div>
+          <div class="prox-onb-flow-item">
+            <div class="prox-onb-flow-num">3</div>
+            <div><strong>Set your quantity</strong><p>Then confirm to complete your purchase.</p></div>
+          </div>
+        </div>
+      `
+    },
+    {
+      icon: '<i class="fas fa-circle-check"></i>',
+      html: `
+        <h2>Step 4 — <span>Your Order Details</span></h2>
+        <p>After purchase, you're taken straight to the Order Details page with everything you need:</p>
+        <ul class="prox-onb-list prox-good">
+          <li><i class="fas fa-check"></i> Proxy IP &amp; port</li>
+          <li><i class="fas fa-check"></i> Username &amp; password / login info</li>
+          <li><i class="fas fa-check"></i> Location, expiry, and usage details</li>
+        </ul>
+        <div class="prox-onb-callout">
+          <i class="fas fa-rocket"></i>
+          <p>That's it — you're ready to go! You can revisit this guide anytime from this home page. Thank you for trusting ProxWorld</p>
+        </div>
+      `
+    }
+  ];
+
+  var current = 0;
+  var overlay = document.getElementById('proxOnboardOverlay');
+  var body = document.getElementById('proxOnbBody');
+  var dotsWrap = document.getElementById('proxOnbDots');
+  var fill = document.getElementById('proxOnbProgressFill');
+  var backBtn = document.getElementById('proxOnbBack');
+  var continueBtn = document.getElementById('proxOnbContinue');
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    steps.forEach(function(_, i){
+      var d = document.createElement('div');
+      d.className = 'prox-onb-dot';
+      dotsWrap.appendChild(d);
+    });
+  }
+
+  function render(){
+    var step = steps[current];
+    body.innerHTML = '<div class="prox-onb-step"><div class="prox-onb-icon">' + step.icon + '</div>' + step.html + '</div>';
+
+    var dots = dotsWrap.querySelectorAll('.prox-onb-dot');
+    dots.forEach(function(d, i){
+      d.classList.remove('active','done');
+      if(i < current) d.classList.add('done');
+      if(i === current) d.classList.add('active');
+    });
+
+    fill.style.width = (((current + 1) / steps.length) * 100) + '%';
+    backBtn.disabled = current === 0;
+
+    if(current === steps.length - 1){
+      continueBtn.innerHTML = 'Get Started <i class="fas fa-rocket"></i>';
+    } else {
+      continueBtn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
+    }
+  }
+
+  function open(){
+    current = 0;
+    buildDots();
+    render();
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close(){
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  continueBtn.addEventListener('click', function(){
+    if(current === steps.length - 1){
+      // Final step — send them to register (adjust this URL to your actual register route)
+      window.location.href = "{{ route('register') }}";
+      return;
+    }
+    current++;
+    render();
+  });
+
+  backBtn.addEventListener('click', function(){
+    if(current > 0){
+      current--;
+      render();
+    }
+  });
+
+  document.getElementById('proxOnbCancel').addEventListener('click', close);
+  document.getElementById('proxOnbSkip').addEventListener('click', close);
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') close();
+  });
+
+  // Show automatically when the welcome page loads
+  window.addEventListener('load', function(){
+    setTimeout(open, 500);
+  });
+
+  // Expose so you can trigger it manually too, e.g. from a "How it works" nav link
+  window.ProxOnboarding = { open: open, close: close };
+})();
+</script>
+
 </body>
 </html>
