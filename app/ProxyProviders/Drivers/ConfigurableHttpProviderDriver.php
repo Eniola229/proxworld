@@ -172,8 +172,32 @@ class ConfigurableHttpProviderDriver implements ProxyProviderContract
             }));
         }
 
+        // Skip anything the raw catalog already reports as out of stock — no point
+        // spending an API call on a quote for something that can't be fulfilled.
+        $products = array_values(array_filter($products, function ($p) {
+            $stock = data_get($p, 'raw.product_stock');
+
+            return $stock === null || $stock > 0;
+        }));
+
         if (($this->config['pricing']['source'] ?? 'response') === 'quote') {
-            $products = array_map(fn ($p) => [...$p, 'rate' => $this->quotePriceFor($p['external_service_id'])], $products);
+            $products = collect($products)
+                ->map(function ($p) {
+                    try {
+                        return [...$p, 'rate' => $this->quotePriceFor($p['external_service_id'])];
+                    } catch (\Throwable $e) {
+                        // A single out-of-stock or otherwise unquotable product must
+                        // never abort the whole provider's sync — skip it and keep going.
+                        \Illuminate\Support\Facades\Log::info(
+                            "Provider [{$this->provider->name}]: skipping product {$p['external_service_id']} — ".$e->getMessage()
+                        );
+
+                        return null;
+                    }
+                })
+                ->filter()
+                ->values()
+                ->all();
         }
 
         return $products;

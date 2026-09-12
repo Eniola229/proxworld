@@ -20,7 +20,10 @@ class OrderController extends Controller
         $hiddenKeys = $reseller->serviceOverrides()->where('is_hidden', true)
             ->get()->map(fn ($o) => $o->provider_id.'_'.$o->external_service_id);
 
-        $services = ProviderServiceCache::with('provider')->where('is_active', true)->get()
+        $services = ProviderServiceCache::with('provider')
+            ->where('is_active', true)
+            ->whereHas('provider', fn ($q) => $q->where('is_active', true))
+            ->get()
             ->reject(fn ($s) => $hiddenKeys->contains($s->provider_id.'_'.$s->external_service_id))
             ->map(function (ProviderServiceCache $s) use ($reseller) {
                 $costPriceBase = app(ExchangeRateService::class)->convert((float) $s->raw_rate, $s->raw_currency, 'NGN');

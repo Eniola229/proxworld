@@ -8,21 +8,26 @@ use Illuminate\Console\Command;
 
 class SyncProviderServices extends Command
 {
-    protected $signature = 'providers:sync-services {--provider= : Only sync the provider whose name contains this (case-insensitive)}';
+    protected $signature = 'providers:sync-services {--provider=* : Only sync providers whose name contains this (case-insensitive). Repeatable.}';
     protected $description = "Queue a catalog refresh for each active provider's plans/products.";
 
     public function handle(): int
     {
         $query = Provider::active();
+        $names = $this->option('provider');
 
-        if ($name = $this->option('provider')) {
-            $query->where('name', 'like', "%{$name}%");
+        if (! empty($names)) {
+            $query->where(function ($q) use ($names) {
+                foreach ($names as $name) {
+                    $q->orWhere('name', 'like', "%{$name}%");
+                }
+            });
         }
 
         $providers = $query->get();
 
         if ($providers->isEmpty()) {
-            $this->warn($name ? "No active provider matching \"{$name}\" found." : 'No active providers found.');
+            $this->warn($names ? 'No active provider matching any of: '.implode(', ', $names) : 'No active providers found.');
 
             return self::SUCCESS;
         }

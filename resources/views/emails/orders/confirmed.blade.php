@@ -82,10 +82,10 @@
             <tbody>
                 @foreach($order->proxy_data as $proxy)
                     <tr>
-                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['ip'] ?? $proxy['host'] ?? '—' }}</td>
-                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['port'] ?? '—' }}</td>
-                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['username'] ?? $proxy['login'] ?? '—' }}</td>
-                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['password'] ?? '—' }}</td>
+                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—' }}</td>
+                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['port'] ?? $proxy['proxy_http_port'] ?? '—' }}</td>
+                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['username'] ?? $proxy['login'] ?? $proxy['default_proxy_user_username'] ?? '—' }}</td>
+                        <td style="padding:8px 6px; font-size:12px; color:#111827; border-bottom:1px solid #eef1f6; font-family:monospace;">{{ $proxy['password'] ?? $proxy['default_proxy_user_password'] ?? '—' }}</td>
                     </tr>
                 @endforeach
             </tbody>

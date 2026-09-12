@@ -1365,7 +1365,7 @@
                 </div>
             <div class="footer-col">
                 <h4>Contact</h4>
-                <div class="contact-item"><i class="fas fa-envelope"></i> info@proxworld.xyz</div>
+                <div class="contact-item"><i class="fas fa-envelope"></i> info@proxworld.shop</div>
             </div>
         </div>
         <div class="footer-bottom">

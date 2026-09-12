@@ -123,11 +123,10 @@
                                         <tbody>
                                             @foreach($order->proxy_data as $proxy)
                                                 @php
-                                                    $ip = $proxy['ip'] ?? $proxy['host'] ?? '—';
-                                                    $port = $proxy['port'] ?? '—';
-                                                    $user = $proxy['username'] ?? $proxy['login'] ?? '—';
-                                                    $pass = $proxy['password'] ?? '—';
-                                                    $connString = "{$ip}:{$port}:{$user}:{$pass}";
+                                                    $ip = $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—';
+                                                    $port = $proxy['port'] ?? $proxy['proxy_http_port'] ?? '—';
+                                                    $user = $proxy['username'] ?? $proxy['login'] ?? $proxy['default_proxy_user_username'] ?? '—';
+                                                    $pass = $proxy['password'] ?? $proxy['default_proxy_user_password'] ?? '—';
                                                 @endphp
                                                 <tr>
                                                     <td><code>{{ $ip }}</code></td>
