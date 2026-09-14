@@ -18,18 +18,22 @@
         :root {
             --bg:        #F5F7FF;
             --bg-2:      #EEF1FA;
+            --bg-3:      #E4E9F5;
             --surface:   #FFFFFF;
             --accent:    #2563EB;
             --electric:  #3B82F6;
             --gold:      #D97706;
             --navy:      #0F172A;
+            --navy-2:    #1E293B;
             --muted:     #64748B;
             --soft:      #94A3B8;
             --border:    rgba(37, 99, 235, 0.14);
             --border-2:  rgba(37, 99, 235, 0.22);
             --shadow:    0 2px 20px rgba(15, 23, 42, 0.07);
             --shadow-lg: 0 8px 40px rgba(15, 23, 42, 0.12);
+            --white:     #FFFFFF;
         }
+
 
         html { scroll-behavior: smooth; }
         body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--navy); }
@@ -153,12 +157,97 @@
             .btn { padding: 0.6rem 1.2rem; font-size: 0.72rem; }
         }
 
+
+                /* FOOTER */
         footer {
-            border-top: 1px solid var(--border);
-            padding: 2.5rem 3rem;
-            text-align: center;
-            color: var(--soft);
-            font-size: 0.8rem;
+            background: var(--navy-2);
+            border-top: 1px solid rgba(255,255,255,0.07);
+            padding: 4rem 3rem 2rem;
+        }
+        .footer-top {
+            max-width: 1400px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .footer-brand .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem; letter-spacing: 3px;
+            margin-bottom: 1rem; display: block;
+            color: #fff;
+        }
+        .footer-brand .logo-text span { color: var(--electric); }
+        .footer-brand p {
+            color: #64748B;
+            font-size: 0.88rem; line-height: 1.65;
+            max-width: 280px; margin-bottom: 1.5rem;
+        }
+        .footer-socials { display: flex; gap: 0.6rem; }
+        .soc-btn {
+            width: 38px; height: 38px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            color: #64748B;
+            text-decoration: none; font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .soc-btn:hover { border-color: var(--electric); color: var(--electric); }
+
+        .footer-col h4 {
+            font-size: 0.7rem; letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #fff; margin-bottom: 1.5rem; font-weight: 700;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 0.8rem; }
+        .footer-col a {
+            color: #64748B; text-decoration: none;
+            font-size: 0.88rem; transition: color 0.3s;
+        }
+        .footer-col a:hover { color: #fff; }
+        .footer-col .contact-item {
+            color: #64748B;
+            font-size: 0.85rem;
+            display: flex; align-items: flex-start;
+            gap: 0.6rem; margin-bottom: 0.8rem;
+        }
+        .footer-col .contact-item i { color: var(--electric); margin-top: 2px; flex-shrink: 0; }
+
+        .footer-bottom {
+            max-width: 1400px; margin: 2rem auto 0;
+            display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 1rem;
+        }
+        .footer-bottom p {
+            color: #475569;
+            font-size: 0.78rem;
+            font-family: 'DM Mono', monospace;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            nav { padding: 1.2rem 1.5rem; }
+            footer { padding: 3rem 1.5rem 2rem; }
+            .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 500px) {
+            .platforms-grid { grid-template-columns: repeat(3, 1fr); }
+            .footer-top { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -213,8 +302,50 @@
         {{ $posts->links() }}
     </div>
 
-    <footer>
-        &copy; {{ date('Y') }} ProxWorld. All rights reserved.
+    <footer id="contact">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <span class="logo-text">Prox<span>World</span></span>
+                <p>Your trusted proxy provider worldwide. Safe, fast, and built for results.</p>
+                <div class="footer-socials">
+                    <a href="https://whatsapp.com/channel/0029VbEIyPKFi8xhoHYXrk2i" target="_blank" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/proxworldhq" target="_blank" class="soc-btn"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.tiktok.com/@ProxWorld3928" target="_blank" class="soc-btn"><i class="fab fa-tiktok"></i></a>
+                    <a href="#" class="soc-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="soc-btn"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <ul>
+                    <li><a href="{{ route('login') }}">Login</a></li>
+                    <li><a href="{{ route('register') }}">Sign Up</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#platforms">Platforms</a></li>
+                    <li><a href="{{ route('blog.index') }}">Blog</a></li>
+                </ul>
+            </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="{{ route('faq') }}">FAQ</a></li>
+                        <li><a href="{{ route('terms-of-use') }}">Terms of Use</a></li>
+                        <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ route('refund-policy') }}">Refund Policy</a></li>
+                        <li><a href="{{ route('acceptable-use-policy') }}">Acceptable Use Policy</a></li>
+                        <li><a href="{{ route('reseller-agreement') }}">Reseller Agreement</a></li>
+                        <li><a href="{{ route('cookie-policy') }}">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <div class="contact-item"><i class="fas fa-envelope"></i> info@proxworld.shop</div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 ProxWorld. All rights reserved.</p>
+            <p>ProxWorld is operated by AfricGEM International Company Limited</p>
+        </div>
     </footer>
 
 </body>

@@ -1388,7 +1388,7 @@
         </div>
         <div class="footer-bottom">
             <p>© 2025 ProxWorld. All rights reserved.</p>
-            <p>ProxWorld is operated by Phastverse Enterprise.</p>
+            <p>ProxWorld is operated by AfricGEM International Company Limited</p>
         </div>
     </footer>
 
