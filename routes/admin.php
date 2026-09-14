@@ -166,15 +166,16 @@ Route::middleware('admin.auth')->group(function () {
 
     Route::middleware('permission:newsletter.view,admin')->group(function () {
         Route::get('/newsletters', [\App\Http\Controllers\Admin\NewsletterController::class, 'index'])->name('newsletters.index');
-        
-        // View/Show route
-        Route::get('/newsletters/{newsletter}', [\App\Http\Controllers\Admin\NewsletterController::class, 'show'])->name('newsletters.show');
 
-        // Create & Store
+        // Create & Store — MUST come before the {newsletter} show route below,
+        // or "create" gets swallowed as the {newsletter} wildcard and 404s.
         Route::get('/newsletters/create', [\App\Http\Controllers\Admin\NewsletterController::class, 'create'])
             ->middleware('permission:newsletter.manage,admin')->name('newsletters.create');
         Route::post('/newsletters', [\App\Http\Controllers\Admin\NewsletterController::class, 'store'])
             ->middleware('permission:newsletter.manage,admin')->name('newsletters.store');
+
+        // View/Show route
+        Route::get('/newsletters/{newsletter}', [\App\Http\Controllers\Admin\NewsletterController::class, 'show'])->name('newsletters.show');
 
         // Edit & Update
         Route::get('/newsletters/{newsletter}/edit', [\App\Http\Controllers\Admin\NewsletterController::class, 'edit'])
@@ -192,7 +193,7 @@ Route::middleware('admin.auth')->group(function () {
         Route::post('/newsletters/media', [\App\Http\Controllers\Admin\NewsletterController::class, 'uploadMedia'])
             ->middleware('permission:newsletter.manage,admin')->name('newsletters.media');
     });
-
+    
     Route::middleware('permission:admins.view,admin')->group(function () {
         Route::get('/admins', [AdminManagementController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminManagementController::class, 'create'])
