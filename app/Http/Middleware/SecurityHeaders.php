@@ -53,15 +53,21 @@ class SecurityHeaders
         // flutterwave.cloud equivalents once live keys are swapped in — check
         // the actual `Location` header on a live charge and tighten/adjust
         // this list then rather than leaving the wildcard in permanently.
+        //
+        // Google Tag Manager + TikTok Pixel: GTM's snippet injects the GTM
+        // script itself, and (once tags fire from inside GTM) GA4's own
+        // script/beacon domains and TikTok's pixel loader/tracking beacon.
+        // TikTok's server-side Events API call in TikTokEventService is a
+        // backend Http:: call, not a browser request, so it needs no CSP entry.
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://checkout.flutterwave.com https://cdnjs.cloudflare.com https://unpkg.com https://static.cloudflareinsights.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://checkout.flutterwave.com https://cdnjs.cloudflare.com https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.tiktok.com",
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.bunny.net https://unpkg.com https://cdnjs.cloudflare.com",
             "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:",
-            "img-src 'self' data: https: blob: https://res.cloudinary.com",
+            "img-src 'self' data: https: blob: https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.tiktok.com",
             "media-src 'self' https://res.cloudinary.com blob:",
-            "connect-src 'self' https://api.cloudinary.com https://*.cloudinary.com https://api.flutterwave.com https://developersandbox-api.flutterwave.com https://cloudflareinsights.com",
-            "frame-src 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.cloud",
+            "connect-src 'self' https://api.cloudinary.com https://*.cloudinary.com https://api.flutterwave.com https://developersandbox-api.flutterwave.com https://cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://analytics.tiktok.com",
+            "frame-src 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.cloud https://www.googletagmanager.com",
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self' https://checkout.flutterwave.com https://developersandbox.flutterwave.com https://*.flutterwave.com https://*.flutterwave.cloud",

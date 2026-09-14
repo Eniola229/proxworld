@@ -56,4 +56,10 @@ return [
         'support_url' => env('SUPPORT_TELEGRAM_URL'),
     ],
 
+    'tiktok' => [
+        'pixel_code' => env('TIKTOK_PIXEL_CODE'),
+        'access_token' => env('TIKTOK_ACCESS_TOKEN'),
+        'enabled' => env('TIKTOK_ENABLED', false),
+    ],
+
 ];

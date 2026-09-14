@@ -158,6 +158,15 @@ class OrderController extends Controller
 
         ProcessProxyOrder::dispatch($order->id);
 
+        \App\Jobs\SendTikTokPurchaseEvent::dispatch(
+            $order->id,
+            $user->id,
+            $request->ip(),
+            $request->userAgent(),
+            $request->fullUrl(),
+            $request->cookie('_ttp'),
+        );
+
         return redirect()->route('orders.show', $order)->with('success', 'Order placed! We\'re provisioning it now.');
     }
 

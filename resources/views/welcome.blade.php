@@ -6,10 +6,14 @@
     <title>ProxWorld — Premium Residential, Datacenter, ISP &amp; Mobile Proxies</title>
     <meta name="description" content="Buy fast, reliable proxies with ProxWorld. Residential, datacenter, ISP, and mobile proxies across 190+ countries — built for scraping, automation, and anonymity." />
     <meta name="keyword" content="buy proxies, residential proxies, datacenter proxies, ISP proxies, mobile proxies, proxy provider Nigeria, buy proxies online, rotating proxies, SOCKS5 proxies" />
+    <!--! BEGIN: Favicon-->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.png') }}" />
+    <!--! END: Favicon-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -950,9 +954,21 @@
             .reseller-section { padding: 4rem 1.2rem !important; }
         }
         </style>
-</head>
-<body>
 
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-55FF9H7J');</script>
+        <!-- End Google Tag Manager -->
+</head>
+    <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-55FF9H7J"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursorRing"></div>
 
@@ -962,6 +978,7 @@
             <li><a href="#features">Features</a></li>
             <li><a href="#platforms">Platforms</a></li>
             <li><a href="{{ route('api.docs') }}">Api</a></li>
+            <li><a href="{{ route('blog.index') }}">Blog</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
         <div class="nav-btns">
@@ -1349,6 +1366,7 @@
                     <li><a href="{{ route('register') }}">Sign Up</a></li>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#platforms">Platforms</a></li>
+                    <li><a href="{{ route('blog.index') }}">Blog</a></li>
                 </ul>
             </div>
                 <div class="footer-col">
