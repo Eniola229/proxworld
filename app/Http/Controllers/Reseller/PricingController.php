@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Reseller\UpdateResellerPricingRequest;
 use App\Models\Provider;
 use App\Models\ResellerServiceOverride;
+use App\Services\ExchangeRateService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ use Illuminate\Http\Request;
  */
 class PricingController extends Controller
 {
-    public function edit(Request $request, PricingService $pricing)
+    public function edit(Request $request, PricingService $pricing, ExchangeRateService $exchangeRates)
     {
         $reseller = $request->user()->reseller;
 
@@ -27,7 +28,40 @@ class PricingController extends Controller
                 $service->provider_name = $provider->name;
 
                 return $service;
-            }));
+            }))
+            ->map(function ($service) use ($pricing, $exchangeRates, $reseller) {
+                // raw_rate is in the provider's own currency — convert to NGN
+                // before any markup math touches it.
+                $costPriceNgn = $exchangeRates->convert(
+                    (float) $service->raw_rate,
+                    $service->raw_currency,
+                    'NGN'
+                );
+
+                // What the PLATFORM charges this reseller (platform markup,
+                // scoped by product type/protocol/provider — see PricingService).
+                $basePrice = $pricing->calculateSellPrice(
+                    $costPriceNgn,
+                    $service->type ?? null,
+                    $service->protocol ?? null,
+                    $service->provider_id
+                );
+
+                // What THIS reseller charges their own customer — reseller's
+                // markup (override or their default_markup_percent) on top
+                // of the platform's price, never on top of raw provider cost.
+                $resellerMarkup = (float) $reseller->markupPercentFor(
+                    $service->provider_id,
+                    $service->external_service_id
+                );
+                $yourPrice = round($basePrice * (1 + $resellerMarkup / 100), 2);
+
+                $service->base_price = $basePrice;
+                $service->reseller_markup = $resellerMarkup;
+                $service->your_price = $yourPrice;
+
+                return $service;
+            });
 
         $overrides = $reseller->serviceOverrides()->get()
             ->keyBy(fn ($o) => $o->provider_id.'_'.$o->external_service_id);
@@ -47,6 +81,8 @@ class PricingController extends Controller
             'default_markup_percent' => $request->input('default_markup_percent'),
         ])->save(); // not a guarded balance field — plain attribute, direct save is fine here
 
+        $updatedCount = 0;
+
         foreach ((array) $request->input('markups', []) as $key => $markup) {
             [$providerId, $externalServiceId] = array_pad(explode('_', $key, 2), 2, null);
 
@@ -65,6 +101,16 @@ class PricingController extends Controller
                     'is_hidden' => in_array($key, (array) $request->input('hidden', [])),
                 ]
             );
+
+            $updatedCount++;
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your storefront pricing has been updated.',
+                'total_services' => $updatedCount,
+            ]);
         }
 
         return back()->with('success', 'Your storefront pricing has been updated.');

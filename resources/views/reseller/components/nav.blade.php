@@ -50,7 +50,7 @@
                         </li>
                         <li class="nxl-item">
                             <a class="nxl-link {{ request()->is('orders') ? 'active' : '' }}"
-                               href="/orders">Order History</a>
+                               href="/orders/r">Order History</a>
                         </li>
                     </ul>
                 </li>
@@ -341,19 +341,19 @@
                             </a>
                             @if(auth()->id() === $reseller->owner_id)
                                 <div class="dropdown-divider"></div>
-                                <a href="/manage/settings" class="dropdown-item">
+                                <a href="{{ route('reseller.manage.settings') }}" class="dropdown-item">
                                     <i class="feather-settings"></i>
                                     <span>Panel Settings</span>
                                 </a>
-                                <a href="/manage/services" class="dropdown-item">
+                                <a href="{{ route('reseller.manage.services') }}" class="dropdown-item">
                                     <i class="feather-tag"></i>
                                     <span>Service Pricing</span>
                                 </a>
-                                <a href="/manage/customers" class="dropdown-item">
+                                <a href="{{ route('reseller.manage.customers') }}" class="dropdown-item">
                                     <i class="feather-users"></i>
                                     <span>My Customers</span>
                                 </a>
-                                <a href="/manage/revenue" class="dropdown-item">
+                                <a href="{{ route('reseller.manage.revenue') }}" class="dropdown-item">
                                     <i class="feather-bar-chart-2"></i>
                                     <span>Revenue Summary</span>
                                 </a>
@@ -374,3 +374,4 @@
         </div>
     </div>
 </header>
+@include('components.flash-messages')

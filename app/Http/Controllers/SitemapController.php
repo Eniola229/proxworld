@@ -27,10 +27,9 @@ class SitemapController extends Controller
                 ['loc' => route('login'), 'priority' => '0.5'],
             ];
 
-            Newsletter::publishedOnBlog()->latest('sent_at')->get(['slug', 'sent_at'])->each(function ($post) use (&$urls) {
+            Newsletter::publishedOnBlog()->latest('sent_at')->get(['slug'])->each(function ($post) use (&$urls) {
                 $urls[] = [
                     'loc' => route('blog.show', $post->slug),
-                    'lastmod' => $post->sent_at->toAtomString(),
                     'priority' => '0.6',
                 ];
             });

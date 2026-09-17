@@ -47,28 +47,41 @@ class StorefrontAuthController extends Controller
         ]);
 
         if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
-            throw ValidationException::withMessages(['email' => 'These credentials do not match our records.']);
+            throw ValidationException::withMessages(['email' => 'This credential does not match our records.']);
         }
 
         $request->session()->regenerate();
 
         $user = Auth::guard('web')->user();
 
-        if ($user->status !== AccountStatus::ACTIVE) {
-            Auth::guard('web')->logout();
-            throw ValidationException::withMessages(['email' => 'This account is suspended. Contact support for help.']);
-        }
-
         // The 'storefront' middleware (ResolveResellerFromSubdomain) already
         // ran and set this before we got here.
         $reseller = $request->attributes->get('storefront_reseller');
 
-        if ($reseller && $user->reseller_id !== $reseller->id) {
+        // Is this account the OWNER of the panel they're logging into? Compare
+        // ids directly against Reseller::owner_id rather than going through the
+        // $user->reseller relation — same pattern as the other project, and it
+        // avoids any lazy-load/identity mismatch between the two Reseller rows.
+        $isOwner = $reseller && $user->id === $reseller->owner_id;
+
+        // Is this account a registered customer of THIS panel?
+        $isMember = $reseller && $user->reseller_id === $reseller->id;
+
+        if (! $isOwner && ! $isMember) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             throw ValidationException::withMessages(['email' => 'Your account is not registered on this panel.']);
+        }
+
+        if ($user->status !== AccountStatus::ACTIVE) {
+            Auth::guard('web')->logout();
+            throw ValidationException::withMessages(['email' => 'This account is suspended. Contact support for help.']);
+        }
+
+        if ($isOwner) {
+            return redirect()->intended(route('storefront.dashboard'));
         }
 
         return redirect()->intended(route('storefront.dashboard'));
@@ -114,7 +127,7 @@ class StorefrontAuthController extends Controller
 
         Auth::guard('web')->login($user);
 
-        return redirect()->route('storefront.welcome');
+        return redirect()->route('storefront.dashboard');
     }
 
     public function logout(Request $request): RedirectResponse

@@ -11,12 +11,13 @@ class EnsureUserIsReseller
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
+        $reseller = $user?->reseller;
 
-        if (! $user || ! $user->is_reseller) {
+        if (! $user || ! $user->is_reseller || ! $reseller) {
             abort(403, 'This area is for approved resellers only.');
         }
 
-        if ($user->reseller_status !== \App\Types\ResellerStatus::APPROVED) {
+        if ($reseller->status !== \App\Types\ResellerStatus::APPROVED) {
             return redirect()->route('reseller.pending');
         }
 

@@ -27,6 +27,7 @@ Route::post('/logout', [\App\Http\Controllers\Reseller\StorefrontAuthController:
 Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Storefront\DashboardController::class, 'index'])->name('storefront.dashboard');
 
+    Route::get('/orders/r', [\App\Http\Controllers\Storefront\OrderController::class, 'index'])->name('storefront.orders.index');
     Route::get('/orders/new', [\App\Http\Controllers\Storefront\OrderController::class, 'create'])->name('storefront.orders.create');
     Route::get('/orders/countries', [\App\Http\Controllers\Storefront\OrderController::class, 'countries'])->name('storefront.orders.countries');
     Route::get('/orders/services', [\App\Http\Controllers\Storefront\OrderController::class, 'services'])->name('storefront.orders.services');
@@ -40,3 +41,28 @@ Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
     Route::get('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'edit'])->name('storefront.profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'update'])->name('storefront.profile.update');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Reseller OWNER's panel-management routes — moved here (from
+| routes/reseller.php) because the "Panel Settings / Service Pricing /
+| My Customers / Revenue Summary" links live in the storefront nav
+| dropdown, which only ever renders on this (subdomain) domain. Names
+| are kept as reseller.manage.* so existing route() calls in views don't
+| need to change. Controllers are untouched — still App\Http\Controllers\Reseller\*.
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:web', 'account.active', 'reseller'])
+    ->name('reseller.')
+    ->group(function () {
+        Route::get('/manage', [\App\Http\Controllers\Reseller\DashboardController::class, 'index'])->name('manage.index');
+        Route::get('/manage/customers', [\App\Http\Controllers\Reseller\CustomerController::class, 'index'])->name('manage.customers');
+        Route::get('/manage/settings', [\App\Http\Controllers\Reseller\SettingsController::class, 'edit'])->name('manage.settings');
+        Route::put('/manage/settings', [\App\Http\Controllers\Reseller\SettingsController::class, 'update'])->name('manage.settings.update');
+        Route::get('/manage/services', [\App\Http\Controllers\Reseller\PricingController::class, 'edit'])->name('manage.services');
+        Route::put('/manage/services', [\App\Http\Controllers\Reseller\PricingController::class, 'update'])->name('manage.services.update');
+        Route::get('/manage/revenue', [\App\Http\Controllers\Reseller\RevenueController::class, 'index'])->name('manage.revenue');
+        Route::get('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'create'])->name('manage.withdraw');
+        Route::post('/manage/withdraw/resolve-account', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'resolveAccount'])->name('manage.withdraw.resolve-account');
+        Route::post('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'store'])->name('manage.withdraw.store');
+    });

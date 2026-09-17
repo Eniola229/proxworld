@@ -196,7 +196,7 @@
                                         <div class="avatar-text avatar-md bg-gray-200"><i class="feather-trending-up"></i></div>
                                         <span class="fs-13 text-muted">Total Profit</span>
                                     </div>
-                                    <div class="fs-13 fw-bold text-dark">Login into your panel using your {{ config('app.name', 'ProxWorld') }} account details to see your profits and withdraw them</div>
+                                    <div class="fs-13 fw-bold text-dark">Login into your panel using your {{ config('app.name', 'ProxWorld') }} login details to see your profits and withdraw them</div>
                                 </div>
                             </div>
                         </div>
@@ -209,9 +209,7 @@
                                             <h6 class="mb-2">Service Pricing</h6>
                                             <p class="text-muted mb-0 fs-13">Configure your markup percentages per service</p>
                                         </div>
-                                        <a href="{{ route('reseller-panel.services') }}" class="btn btn-sm btn-primary">
-                                            <i class="feather-edit me-1"></i> Configure
-                                        </a>
+                                        <div class="fs-13 fw-bold text-dark">Login into your panel using your {{ config('app.name', 'ProxWorld') }} login details to configure services</div>
                                     </div>
                                 </div>
                             </div>

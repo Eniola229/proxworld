@@ -142,4 +142,20 @@ class Reseller extends Model
         {
             return (float) $this->profit_balance;
         }
+
+
+     /**
+     * Profit realized from a single order — sums this reseller's credit
+     * profit transactions linked to that order via order_id. Distinct from
+     * totalProfitEarned() (lifetime, all orders) and availableProfitBalance()
+     * (current withdrawable balance) — this is the per-order breakdown those
+     * two don't give you, used for the Profit column in the orders table.
+     */
+    public function realProfitForOrder(Order $order): float
+    {
+        return (float) $this->profitTransactions()
+            ->where('order_id', $order->id)
+            ->where('type', 'credit')
+            ->sum('amount');
+    }
 }

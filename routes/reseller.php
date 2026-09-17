@@ -21,7 +21,7 @@ Route::middleware(['auth:web', 'account.active'])->group(function () {
         Route::get('/manage/revenue', [\App\Http\Controllers\Reseller\RevenueController::class, 'index'])->name('manage.revenue');
         Route::get('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'create'])->name('manage.withdraw')
         ;
-        Route::post('/manage/withdraw/resolve-account', [WithdrawalController::class, 'resolveAccount'])
+        Route::post('/manage/withdraw/resolve-account', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'resolveAccount'])
         ->name('manage.withdraw.resolve-account');
         Route::post('/manage/withdraw', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'store'])->name('manage.withdraw.store');
 

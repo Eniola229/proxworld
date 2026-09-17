@@ -422,7 +422,7 @@ function spRenderItems() {
     list.innerHTML = spServices.map(function(s) {
         const sel = s.id == currentServiceId ? 'selected' : '';
         return '<div class="sp-item ' + sel + '" data-id="' + s.id + '" onclick="spSelect(\'' + s.id + '\')">'
-            + '<span class="sp-item-name">' + highlight(s.name, spSearchTerm) + ' <small>(' + escHtml(s.provider) + ')</small></span>'
+            + '<span class="sp-item-name">' + highlight(s.name, spSearchTerm) + '</span>'
             + '<div class="sp-item-right">'
             + '<span class="sp-item-price">&#8358;' + parseFloat(s.price).toFixed(2) + '/' + escHtml(s.unit) + '</span>'
             + '<i class="fas fa-check sp-item-check"></i>'
@@ -482,8 +482,8 @@ function spSelect(serviceId) {
     triggerPrice.style.display = '';
 
     document.getElementById('service_info').innerHTML =
-        `Provider: <strong>${escHtml(service.provider)}</strong> &nbsp;|&nbsp; Priced per <strong>${escHtml(service.unit)}</strong>`;
-
+    `Priced per <strong>${escHtml(service.unit)}</strong>`;
+    
     const qty = document.getElementById('quantity');
     qty.disabled = false;
     qty.min = 1;

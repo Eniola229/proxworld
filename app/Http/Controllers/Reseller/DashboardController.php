@@ -12,11 +12,22 @@ class DashboardController extends Controller
     {
         $reseller = $request->user()->reseller;
 
+        $resellerOrders = $reseller->orders();
+
         return view('reseller.dashboard', [
+            'balance' => $reseller->balance,
+            'totalOrders' => (clone $resellerOrders)->count(),
+            'totalSpent' => (clone $resellerOrders)->sum('charge'),
+            'pendingOrders' => (clone $resellerOrders)->where('status', OrderStatus::PENDING)->count(),
+            'processingOrders' => (clone $resellerOrders)->where('status', OrderStatus::PROCESSING)->count(),
+            'completedOrders' => (clone $resellerOrders)->where('status', OrderStatus::COMPLETED)->count(),
+            'recentOrders' => (clone $resellerOrders)->latest()->limit(10)->get(),
+            'orderCreateUrl' => route('reseller.order.create'),
+
+            // Extra reseller-specific data the shared view doesn't currently
+            // render, kept available in case a future revenue widget wants it
+            // without needing another controller change.
             'reseller' => $reseller,
-            'ordersCount' => $reseller->orders()->count(),
-            'completedOrders' => $reseller->orders()->where('status', OrderStatus::COMPLETED)->count(),
-            'recentOrders' => $reseller->orders()->latest()->limit(5)->get(),
             'availableBalance' => $reseller->profit_balance,
             'totalProfit' => $reseller->total_profit_earned,
         ]);

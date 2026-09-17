@@ -10,9 +10,12 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Guards authenticated storefront routes (account pages, order history,
  * etc.) against a customer who's logged in but belongs to a DIFFERENT
- * reseller than the one whose subdomain they're currently on. Run this
- * AFTER 'storefront' (ResolveResellerFromSubdomain) and 'auth:web' in the
- * middleware stack — it depends on both having already run.
+ * reseller than the one whose subdomain they're currently on. Also lets
+ * the reseller OWNER through — they're not a customer at all, so they're
+ * never matched by reseller_id, but they're still a legitimate principal
+ * on this panel. Run this AFTER 'storefront' (ResolveResellerFromSubdomain)
+ * and 'auth:web' in the middleware stack — it depends on both having
+ * already run.
  */
 class EnsureStorefrontCustomerBelongsToReseller
 {
@@ -21,7 +24,14 @@ class EnsureStorefrontCustomerBelongsToReseller
         $reseller = $request->attributes->get('storefront_reseller');
         $user = Auth::guard('web')->user();
 
-        if ($reseller && $user && $user->reseller_id !== $reseller->id) {
+        if (! $reseller || ! $user) {
+            return $next($request);
+        }
+
+        $isOwner = $user->id === $reseller->owner_id;
+        $isMember = $user->reseller_id === $reseller->id;
+
+        if (! $isOwner && ! $isMember) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

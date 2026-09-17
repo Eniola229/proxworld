@@ -22,6 +22,7 @@ class WithdrawalController extends Controller
         $reseller = $request->user()->reseller;
 
         return view('reseller.manage.withdraw', [
+            'reseller' => $reseller,
             'availableBalance' => $reseller->profit_balance,
             'totalProfit' => $reseller->total_profit_earned,
             'totalWithdrawn' => $reseller->withdrawals()->where('status', 'success')->sum('amount'),
@@ -29,7 +30,7 @@ class WithdrawalController extends Controller
             'withdrawals' => $reseller->withdrawals()->latest()->paginate(10),
         ]);
     }
-
+    
     /** AJAX endpoint the blade calls before enabling the submit button — confirms the account name matches. */
     public function resolveAccount(Request $request)
     {
@@ -94,6 +95,6 @@ class WithdrawalController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('reseller.dashboard')->with('success', 'Withdrawal request submitted for review.');
+        return redirect()->back()->with('success', 'Withdrawal request submitted for review.');
     }
 }

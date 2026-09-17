@@ -81,6 +81,7 @@
                                            autocomplete="off"
                                            required />
                                     <input type="hidden" name="bank_name" id="bank_name_input" required />
+                                    <input type="hidden" name="bank_code" id="bank_code_input" required />
 
                                     <div id="bank_dropdown"
                                          class="list-group position-absolute w-100 shadow-sm"
@@ -88,7 +89,8 @@
                                         @foreach($banks as $bank)
                                             <button type="button"
                                                     class="list-group-item list-group-item-action bank-option"
-                                                    data-name="{{ $bank['name'] }}">
+                                                    data-name="{{ $bank['name'] }}"
+                                                    data-code="{{ $bank['code'] }}">
                                                 {{ $bank['name'] }}
                                             </button>
                                         @endforeach
@@ -172,48 +174,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput  = document.getElementById('bank_search');
-    const hiddenInput  = document.getElementById('bank_name_input');
-    const dropdown     = document.getElementById('bank_dropdown');
-    const options       = dropdown.querySelectorAll('.bank-option');
-
-    searchInput.addEventListener('focus', () => {
-        dropdown.style.display = 'block';
-    });
-
-    searchInput.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        hiddenInput.value = ''; // clear selection until they pick again
-        let anyVisible = false;
-
-        options.forEach(opt => {
-            const match = opt.dataset.name.toLowerCase().includes(query);
-            opt.style.display = match ? 'block' : 'none';
-            if (match) anyVisible = true;
-        });
-
-        dropdown.style.display = anyVisible ? 'block' : 'none';
-    });
-
-    options.forEach(opt => {
-        opt.addEventListener('click', () => {
-            searchInput.value = opt.dataset.name;
-            hiddenInput.value = opt.dataset.name;
-            dropdown.style.display = 'none';
-        });
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#bank_search') && !e.target.closest('#bank_dropdown')) {
-            dropdown.style.display = 'none';
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
     const searchInput   = document.getElementById('bank_search');
     const hiddenInput    = document.getElementById('bank_name_input');
+    const bankCodeInput  = document.getElementById('bank_code_input');
     const dropdown        = document.getElementById('bank_dropdown');
     const options          = dropdown.querySelectorAll('.bank-option');
     const accountNumberInput = document.querySelector('input[name="account_number"]');
@@ -228,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.toLowerCase().trim();
         hiddenInput.value = '';
+        bankCodeInput.value = '';
         accountNameInput.value = '';
         let anyVisible = false;
 
@@ -244,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.addEventListener('click', () => {
             searchInput.value = opt.dataset.name;
             hiddenInput.value = opt.dataset.name;
+            bankCodeInput.value = opt.dataset.code;
             dropdown.style.display = 'none';
             tryResolveAccount();
         });
@@ -286,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success && data.account_name) {
                 accountNameInput.value = data.account_name;
+                bankCodeInput.value = data.bank_code || bankCodeInput.value;
                 resolveStatus.textContent = 'Verified: ' + data.account_name;
                 resolveStatus.className = 'small mt-1 text-success';
             } else {

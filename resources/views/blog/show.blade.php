@@ -30,6 +30,8 @@
         <meta property="article:author" content="{{ $post->creator->name }}">
     @endif
 
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $ogImage }}" />
+
     <!-- Twitter/X Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $post->subject }}">
@@ -372,8 +374,8 @@
                     <a href="https://whatsapp.com/channel/0029VbEIyPKFi8xhoHYXrk2i" target="_blank" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
                     <a href="https://t.me/proxworldhq" target="_blank" class="soc-btn"><i class="fab fa-telegram"></i></a>
                     <a href="https://www.tiktok.com/@ProxWorld3928" target="_blank" class="soc-btn"><i class="fab fa-tiktok"></i></a>
-                    <a href="#" class="soc-btn"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="soc-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.x.com/prox_world" class="soc-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/proxworldhq" class="soc-btn"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="footer-col">

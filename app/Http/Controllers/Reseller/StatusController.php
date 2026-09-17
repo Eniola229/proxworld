@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Reseller;
 
 use App\Http\Controllers\Controller;
+use App\Types\ResellerStatus;
 use Illuminate\Http\Request;
 
 class StatusController extends Controller
 {
     public function pending(Request $request)
     {
-        $reseller = $request->user()->reseller;
+        $user = $request->user();
+        $reseller = $user->reseller;
 
-        if ($reseller && $reseller->isActive()) {
+        if ($reseller && $reseller->status === ResellerStatus::APPROVED) {
             return redirect()->route('reseller.dashboard');
         }
 

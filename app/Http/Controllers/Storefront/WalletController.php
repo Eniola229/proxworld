@@ -24,7 +24,6 @@ class WalletController extends Controller
             'transactions' => $user->wallet()->latest()->paginate(15),
             'currencies' => \App\Models\Currency::where('is_active', true)->get(),
             // dashboard/order/new views all had the same hardcoded route('reseller.*')
-            // bug — this view had it too, on the topup form action + JS poll URL.
             'walletTopupUrl' => route('storefront.wallet.topup'),
             'walletTopupStatusUrl' => route('storefront.wallet.topup-status'),
         ]);

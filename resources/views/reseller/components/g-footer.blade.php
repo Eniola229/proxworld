@@ -116,6 +116,11 @@
     </div>
 </div>
 
+{{-- Tiny "Powered by ProxWorld" badge — links back to the main platform site --}}
+<a href="{{ config('app.url', env('APP_URL')) }}" class="powered-by-badge" target="_blank" rel="noopener">
+    Powered by <strong>ProxWorld</strong>
+</a>
+
 <style>
     .footer {
         padding: 1.5rem 0;
@@ -195,12 +200,39 @@
     @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
     @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
 
+    .powered-by-badge {
+        position: fixed;
+        bottom: 14px;
+        left: 14px;
+        z-index: 999;
+        background: rgba(255, 255, 255, 0.95);
+        color: #6c757d;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .powered-by-badge strong {
+        color: var(--reseller-primary);
+        font-weight: 700;
+    }
+    .powered-by-badge:hover {
+        color: #6c757d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
     @media (max-width: 767.98px) {
         .footer .row > div:first-child { text-align:center; }
         .footer .d-flex { justify-content:center !important; flex-wrap:wrap; }
         .support-float-btn { bottom:20px; right:20px; padding:10px 16px; font-size:13px; }
         .support-float-btn span { display:none; }
         .support-modal-content { width:95%; margin:0 10px; }
+        .powered-by-badge { bottom: 20px; left: 20px; font-size: 10px; padding: 5px 10px; }
     }
 </style>
 

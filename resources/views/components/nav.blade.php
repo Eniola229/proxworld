@@ -75,15 +75,6 @@
                             </li>
                         @endif
 
-                        {{-- Reseller Services Link --}}
-                        @if(auth()->check() && \App\Models\Reseller::where('owner_id', auth()->id())->where('status', 'active')->exists())
-                        <li class="nxl-item">
-                            <a href="{{ route('reseller-panel.services') }}" class="nxl-link {{ request()->routeIs('reseller-panel.services*') ? 'active' : '' }}">
-                                <span class="nxl-micon"><i class="feather-tag"></i></span>
-                                <span class="nxl-mtext">Service Pricing</span>
-                            </a>
-                        </li>
-                        @endif
                     </ul>
                 </li>
 

@@ -11,22 +11,53 @@ class RevenueController extends Controller
     {
         $reseller = $request->user()->reseller;
 
-        $period = $request->get('period', 'month');
-        $from = match ($period) {
-            'today' => now()->startOfDay(),
-            'week' => now()->startOfWeek(),
-            'year' => now()->startOfYear(),
-            default => now()->startOfMonth(),
-        };
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
+
+        $ordersQuery = $reseller->orders()
+            ->when($dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('created_at', '<=', $dateTo));
+
+        $totalRevenue = (clone $ordersQuery)->sum('charge');
+        $totalOrders = (clone $ordersQuery)->count();
+
+        $totalProfit = (clone $ordersQuery)
+            ->where('status', 'completed')
+            ->get()
+            ->sum(fn ($order) => $reseller->realProfitForOrder($order));
+
+        $completedOrders = (clone $ordersQuery)->where('status', 'completed')->count();
+        $pendingOrders = (clone $ordersQuery)->where('status', 'pending')->count();
+        $processingOrders = (clone $ordersQuery)->where('status', 'processing')->count();
+        $cancelledOrders = (clone $ordersQuery)->where('status', 'cancelled')->count();
+
+        // Lifetime figures — never date-filtered.
+        $totalWithdrawn = $reseller->withdrawals()
+            ->whereIn('status', ['pending', 'processing', 'successful'])
+            ->sum('amount');
+
+        $availableBalance = $reseller->profit_balance;
+
+        $recentOrders = (clone $ordersQuery)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->withQueryString();
 
         return view('reseller.manage.revenue', [
             'reseller' => $reseller,
-            'period' => $period,
-            'periodOrders' => $reseller->orders()->where('created_at', '>=', $from)->count(),
-            'periodProfit' => $reseller->profitTransactions()->where('created_at', '>=', $from)->sum('amount'),
-            'totalProfit' => $reseller->total_profit_earned,
-            'availableBalance' => $reseller->profit_balance,
-            'transactions' => $reseller->profitTransactions()->latest()->paginate(15),
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'totalRevenue' => $totalRevenue,
+            'totalProfit' => $totalProfit,
+            'totalOrders' => $totalOrders,
+            'totalWithdrawn' => $totalWithdrawn,
+            'availableBalance' => $availableBalance,
+            'completedOrders' => $completedOrders,
+            'pendingOrders' => $pendingOrders,
+            'processingOrders' => $processingOrders,
+            'cancelledOrders' => $cancelledOrders,
+            'recentOrders' => $recentOrders,
         ]);
     }
 }

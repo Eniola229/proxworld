@@ -14,6 +14,7 @@ class CustomerController extends Controller
 
         $customers = $reseller->customers()
             ->withCount(['orders' => fn ($q) => $q->where('reseller_id', $reseller->id)])
+            ->orderByDesc('created_at')
             ->paginate(20);
 
         return view('reseller.manage.customers', ['customers' => $customers]);

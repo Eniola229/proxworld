@@ -123,7 +123,7 @@
                                 <input type="checkbox" class="custom-control-input" id="termsConditions" name="terms" value="1" required>
                                 <label class="custom-control-label c-pointer" for="termsConditions">
                                     I agree to the
-                                    <a href="javascript:void(0);" class="text-primary">Terms & Conditions</a>
+                                    <a href="{{ route('terms-of-use') }}" class="text-primary">Terms & Conditions</a>
                                 </label>
                             </div>
                             <div id="termsError" class="text-danger fs-11 mt-1" style="display:none;">
