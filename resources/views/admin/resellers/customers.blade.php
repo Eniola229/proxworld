@@ -32,21 +32,26 @@
                             <th>Balance</th>
                             <th>Orders</th>
                             <th>Joined</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($customers as $membership)
-                            @php $u = $membership->user; @endphp
+                        @forelse($customers as $u)
                             <tr>
                                 <td class="fw-semibold">{{ $u->name }}</td>
                                 <td class="text-muted">{{ $u->email }}</td>
                                 <td>₦{{ number_format($u->balance, 2) }}</td>
-                                <td>{{ $u->orders()->where('reseller_id', $reseller->id)->count() }}</td>
-                                <td>{{ $membership->created_at->format('M d, Y') }}</td>
+                                <td>{{ $u->orders_count }}</td>
+                                <td>{{ $u->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.customers.show', $u) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="feather-eye me-1"></i> View
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">No customers yet.</td>
+                                <td colspan="6" class="text-center py-4 text-muted">No customers yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

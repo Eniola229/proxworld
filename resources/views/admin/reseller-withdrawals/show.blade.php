@@ -19,6 +19,19 @@
 </div>
 
 <div class="main-content">
+    @if(session('alert'))
+        <div class="alert alert-{{ session('alert')['type'] === 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+            {{ session('alert')['message'] }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="row g-3">
         <div class="col-lg-7">
             <div class="card">
@@ -42,7 +55,7 @@
             </div>
         </div>
 
-    @if(in_array($withdrawal->status, ['pending', 'processing']) && auth('admin')->user()->canManageResellerWithdrawals())
+@if($withdrawal->status === 'pending' && auth('admin')->user()->canManageResellerWithdrawals())
         <div class="col-lg-5">
             <div class="card">
                 <div class="card-header"><h6 class="m-0">Take Action</h6></div>
@@ -50,8 +63,8 @@
                     <form action="{{ route('admin.reseller-withdrawals.approve', $withdrawal) }}" method="POST" class="mb-3">
                         @csrf
                         <button type="submit" class="btn btn-success w-100"
-                                onclick="return confirm('Confirm you have sent ₦{{ number_format($withdrawal->amount, 2) }} to {{ $withdrawal->account_name }}?')">
-                            <i class="feather-check me-1"></i> Mark as Paid
+                                onclick="return confirm('This will initiate a live Flutterwave transfer of ₦{{ number_format($withdrawal->amount, 2) }} to {{ $withdrawal->account_name }}. Continue?')">
+                            <i class="feather-check me-1"></i> Approve & Send via Flutterwave
                         </button>
                     </form>
                      <form action="{{ route('admin.reseller-withdrawals.reject', $withdrawal) }}" method="POST">
@@ -64,6 +77,18 @@
                             <i class="feather-x me-1"></i> Reject & Refund
                         </button>
                     </form>
+                </div>
+            </div>
+        </div>
+        @elseif($withdrawal->status === 'processing')
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h6 class="m-0">Take Action</h6></div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-0">
+                        <i class="feather-clock me-2"></i>
+                        Transfer already initiated with Flutterwave. Waiting for the webhook to confirm final status — no further action needed here.
+                    </div>
                 </div>
             </div>
         </div>

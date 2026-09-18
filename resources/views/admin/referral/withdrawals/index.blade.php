@@ -245,12 +245,12 @@
                             </td>
                             <td>
                                 <div>
-                                    <div class="fw-bold">{{ $withdrawal->referral->user->name }}</div>
-                                    <small class="text-muted">{{ $withdrawal->referral->user->email }}</small>
+                                    <div class="fw-bold">{{ $withdrawal->user->name ?? 'Deleted User' }}</div>
+                                    <small class="text-muted">{{ $withdrawal->user->email ?? '—' }}</small>
                                 </div>
                             </td>
                             <td>
-                                @if($withdrawal->withdrawal_method == 'bank')
+                                @if($withdrawal->method == 'bank')
                                     <span class="badge bg-soft-primary text-primary">
                                         <i class="feather-briefcase me-1"></i> Bank Transfer
                                     </span>
@@ -296,7 +296,7 @@
                                 @if($withdrawal->status == 'pending')
                                     @if(Auth::guard('admin')->user()->isSuperAdmin() || Auth::guard('admin')->user()->isAccountant())
                                         <div class="d-flex gap-1">
-                                            @if($withdrawal->withdrawal_method == 'wallet')
+                                            @if($withdrawal->method == 'wallet')
                                                 <form action="{{ route('admin.referral.withdrawals.approve-wallet', $withdrawal->id) }}" 
                                                       method="POST" 
                                                       onsubmit="return confirm('Approve this wallet withdrawal?')">
@@ -353,8 +353,8 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="alert alert-warning mb-3">
-                                                        <strong>User:</strong> {{ $withdrawal->referral->user->name }}<br>
-                                                        <strong>Email:</strong> {{ $withdrawal->referral->user->email }}<br>
+                                                        <strong>User:</strong> {{ $withdrawal->user->name ?? 'Deleted User' }}<br>
+                                                        <strong>Email:</strong> {{ $withdrawal->user->email ?? '—' }}<br>
                                                         <strong>Amount:</strong> ₦{{ number_format($withdrawal->amount, 2) }}<br>
                                                         <small class="d-block mt-2">
                                                             <i class="feather-info me-1"></i>

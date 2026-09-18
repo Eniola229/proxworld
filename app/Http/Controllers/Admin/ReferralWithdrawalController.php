@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminLogged;
 use App\Models\ReferralWithdrawal;
 use App\Services\FlutterwaveService;
 use App\Services\ReferralService;
@@ -31,13 +32,19 @@ class ReferralWithdrawalController extends Controller
             'success' => ReferralWithdrawal::where('status', WithdrawalStatus::SUCCESS)->count(),
             'failed' => ReferralWithdrawal::where('status', WithdrawalStatus::FAILED)->count(),
         ];
-        
+
         $withdrawals = ReferralWithdrawal::query()
-            ->with('user:id,name,email') // see note below — may need to be 'referral.user'
+            ->with('user:id,name,email')
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))
-            ->when($filterMethod, fn ($q) => $q->where('method', $filterMethod)) // see note — blade uses withdrawal_method
+            ->when($filterMethod, fn ($q) => $q->where('method', $filterMethod))
             ->when($search, function ($q) use ($search) {
-                $q->where('reference', 'like', "%{$search}%");
+                $q->where(function ($q) use ($search) {
+                    $q->where('reference', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                });
             })
             ->when($amountMin, fn ($q) => $q->where('amount', '>=', $amountMin))
             ->when($amountMax, fn ($q) => $q->where('amount', '<=', $amountMax))
@@ -52,15 +59,42 @@ class ReferralWithdrawalController extends Controller
             'amountMin', 'amountMax', 'dateFrom', 'dateTo'
         ));
     }
+
     public function show(ReferralWithdrawal $withdrawal)
     {
-        return view('admin.referral.withdrawals.show', ['withdrawal' => $withdrawal->load('user')]);
+        $withdrawal->load('user', 'processedBy');
+
+        $referralBalance = $withdrawal->user->referral_balance;
+
+        $totalEarnings = $withdrawal->user->referrals()->sum('bonus_amount');
+
+        $totalTransactions = ReferralWithdrawal::where('user_id', $withdrawal->user_id)
+            ->where('status', WithdrawalStatus::SUCCESS)
+            ->count();
+
+        // Combined admin-action log + this withdrawal's own record, newest first.
+        // AdminLogged entries scoped to this withdrawal; the withdrawal's own
+        // lifecycle (created/processed) is folded in as a single synthetic entry
+        // since ReferralWithdrawal itself has no separate log table.
+        $adminLogs = AdminLogged::query()
+            ->where('subject_type', ReferralWithdrawal::class)
+            ->where('subject_id', $withdrawal->id)
+            ->get();
+
+        $logs = $adminLogs->sortByDesc('created_at')->values();
+
+        return view('admin.referral.withdrawals.show', [
+            'withdrawal' => $withdrawal,
+            'referralBalance' => $referralBalance,
+            'totalTransactions' => $totalTransactions,
+            'logs' => $logs,
+        ]);
     }
 
     /** For method=wallet — credits the user's spendable wallet balance directly. No external transfer needed. */
     public function approveWallet(Request $request, ReferralWithdrawal $withdrawal, WalletService $wallet)
     {
-        abort_if($withdrawal->status === WithdrawalStatus::SUCCESS, 422, 'Already processed.');
+        abort_if($withdrawal->status !== WithdrawalStatus::PENDING, 422, 'This withdrawal is not pending.');
         abort_if($withdrawal->method !== 'wallet', 422, 'This withdrawal is not a wallet withdrawal.');
 
         $wallet->credit($withdrawal->user, (float) $withdrawal->amount, TransactionType::REFERRAL_BONUS, [
@@ -74,16 +108,16 @@ class ReferralWithdrawalController extends Controller
             'processed_at' => now(),
         ]);
 
-        return back()->with('success', 'Wallet credited.');
+        return back()->with('alert', ['type' => 'success', 'message' => 'Wallet credited.']);
     }
 
     /**
      * For method=bank — actually sends the money via a Flutterwave transfer.
-     * Requires bank_code to have been captured at request time (see ReferralWithdrawalController@resolveAccount).
+     * Requires bank_code to have been captured at request time.
      */
     public function approveBank(Request $request, ReferralWithdrawal $withdrawal, FlutterwaveService $flutterwave)
     {
-        abort_if($withdrawal->status === WithdrawalStatus::SUCCESS, 422, 'Already processed.');
+        abort_if($withdrawal->status !== WithdrawalStatus::PENDING, 422, 'This withdrawal is not pending — it may already be processing or completed.');
         abort_if($withdrawal->method !== 'bank', 422, 'This withdrawal is not a bank withdrawal.');
 
         if (! $withdrawal->bank_code) {
@@ -109,35 +143,33 @@ class ReferralWithdrawalController extends Controller
             return back()->with('alert', ['type' => 'error', 'message' => 'Could not initiate transfer: '.$e->getMessage()]);
         }
 
-        // Flutterwave transfers are async — the webhook (FlutterwaveController::handleTransferEvent)
-        // confirms success/failure and finalizes status. We mark it "processing" here, not "success".
+        // Flutterwave transfers are async — the webhook confirms success/failure
+        // and finalizes status. We mark it "processing" here, not "success".
         $withdrawal->update([
-            'status' => WithdrawalStatus::PROCESSING ?? WithdrawalStatus::APPROVED,
+            'status' => WithdrawalStatus::PROCESSING,
             'flutterwave_transfer_id' => $transfer['id'] ?? null,
             'processed_by' => $request->user('admin')->id,
             'processed_at' => now(),
         ]);
 
-        return back()->with('success', 'Transfer initiated with Flutterwave. Status will update automatically once it settles.');
+        return back()->with('alert', ['type' => 'success', 'message' => 'Transfer initiated with Flutterwave. Status will update automatically once it settles.']);
     }
 
     public function reject(Request $request, ReferralWithdrawal $withdrawal, ReferralService $referralService)
     {
-        $data = $request->validate(['failure_reason' => ['required', 'string', 'max:255']]);
+        $data = $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
-        abort_if($withdrawal->status === WithdrawalStatus::SUCCESS, 422, 'Already processed.');
+        abort_if($withdrawal->status !== WithdrawalStatus::PENDING, 422, 'This withdrawal is not pending — it may already be processing or completed.');
 
-        if ($withdrawal->status !== WithdrawalStatus::FAILED) {
-            $referralService->credit($withdrawal->user, (float) $withdrawal->amount, "Withdrawal #{$withdrawal->id} rejected — funds returned");
-        }
+        $referralService->credit($withdrawal->user, (float) $withdrawal->amount, "Withdrawal #{$withdrawal->id} rejected — funds returned");
 
         $withdrawal->update([
             'status' => WithdrawalStatus::FAILED,
-            'failure_reason' => $data['failure_reason'],
+            'failure_reason' => $data['reason'],
             'processed_by' => $request->user('admin')->id,
             'processed_at' => now(),
         ]);
 
-        return back()->with('success', 'Withdrawal rejected — funds returned.');
+        return back()->with('alert', ['type' => 'success', 'message' => 'Withdrawal rejected — funds returned.']);
     }
 }

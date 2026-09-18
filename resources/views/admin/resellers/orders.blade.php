@@ -43,29 +43,24 @@
                         <tr>
                             <th>Customer</th>
                             <th>Service</th>
-                            <th>Link</th>
                             <th>Qty</th>
                             <th>Charge</th>
                             <th>Profit</th>
                             <th>Status</th>
                             <th>Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
                             <tr>
-                                <td>{{ $order->user->name }}</td>
+                                <td>{{ $order->user->name ?? 'Deleted User' }}</td>
                                 <td class="text-truncate" style="max-width:140px;" title="{{ $order->service_name }}">
                                     {{ $order->service_name }}
                                 </td>
-                                <td>
-                                    <a href="{{ $order->link }}" target="_blank" class="text-muted" style="font-size:12px;">
-                                        {{ Str::limit($order->link, 25) }}
-                                    </a>
-                                </td>
                                 <td>{{ number_format($order->quantity) }}</td>
                                 <td>₦{{ number_format($order->charge, 2) }}</td>
-                                <td class="text-success">₦{{ number_format($order->profit ?? 0, 2) }}</td>
+                                <td class="text-success">₦{{ number_format($reseller->realProfitForOrder($order), 2) }}</td>
                                 <td>
                                     @php $badges=['completed'=>'success','processing'=>'info','pending'=>'warning','cancelled'=>'danger','partial'=>'primary']; @endphp
                                     <span class="badge bg-soft-{{ $badges[$order->status] ?? 'secondary' }} text-{{ $badges[$order->status] ?? 'secondary' }}">
@@ -73,6 +68,11 @@
                                     </span>
                                 </td>
                                 <td>{{ $order->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="feather-eye me-1"></i> View
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>

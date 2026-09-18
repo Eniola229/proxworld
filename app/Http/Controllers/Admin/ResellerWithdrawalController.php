@@ -19,7 +19,7 @@ class ResellerWithdrawalController extends Controller
     public function index(Request $request)
     {
         $withdrawals = ResellerWithdrawal::query()
-            ->with('reseller:id,panel_name')
+            ->with('reseller.owner:id,name')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->latest()
             ->paginate(20)
@@ -39,7 +39,11 @@ class ResellerWithdrawalController extends Controller
     /** Actually sends the payout via Flutterwave. Funds were already reserved when the request was submitted. */
     public function approve(Request $request, ResellerWithdrawal $withdrawal, FlutterwaveService $flutterwave)
     {
-        abort_if($withdrawal->status === WithdrawalStatus::SUCCESS, 422, 'Already processed.');
+        abort_if(
+            ! in_array($withdrawal->status, [WithdrawalStatus::PENDING], true),
+            422,
+            'This withdrawal is not pending — it may already be processing or completed.'
+        );
 
         if (! $withdrawal->bank_code) {
             return back()->with('alert', [

@@ -9,6 +9,7 @@ use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\WalletTransaction;
 
 class ResellerController extends Controller
 {
@@ -56,7 +57,9 @@ class ResellerController extends Controller
     {
         $owner = $reseller->owner;
 
-        $transactions = $reseller->wallet()->latest()->paginate(20);
+        $transactions = \App\Models\WalletTransaction::where('user_id', $owner->id)
+            ->latest()
+            ->paginate(20);
 
         $this->logActivity('viewed',
             auth('admin')->user()->name . ' viewed wallet for reseller [' . $reseller->subdomain . ']',
@@ -86,7 +89,7 @@ class ResellerController extends Controller
         $orders = $reseller->orders()->with('user')->latest()->paginate(30);
 
         $totalCharge = $reseller->orders()->sum('charge');
-        $totalProfit = $reseller->orders()->sum('profit');
+        $totalProfit = $reseller->profitTransactions()->where('type', 'credit')->sum('amount');
 
         $this->logActivity('viewed',
             auth('admin')->user()->name . ' viewed orders for reseller [' . $reseller->subdomain . ']',
