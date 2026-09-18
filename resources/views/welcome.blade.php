@@ -962,6 +962,17 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-55FF9H7J');</script>
         <!-- End Google Tag Manager -->
+        
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2T8TWXC01E"></script> 
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+        
+          gtag('config', 'G-2T8TWXC01E');
+        </script>
+
 </head>
     <body>
     <!-- Google Tag Manager (noscript) -->
