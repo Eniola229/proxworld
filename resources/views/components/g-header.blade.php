@@ -57,6 +57,16 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 <!-- TikTok Pixel Code End -->
 <!-- TikTok Pixel Code End -->
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2T8TWXC01E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2T8TWXC01E');
+</script>
+
     @stack('styles')
 </head>
 <body>
