@@ -41,21 +41,133 @@
                         <div class="card-body">
                         @if(session('virtualAccount'))
                             @php $va = session('virtualAccount'); @endphp
-                            <div class="alert alert-info" id="virtual-account-details" data-reference="{{ $va['reference'] }}">
-                                <h6 class="mb-3">Complete your transfer</h6>
-                                <p class="mb-1"><strong>Bank:</strong> {{ $va['account_bank_name'] }}</p>
-                                <p class="mb-1">
-                                    <strong>Account Number:</strong>
-                                    <span id="va-account-number">{{ $va['account_number'] }}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
-                                            onclick="navigator.clipboard.writeText('{{ $va['account_number'] }}')">
-                                        Copy
+
+                            <style>
+                                #virtual-account-details .va-label {
+                                    font-size: .9rem;
+                                    font-weight: 600;
+                                    color: #495057;
+                                    margin-bottom: .15rem;
+                                }
+                                #virtual-account-details .va-value {
+                                    font-size: 1.5rem;
+                                    font-weight: 800;
+                                    line-height: 1.2;
+                                    color: #111;
+                                    word-break: break-word;
+                                }
+                                #virtual-account-details .va-number {
+                                    font-size: 2rem;
+                                    letter-spacing: .08em;
+                                }
+                                #virtual-account-details .va-amount {
+                                    font-size: 1.75rem;
+                                }
+                                #virtual-account-details .va-copy-btn {
+                                    min-width: 84px;
+                                    font-weight: 700;
+                                    flex-shrink: 0;
+                                }
+                                #va-timer-wrap {
+                                    font-size: 1rem;
+                                    font-weight: 700;
+                                    font-variant-numeric: tabular-nums;
+                                }
+                                #va-timer-wrap.is-low {
+                                    background-color: #dc3545 !important;
+                                }
+
+                                /* "Copied" popup */
+                                #copy-toast {
+                                    position: fixed;
+                                    left: 50%;
+                                    bottom: 28px;
+                                    transform: translate(-50%, 20px);
+                                    background: #212529;
+                                    color: #fff;
+                                    padding: .65rem 1.2rem;
+                                    border-radius: 50rem;
+                                    font-weight: 600;
+                                    font-size: .95rem;
+                                    box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+                                    opacity: 0;
+                                    pointer-events: none;
+                                    z-index: 2000;
+                                    transition: opacity .2s ease, transform .2s ease;
+                                }
+                                #copy-toast.show {
+                                    opacity: 1;
+                                    transform: translate(-50%, 0);
+                                }
+                                @@media (prefers-reduced-motion: reduce) {
+                                    #copy-toast { transition: none; }
+                                }
+                            </style>
+
+                            <div class="alert alert-info p-3 p-md-4" id="virtual-account-details" data-reference="{{ $va['reference'] }}">
+
+                                <!-- Active state -->
+                                <div id="va-active">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                                        <h6 class="mb-0 fw-bold fs-5">Complete your transfer</h6>
+                                        <span id="va-timer-wrap" class="badge bg-dark">
+                                            Expires in <span id="va-timer">15:00</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <div class="va-label">Bank</div>
+                                        <div class="va-value">{{ $va['account_bank_name'] }}</div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <div class="va-label">Account number</div>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <span class="va-value va-number" id="va-account-number">{{ $va['account_number'] }}</span>
+                                            <button type="button"
+                                                    class="btn btn-dark va-copy-btn"
+                                                    data-copy="{{ $va['account_number'] }}"
+                                                    data-copy-label="Account number copied">
+                                                Copy
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <div class="va-label">Amount to send</div>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <span class="va-value va-amount" id="va-amount">₦{{ number_format($va['amount'], 2) }}</span>
+                                            <button type="button"
+                                                    class="btn btn-dark va-copy-btn"
+                                                    data-copy="{{ number_format($va['amount'], 2, '.', '') }}"
+                                                    data-copy-label="Amount copied">
+                                                Copy
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-muted small mb-3">
+                                        Send the <strong>exact</strong> amount above. This account is one-time and expires in 15 minutes.
+                                    </p>
+                                    <p class="mb-0">
+                                        <span id="va-status" class="badge bg-warning fs-6">Waiting for payment…</span>
+                                    </p>
+                                </div>
+
+                                <!-- Expired state -->
+                                <div id="va-expired" class="d-none text-center py-4">
+                                    <h4 class="fw-bold text-danger mb-2">Account expired</h4>
+                                    <p class="mb-0" id="va-expired-msg">
+                                        Don't send money to this account.
+                                        Reloading in <strong id="va-reload-count">3</strong> sec…
+                                    </p>
+                                    <button type="button" id="va-reload-btn" class="btn btn-primary mt-3 d-none" onclick="window.location.reload()">
+                                        Start again
                                     </button>
-                                </p>
-                                <p class="mb-1"><strong>Amount to send:</strong> ₦{{ number_format($va['amount'], 2) }}</p>
-                                <p class="text-muted small mb-2">Send the exact amount above. This account is one-time and expires shortly.</p>
-                                <p class="mb-0"><span id="va-status" class="badge bg-warning">Waiting for payment…</span></p>
+                                </div>
                             </div>
+
+                            <div id="copy-toast" role="status" aria-live="polite"></div>
                         @else
                             <form method="POST" action="{{ $walletTopupUrl ?? route('reseller.wallet.topup') }}">
                                 @csrf
@@ -124,26 +236,190 @@
 @if(session('virtualAccount'))
 <script>
     (function () {
-        const box = document.getElementById('virtual-account-details');
-        const reference = box.dataset.reference;
+        const box         = document.getElementById('virtual-account-details');
+        const reference   = box.dataset.reference;
         const statusBadge = document.getElementById('va-status');
+        const timerEl     = document.getElementById('va-timer');
+        const timerWrap   = document.getElementById('va-timer-wrap');
+        const activeBox   = document.getElementById('va-active');
+        const expiredBox  = document.getElementById('va-expired');
+        const reloadCount = document.getElementById('va-reload-count');
+        const expiredMsg  = document.getElementById('va-expired-msg');
+        const reloadBtn   = document.getElementById('va-reload-btn');
+        const toastEl     = document.getElementById('copy-toast');
 
-        const poll = setInterval(async () => {
+        const DURATION  = 15 * 60 * 1000; // 15 minutes
+        const expiryKey = 'va_expires_' + reference;
+        const reloadKey = 'va_reloaded_' + reference;
+
+        let finished = false;
+        let pollTimer = null;
+        let clockTimer = null;
+
+        /* ---------------------------------------------------------
+         * COPY (works on iPhone Safari + Android + desktop)
+         * ------------------------------------------------------- */
+        function legacyCopy(text) {
+            // Must run synchronously inside the tap for iOS to allow it
+            const el = document.createElement('textarea');
+            el.value = text;
+            el.contentEditable = true;
+            el.readOnly = false;
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.opacity = '0';
+            el.style.fontSize = '16px'; // stops iOS from zooming
+            document.body.appendChild(el);
+
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            el.setSelectionRange(0, text.length);
+
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+
+            sel.removeAllRanges();
+            document.body.removeChild(el);
+            return ok;
+        }
+
+        async function copyText(text) {
+            if (legacyCopy(text)) return true;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (e) { /* fall through */ }
+            }
+            return false;
+        }
+
+        let toastTimeout = null;
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 1600);
+        }
+
+        document.querySelectorAll('[data-copy]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const ok = await copyText(btn.dataset.copy);
+                showToast(ok ? (btn.dataset.copyLabel || 'Copied') : 'Could not copy — press and hold to copy');
+            });
+        });
+
+        /* ---------------------------------------------------------
+         * 15 MINUTE TIMER
+         * ------------------------------------------------------- */
+        let expiresAt;
+        try {
+            // Keep the same deadline if the page is refreshed
+            const saved = parseInt(localStorage.getItem(expiryKey), 10);
+            expiresAt = saved > 0 ? saved : Date.now() + DURATION;
+            localStorage.setItem(expiryKey, String(expiresAt));
+        } catch (e) {
+            expiresAt = Date.now() + DURATION;
+        }
+
+        function formatTime(ms) {
+            const total = Math.max(0, Math.ceil(ms / 1000));
+            const m = String(Math.floor(total / 60)).padStart(2, '0');
+            const s = String(total % 60).padStart(2, '0');
+            return m + ':' + s;
+        }
+
+        function stopAll() {
+            finished = true;
+            clearInterval(pollTimer);
+            clearInterval(clockTimer);
+        }
+
+        function expire() {
+            if (finished) return;
+            stopAll();
+
+            activeBox.classList.add('d-none');
+            expiredBox.classList.remove('d-none');
+
+            let alreadyReloaded = false;
+            try { alreadyReloaded = sessionStorage.getItem(reloadKey) === '1'; } catch (e) {}
+
+            // Safety: if we already reloaded once and this account is still showing,
+            // don't loop forever — let the user restart manually.
+            if (alreadyReloaded) {
+                expiredMsg.textContent = "Don't send money to this account. Please start again.";
+                reloadBtn.classList.remove('d-none');
+                return;
+            }
+
+            try { sessionStorage.setItem(reloadKey, '1'); } catch (e) {}
+
+            let left = 3;
+            reloadCount.textContent = left;
+            const t = setInterval(() => {
+                left--;
+                reloadCount.textContent = Math.max(left, 0);
+                if (left <= 0) {
+                    clearInterval(t);
+                    window.location.reload();
+                }
+            }, 1000);
+        }
+
+        function tick() {
+            if (finished) return;
+            const remaining = expiresAt - Date.now();
+            if (remaining <= 0) {
+                timerEl.textContent = '00:00';
+                expire();
+                return;
+            }
+            timerEl.textContent = formatTime(remaining);
+            timerWrap.classList.toggle('is-low', remaining <= 2 * 60 * 1000);
+        }
+
+        tick();
+        clockTimer = setInterval(tick, 1000);
+
+        // iPhones pause timers in the background — re-check when the user returns
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) tick();
+        });
+
+        /* ---------------------------------------------------------
+         * PAYMENT STATUS POLLING
+         * ------------------------------------------------------- */
+        pollTimer = setInterval(async () => {
+            if (finished) return;
             try {
                 const res = await fetch(`{{ $walletTopupStatusUrl ?? route('reseller.wallet.topup-status') }}?reference=${encodeURIComponent(reference)}`);
                 const json = await res.json();
 
+                if (finished) return;
+
                 if (json.status === 'success') {
-                    clearInterval(poll);
+                    stopAll();
+                    timerWrap.classList.add('d-none');
                     statusBadge.textContent = 'Payment received!';
-                    statusBadge.className = 'badge bg-success';
+                    statusBadge.className = 'badge bg-success fs-6';
+                    try { localStorage.removeItem(expiryKey); } catch (e) {}
                     setTimeout(() => window.location.reload(), 1200);
                 } else if (json.status === 'failed') {
-                    clearInterval(poll);
+                    stopAll();
+                    timerWrap.classList.add('d-none');
                     statusBadge.textContent = 'Payment failed';
-                    statusBadge.className = 'badge bg-danger';
+                    statusBadge.className = 'badge bg-danger fs-6';
                 }
-            } catch (e) {}
+                // if 'pending', keep polling silently
+            } catch (e) {
+                // network hiccup — just try again next tick
+            }
         }, 4000);
     })();
 </script>
