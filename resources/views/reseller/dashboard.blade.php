@@ -125,7 +125,7 @@
                             <h5 class="card-title">Recent Orders</h5>
                             <div class="d-flex gap-2">
                                 <a href="{{ $orderCreateUrl ?? route('reseller.order.create') }}" class="btn btn-sm btn-primary">Create Order</a>
-                                <a href="/orders" class="btn btn-sm btn-outline-primary">View All</a>
+                                <a href="/orders/r" class="btn btn-sm btn-outline-primary">View All</a>
                             </div>
                         </div>
                         <div class="card-body">
