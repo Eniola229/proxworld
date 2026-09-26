@@ -255,8 +255,8 @@
                                     </button>
                                     <div class="collapse mt-3" id="orderDescription">
                                         <div class="card card-body bg-light">
-                                            <p class="mb-2">Pick a proxy type, choose a provider, then a plan, and enter the quantity you need.</p>
-                                            <p class="mb-3">Once your order is placed, we provision it with the provider automatically. Your proxy credentials will show up on the order page as soon as it's ready.</p>
+                                            <p class="mb-2">Pick a proxy type, narrow it down by country if you want (where applicable), then choose a plan and enter the quantity you need.</p>
+                                            <p class="mb-3">Once your order is placed, we provision it with the right provider automatically. Your proxy credentials will show up on the order page as soon as it's ready.</p>
                                             <h6 class="fw-bold mb-2">Proxy types</h6>
                                             <ul class="mb-3">
                                                 <li><strong>Residential</strong> — IPs from real home internet connections. Best for avoiding blocks.</li>
@@ -830,7 +830,7 @@ function proxyTypeInfoFallback(type) {
         color: '#0d6efd',
         title: label + ' Proxies',
         tagline: 'Proxy plans for ' + label.toLowerCase() + ' use cases',
-        description: 'Pick a provider and plan below to see pricing for ' + label + ' proxies. Reach out to support if you need help choosing the right fit for your use case.',
+        description: 'Pick a plan below to see pricing for ' + label + ' proxies. Reach out to support if you need help choosing the right fit for your use case.',
         bestFor: ['General purpose browsing & automation'],
         pros: ['Provisioned instantly after checkout'],
     };
@@ -880,30 +880,16 @@ function selectType(type) {
     const providerContainer = document.getElementById('provider-container');
     const countrySection    = document.getElementById('country-section');
     providerContainer.innerHTML = '';
+    providerSection.style.display = 'none'; // provider is always auto-picked, never shown to the user
 
     resetCountrySelection();
     countrySection.style.display = 'none';
 
-    if (entries.length > 1) {
-        entries.forEach(function(e) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn btn-sm btn-outline-secondary provider-btn';
-            btn.dataset.provider = e.provider_id;
-            btn.textContent = e.provider_name;
-            btn.onclick = function(){ selectProvider(e.provider_id, e.provider_name); };
-            providerContainer.appendChild(btn);
-        });
-        providerSection.style.display = '';
-        resetServiceSelection();
-        document.getElementById('sp-list').innerHTML = '';
-        document.getElementById('sp-count').textContent = '';
-        document.getElementById('sp-pager').style.display = 'none';
-    } else if (entries.length === 1) {
-        providerSection.style.display = 'none';
+    if (entries.length >= 1) {
+        // Multiple providers can still exist behind a single type — we just
+        // don't surface that choice to the customer, so pick the first one.
         selectProvider(entries[0].provider_id, entries[0].provider_name);
     } else {
-        providerSection.style.display = 'none';
         resetServiceSelection();
     }
 }
