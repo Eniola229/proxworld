@@ -91,6 +91,34 @@
 .cp-item-name { display: flex; align-items: center; gap: 8px; }
 .cp-flag { width: 20px; height: 15px; object-fit: cover; border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
 .cp-item-name mark { background: #fff3cd; color: #212529; border-radius: 2px; padding: 0 1px; }
+
+/* Proxy type info panel — shown under the type buttons once a type is picked */
+.proxy-type-info {
+    border-left: 4px solid var(--pti-accent, #0d6efd);
+    padding-left: 14px;
+    animation: ptiFadeIn 0.25s ease;
+}
+@keyframes ptiFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.pti-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.pti-icon {
+    width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--pti-accent, #0d6efd); color: #fff; font-size: 17px;
+}
+.pti-title { margin: 0; font-size: 15px; font-weight: 700; color: #212529; }
+.pti-tagline { font-size: 12.5px; color: #6c757d; }
+.pti-description { font-size: 13px; color: #495057; margin: 0 0 12px 0; line-height: 1.55; }
+.pti-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 576px) { .pti-grid { grid-template-columns: 1fr; } }
+.pti-col-title {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--pti-accent, #0d6efd); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.pti-list { list-style: none; margin: 0; padding: 0; }
+.pti-list li {
+    font-size: 12.5px; color: #495057; padding: 3px 0 3px 20px; position: relative; line-height: 1.4;
+}
+.pti-list li i { position: absolute; left: 0; top: 5px; font-size: 11px; color: var(--pti-accent, #0d6efd); }
 </style>
 
 <main class="nxl-container">
@@ -277,6 +305,33 @@
                                     <div class="text-danger mt-2">{{ $message }}</div>
                                 @enderror
                             </form>
+                        </div>
+                    </div>
+
+                    <!-- Proxy type info — outside the form, shown below the Buy Proxies
+                         card once a type is picked. Filled in by JS. -->
+                    <div class="card stretch stretch-full mt-4" id="proxy-type-info-card" style="display:none;">
+                        <div class="card-body">
+                            <div class="proxy-type-info" id="proxy-type-info">
+                                <div class="pti-header">
+                                    <div class="pti-icon"><i id="pti-icon" class="fas fa-globe"></i></div>
+                                    <div>
+                                        <h6 class="pti-title" id="pti-title"></h6>
+                                        <div class="pti-tagline" id="pti-tagline"></div>
+                                    </div>
+                                </div>
+                                <p class="pti-description" id="pti-description"></p>
+                                <div class="pti-grid">
+                                    <div class="pti-col">
+                                        <div class="pti-col-title"><i class="fas fa-bullseye"></i> Best For</div>
+                                        <ul class="pti-list" id="pti-bestfor"></ul>
+                                    </div>
+                                    <div class="pti-col">
+                                        <div class="pti-col-title"><i class="fas fa-star"></i> Key Strengths</div>
+                                        <ul class="pti-list" id="pti-pros"></ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -684,6 +739,126 @@ function resetServiceSelection() {
     updateTotalDisplay(0);
 }
 
+// ── Proxy type info panel ──────────────────────────────────────────────────
+// Everything shown here is static reference content about each proxy type —
+// not tied to pricing/providers — describing what it is and when to use it.
+const proxyTypeInfo = {
+    residential: {
+        icon: 'fas fa-house-user',
+        color: '#0d6efd',
+        title: 'Residential Proxies',
+        tagline: 'IPs from real home internet connections',
+        description: 'Residential proxies route your traffic through IP addresses assigned by internet service providers to actual homes. Because they look exactly like an everyday visitor, they\'re the hardest proxy type for websites to detect or block.',
+        bestFor: [
+            'Web scraping sites with strict anti-bot systems',
+            'Sneaker / ticket / retail checkouts',
+            'Ad verification & brand protection',
+            'Managing multiple social media accounts',
+        ],
+        pros: [
+            'Very low block / ban rate',
+            'Looks like genuine organic traffic',
+            'Wide country & city targeting options',
+            'Great for long, human-like sessions',
+        ],
+    },
+    datacenter: {
+        icon: 'fas fa-server',
+        color: '#6f42c1',
+        title: 'Datacenter Proxies',
+        tagline: 'IPs hosted in commercial data centers',
+        description: 'Datacenter proxies come from servers in data centers rather than ISPs. They\'re not tied to a real household, but they make up for it with speed, stability, and the lowest cost per IP — ideal for large-scale, high-volume tasks.',
+        bestFor: [
+            'High-volume, high-speed scraping',
+            'SEO & rank tracking at scale',
+            'Automated testing & QA',
+            'Tasks on sites with light bot detection',
+        ],
+        pros: [
+            'Fastest response times',
+            'Cheapest option per IP',
+            'Very stable, consistent uptime',
+            'Great for bulk / high-concurrency jobs',
+        ],
+    },
+    isp: {
+        icon: 'fas fa-network-wired',
+        color: '#0aa2c0',
+        title: 'ISP Proxies',
+        tagline: 'Datacenter speed, residential-looking IPs',
+        description: 'ISP (Static Residential) proxies are hosted on datacenter servers but registered under real ISPs, so they carry a residential IP reputation with datacenter-grade speed and a static address that doesn\'t rotate.',
+        bestFor: [
+            'Account management needing a stable IP',
+            'Ad verification with consistent identity',
+            'Tasks needing speed AND trust',
+            'Long-term sessions on strict platforms',
+        ],
+        pros: [
+            'Static IP — same address every time',
+            'Faster than typical residential IPs',
+            'Higher trust score than datacenter IPs',
+            'Good balance of speed, stealth & cost',
+        ],
+    },
+    mobile: {
+        icon: 'fas fa-mobile-screen',
+        color: '#e8590c',
+        title: 'Mobile Proxies',
+        tagline: 'IPs from real mobile carrier networks',
+        description: 'Mobile proxies route traffic through IP addresses assigned by 3G/4G/5G mobile carriers. Carriers share these IPs across thousands of real devices, making them extremely trusted and almost impossible to blacklist wholesale.',
+        bestFor: [
+            'Social media automation (Instagram, TikTok, etc.)',
+            'Mobile app testing & ad verification',
+            'Sites that aggressively flag datacenter IPs',
+            'Tasks needing the highest possible trust level',
+        ],
+        pros: [
+            'Highest trust / lowest ban rate of all types',
+            'Shared carrier IPs are rarely blacklisted',
+            'Ideal for mobile-first platforms',
+            'Natural fit for app & SDK based traffic',
+        ],
+    },
+};
+
+// Fallback used for any proxy type not explicitly listed above,
+// so the panel still renders something sensible.
+function proxyTypeInfoFallback(type) {
+    const label = type.charAt(0).toUpperCase() + type.slice(1);
+    return {
+        icon: 'fas fa-globe',
+        color: '#0d6efd',
+        title: label + ' Proxies',
+        tagline: 'Proxy plans for ' + label.toLowerCase() + ' use cases',
+        description: 'Pick a provider and plan below to see pricing for ' + label + ' proxies. Reach out to support if you need help choosing the right fit for your use case.',
+        bestFor: ['General purpose browsing & automation'],
+        pros: ['Provisioned instantly after checkout'],
+    };
+}
+
+function renderProxyTypeInfo(type) {
+    const card = document.getElementById('proxy-type-info-card');
+    if (!type) { card.style.display = 'none'; return; }
+
+    const info = proxyTypeInfo[type] || proxyTypeInfoFallback(type);
+
+    document.getElementById('proxy-type-info').style.setProperty('--pti-accent', info.color);
+    document.getElementById('pti-icon').className = info.icon;
+    document.getElementById('pti-title').textContent = info.title;
+    document.getElementById('pti-tagline').textContent = info.tagline;
+    document.getElementById('pti-description').textContent = info.description;
+    document.getElementById('pti-bestfor').innerHTML =
+        info.bestFor.map(item => '<li><i class="fas fa-check"></i>' + escHtml(item) + '</li>').join('');
+    document.getElementById('pti-pros').innerHTML =
+        info.pros.map(item => '<li><i class="fas fa-check"></i>' + escHtml(item) + '</li>').join('');
+
+    card.style.display = 'none';
+    // Force reflow so the fade-in animation restarts on every click, even
+    // when switching straight from one type to another.
+    void card.offsetWidth;
+    card.style.display = '';
+}
+
 // ── Step 1: Proxy type selected ───────────────────────────────────────────
 function selectType(type) {
     currentType     = type;
@@ -696,6 +871,8 @@ function selectType(type) {
         btn.classList.toggle('btn-primary', active);
         btn.classList.toggle('btn-outline-secondary', !active);
     });
+
+    renderProxyTypeInfo(type);
 
     const entries = providersByType[type] || [];
 
