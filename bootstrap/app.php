@@ -59,6 +59,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+
+            'kyc.verified'            => \App\Http\Middleware\EnsureKycVerified::class,
+            'kyc.verified.api'        => \App\Http\Middleware\EnsureKycVerifiedApi::class,
+            'storefront.kyc.verified' => \App\Http\Middleware\Storefront\EnsureKycVerified::class,
         ]);
 
         // Logs every state-changing request (who did what) across both
@@ -71,6 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // FlutterwaveController::webhook).
         $middleware->validateCsrfTokens(except: [
             'wallet/flutterwave-webhook',
+             'webhooks/didit',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -197,8 +197,9 @@ class SecurityHeaders
                 https://checkout.flutterwave.com
                 https://developersandbox.flutterwave.com
                 https://*.flutterwave.com
-                https://*.flutterwave.cloud",
-
+                https://*.flutterwave.cloud
+                https://verify.didit.me
+                https://*.didit.me",
             /*
              * Prevent other websites from framing this application.
              */

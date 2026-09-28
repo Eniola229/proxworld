@@ -249,8 +249,8 @@
             <button type="button" class="tryit-toggle" onclick="toggleTryIt('tryit-create-order')">Try it</button>
             <div class="tryit-body" id="tryit-create-order">
                 <div class="tryit-field">
-                    <label for="create-order-service-id">service_id</label>
-                    <input type="number" id="create-order-service-id" placeholder="1">
+                   <tr><td>service_id</td><span class="required">required</span></tr>
+                    <input type="text" id="create-order-service-id" placeholder="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
                 </div>
                 <div class="tryit-field">
                     <label for="create-order-quantity">quantity</label>
@@ -493,7 +493,7 @@
         }
 
         sendTryIt(btn, 'POST', '/orders', {
-            service_id: Number(serviceId),
+            service_id: serviceId,
             quantity: Number(quantity),
         }, 'output-create-order');
     }

@@ -121,6 +121,22 @@
 
         .nav-btns { display: flex; gap: 1rem; align-items: center; }
 
+        /* FLAG IMAGES */
+        .flag {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
+            vertical-align: middle;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
+        }
+        .flag-lg {
+            width: 32px;
+            height: 24px;
+            border-radius: 3px;
+            display: block;
+        }
+
         .btn {
             font-family: 'Syne', sans-serif;
             font-weight: 700;
@@ -189,6 +205,30 @@
             bottom: 0; left: 10%;
             pointer-events: none;
         }
+
+        /* PROXY TYPE CARDS */
+        .types-head { margin-top: 5rem; }
+        .type-top {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .type-price {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem; font-weight: 500;
+            padding: 0.45rem 1rem; border-radius: 30px;
+            display: inline-flex; align-items: center; gap: 0.6rem;
+        }
+        .type-price i { font-size: 0.9rem; }
+        .type-unit {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;
+            color: var(--muted); background: var(--bg-2);
+            padding: 0.35rem 0.8rem; border-radius: 30px;
+        }
+        .tp-res { background: #DBEAFE; color: #1D4ED8; }
+        .tp-dc  { background: #EDE9FE; color: #6D28D9; }
+        .tp-isp { background: #CCFBF1; color: #0F766E; }
+        .tp-mob { background: #FFEDD5; color: #C2410C; }
 
         .hero-left {
             display: flex;
@@ -1104,7 +1144,6 @@
             <div class="stat-label">Success Rate</div>
         </div>
     </div>
-
     <section id="features" class="features">
         <div class="features-inner">
             <div class="section-tag reveal">Why We're Different</div>
@@ -1146,6 +1185,50 @@
                     <p>Something goes wrong? We make it right. Straightforward refund policy, no hoops.</p>
                 </div>
             </div>
+
+            <!-- ===== PROXY TYPES (NEW) ===== -->
+            <div class="section-tag types-head reveal">Solutions For Every Use Case</div>
+            <div class="features-layout">
+
+                <div class="feat-card reveal">
+                    <div class="type-top">
+                        <span class="type-price tp-res"><i class="fas fa-house-user"></i> from ₦2,408/GB</span>
+                        <span class="type-unit">Per GB</span>
+                    </div>
+                    <h3>Residential</h3>
+                    <p>Ideal for anonymous high-volume web scraping, SEO monitoring, and geo-targeted research at scale.</p>
+                </div>
+
+                <div class="feat-card reveal">
+                    <div class="type-top">
+                        <span class="type-price tp-isp"><i class="fas fa-network-wired"></i> from ₦2,477/proxy</span>
+                        <span class="type-unit">Per proxy</span>
+                    </div>
+                    <h3>ISP</h3>
+                    <p>Great for ecommerce automation, ad verification, and long-session reliability. Datacenter speed with residential-level trust.</p>
+                </div>
+
+                <div class="feat-card reveal">
+                    <div class="type-top">
+                        <span class="type-price tp-dc"><i class="fas fa-server"></i> from ₦1,913/proxy</span>
+                        <span class="type-unit">Per proxy</span>
+                    </div>
+                    <h3>Datacenter</h3>
+                    <p>Best for speed-critical work like software testing, scraping, and infrastructure monitoring.</p>
+                </div>
+
+                <div class="feat-card reveal">
+                    <div class="type-top">
+                        <span class="type-price tp-mob"><i class="fas fa-mobile-screen"></i> from ₦7,911/day</span>
+                        <span class="type-unit">Per day</span>
+                    </div>
+                    <h3>Mobile</h3>
+                    <p>Perfect for social platforms, mobile app QA, and regional ad testing on real carrier IPs.</p>
+                </div>
+
+            </div>
+            <!-- ===== END PROXY TYPES ===== -->
+
         </div>
     </section>
 
@@ -1159,17 +1242,17 @@
             <div class="platform-cell"><i class="fas fa-server"></i><span>Datacenter</span></div>
             <div class="platform-cell"><i class="fas fa-network-wired"></i><span>ISP</span></div>
             <div class="platform-cell"><i class="fas fa-mobile-screen"></i><span>Mobile</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇺🇸</span><span>USA</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇬🇧</span><span>UK</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇩🇪</span><span>Germany</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇳🇬</span><span>Nigeria</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇮🇳</span><span>India</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇧🇷</span><span>Brazil</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇿🇦</span><span>South Africa</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇦🇪</span><span>UAE</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇨🇦</span><span>Canada</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇫🇷</span><span>France</span></div>
-            <div class="platform-cell"><span style="font-size:1.6rem;">🇯🇵</span><span>Japan</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/us.png" alt="USA"><span>USA</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/gb.png" alt="UK"><span>UK</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/de.png" alt="Germany"><span>Germany</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ng.png" alt="Nigeria"><span>Nigeria</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/in.png" alt="India"><span>India</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/br.png" alt="Brazil"><span>Brazil</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/za.png" alt="South Africa"><span>South Africa</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ae.png" alt="UAE"><span>UAE</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ca.png" alt="Canada"><span>Canada</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/fr.png" alt="France"><span>France</span></div>
+            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/jp.png" alt="Japan"><span>Japan</span></div>
             <div class="platform-cell"><i class="fas fa-earth-americas"></i><span>+ many more</span></div>
         </div>
     </section>
@@ -1404,6 +1487,16 @@
     </footer>
 
     <script>
+
+    function flagify(str) {
+        return str.replace(/([\u{1F1E6}-\u{1F1FF}]{2})/gu, function (m) {
+            const code = Array.from(m)
+                .map(c => String.fromCharCode(c.codePointAt(0) - 0x1F1E6 + 97))
+                .join('');
+            return '<img class="flag" src="https://flagcdn.com/w40/' + code + '.png" alt="' + code.toUpperCase() + '"> ';
+        });
+    }
+
     const socialCards = [
         { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Tolani Adewale', handle: 'Residential Proxy', metric: 'Bandwidth', count: '50 GB', countColor: 'green', gained: '+50GB', from: '🇳🇬 Nigeria' },
         { icon: 'fas fa-server', bg: 'dc-bg', name: 'Marcus Chen', handle: 'Datacenter Proxy', metric: 'IPs', count: '100', countColor: 'green', gained: '+100 IPs', from: '🇺🇸 USA' },

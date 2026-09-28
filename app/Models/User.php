@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Types\AccountStatus;
+use App\Types\KycStatus;
 use App\Types\NewsletterAudience;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,10 +33,14 @@ class User extends Authenticatable
      * App\Services\ResellerProfitService is separate (that one lives on
      * Reseller, not User), and App\Services\ReferralService. No controller
      * or mass-assignment path may ever touch these three columns directly.
+     * kyc_status / kyc_session_id / kyc_verified_at are guarded the same
+     * way — only App\Services\KycService writes them.
      */
     protected $guarded = [
         'id', 'balance', 'profit_balance', 'referral_balance', 'status', 'is_reseller', 'reseller_status', 'reseller_id',
+        'kyc_status', 'kyc_session_id', 'kyc_verified_at',
     ];
+
     protected $hidden = ['password', 'remember_token', 'two_factor_secret'];
 
     protected function casts(): array
@@ -49,6 +54,8 @@ class User extends Authenticatable
             'reseller_discount_percent' => 'decimal:2',
             'is_reseller' => 'boolean',
             'two_factor_enabled' => 'boolean',
+            'kyc_verified_at' => 'datetime',
+            'kyc_last_attempt_at' => 'datetime',
         ];
     }
 
@@ -60,6 +67,7 @@ class User extends Authenticatable
     }
 
     // --- Relationships ---
+
     public function wallet(): HasMany
     {
         return $this->hasMany(WalletTransaction::class);
@@ -123,10 +131,13 @@ class User extends Authenticatable
         return $this->status === AccountStatus::ACTIVE;
     }
 
+    public function isKycVerified(): bool
+    {
+        return $this->kyc_status === KycStatus::VERIFIED;
+    }
+
     public function storefrontReseller(): BelongsTo
     {
         return $this->belongsTo(Reseller::class, 'reseller_id');
     }
-
- 
 }

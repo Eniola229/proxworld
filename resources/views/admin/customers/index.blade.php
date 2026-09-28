@@ -140,6 +140,7 @@
                                             <th>Email</th>
                                             <th>Orders</th>
                                             <th>Tickets</th>
+                                            <th>KYC Status</th>
                                             <th>Joined</th>
                                             <th class="text-end">Actions</th>
                                         </tr>
@@ -169,6 +170,12 @@
                                                 <td>
                                                     <span class="badge bg-soft-warning text-warning">
                                                         {{ $customer->tickets_count }} tickets
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    <span class="badge bg-soft-{{ \App\Types\KycStatus::color($customer->kyc_status) }} text-{{ \App\Types\KycStatus::color($customer->kyc_status) }}">
+                                                    {{ \App\Types\KycStatus::label($customer->kyc_status) }}
                                                     </span>
                                                 </td>
                                                 <td>

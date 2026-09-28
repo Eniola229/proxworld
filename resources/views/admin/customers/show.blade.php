@@ -59,11 +59,24 @@
                                 <h5 class="mb-1">{{ $customer->name }}</h5>
                                 <p class="fs-12 text-muted mb-3">{{ $customer->email }}</p>
 
-                                @if($customer->status === 'BLOCK')
-                                    <span class="badge bg-soft-danger text-danger">Blocked Customer</span>
-                                @else
-                                    <span class="badge bg-soft-success text-success">Active Customer</span>
-                                @endif
+                            @if($customer->status === 'BLOCK')
+                                <span class="badge bg-soft-danger text-danger">Blocked Customer</span>
+                            @else
+                                <span class="badge bg-soft-success text-success">Active Customer</span>
+                            @endif
+
+                            @php $kyc = $customer->kyc_status; @endphp
+                            @if($kyc === \App\Types\KycStatus::VERIFIED)
+                                <span class="badge bg-soft-success text-success"><i class="feather-shield me-1"></i>KYC Verified</span>
+                            @elseif($kyc === \App\Types\KycStatus::IN_REVIEW)
+                                <span class="badge bg-soft-info text-info"><i class="feather-eye me-1"></i>KYC In Review</span>
+                            @elseif($kyc === \App\Types\KycStatus::PENDING)
+                                <span class="badge bg-soft-warning text-warning"><i class="feather-clock me-1"></i>KYC Pending</span>
+                            @elseif($kyc === \App\Types\KycStatus::DECLINED)
+                                <span class="badge bg-soft-danger text-danger"><i class="feather-x-circle me-1"></i>KYC Declined</span>
+                            @else
+                                <span class="badge bg-soft-secondary text-secondary"><i class="feather-shield-off me-1"></i>Not Verified</span>
+                            @endif
                             </div>
                             
                             <div class="mb-4">
@@ -83,9 +96,19 @@
                                     <span class="fs-12 text-muted">Total Spent:</span>
                                     <span class="fs-12 fw-bold">₦{{ number_format($totalSpent, 2) }}</span>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                                     <span class="fs-12 text-muted">Member Since:</span>
                                     <span class="fs-12 fw-bold">{{ $customer->created_at->format('M d, Y') }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="fs-12 text-muted">KYC Status:</span>
+                                    <span class="fs-12 fw-bold {{ $customer->kyc_status === \App\Types\KycStatus::VERIFIED ? 'text-success' : 'text-muted' }}">
+                                        @if($customer->kyc_status === \App\Types\KycStatus::VERIFIED)
+                                            Verified{{ $customer->kyc_verified_at ? ' · ' . $customer->kyc_verified_at->format('M d, Y') : '' }}
+                                        @else
+                                            {{ ucfirst(str_replace('_', ' ', $customer->kyc_status ?? 'unverified')) }}
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
 

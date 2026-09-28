@@ -49,6 +49,7 @@ Route::get('/blog/{newsletter:slug}', [\App\Http\Controllers\BlogController::cla
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
 Route::post('/wallet/flutterwave-webhook', [\App\Http\Controllers\FlutterwaveController::class, 'webhook'])->name('flutterwave.webhook');
+Route::post('/webhooks/didit', [\App\Http\Controllers\DiditWebhookController::class, 'handle'])->name('didit.webhook');
 
 /*
 |--------------------------------------------------------------------------
@@ -89,10 +90,14 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/order/new', [\App\Http\Controllers\OrderController::class, 'create'])->name('order.create');
     Route::get('/order/services', [\App\Http\Controllers\OrderController::class, 'services'])->name('order.services');
     Route::get('/order/countries', [\App\Http\Controllers\OrderController::class, 'countries'])->name('order.countries');
-    Route::post('/order', [\App\Http\Controllers\OrderController::class, 'store'])->middleware('sufficient.balance')->name('order.store');
+    Route::post('/order', [\App\Http\Controllers\OrderController::class, 'store'])->middleware(['sufficient.balance', 'kyc.verified'])->name('order.store');
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/check-status', [\App\Http\Controllers\OrderController::class, 'checkStatus'])->name('orders.check-status');
+
+    Route::get('/kyc', [\App\Http\Controllers\KycController::class, 'show'])->name('kyc.show');
+    Route::post('/kyc/start', [\App\Http\Controllers\KycController::class, 'start'])->name('kyc.start');
+    Route::get('/kyc/callback', [\App\Http\Controllers\KycController::class, 'callback'])->name('kyc.callback');
 
     Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
     Route::post('/wallet/topup', [\App\Http\Controllers\WalletController::class, 'fund'])->name('wallet.topup');
@@ -137,3 +142,4 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.mark.read');
     Route::get('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'settings'])->name('notifications.settings');
 });
+

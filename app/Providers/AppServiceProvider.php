@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(MailManager::class)->extend('brevo', function () {
             return new BrevoApiTransport(config('services.brevo.api_key'));
         });
-
+        
         Paginator::useBootstrapFive();
 
     }

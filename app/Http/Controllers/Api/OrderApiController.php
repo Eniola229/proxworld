@@ -37,7 +37,7 @@ class OrderApiController extends Controller
     public function store(Request $request, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet)
     {
         $data = $request->validate([
-            'service_id' => ['required', 'integer', 'exists:provider_services_cache,id'],
+            'service_id' => ['required', 'uuid', 'exists:provider_services_cache,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:10000'],
         ]);
 

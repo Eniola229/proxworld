@@ -10,6 +10,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'showRegister'])->name('storefront.register');
     Route::post('/register', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'register'])->name('storefront.register.attempt');
 });
+
 Route::post('/logout', [\App\Http\Controllers\Reseller\StorefrontAuthController::class, 'logout'])
     ->middleware('auth:web')
     ->name('storefront.logout');
@@ -31,8 +32,13 @@ Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
     Route::get('/orders/new', [\App\Http\Controllers\Storefront\OrderController::class, 'create'])->name('storefront.orders.create');
     Route::get('/orders/countries', [\App\Http\Controllers\Storefront\OrderController::class, 'countries'])->name('storefront.orders.countries');
     Route::get('/orders/services', [\App\Http\Controllers\Storefront\OrderController::class, 'services'])->name('storefront.orders.services');
-    Route::post('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'store'])->name('storefront.orders.store');
+    // KYC only here — no balance middleware on the storefront order route (unchanged from before).
+    Route::post('/orders', [\App\Http\Controllers\Storefront\OrderController::class, 'store'])->middleware('storefront.kyc.verified')->name('storefront.orders.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\Storefront\OrderController::class, 'show'])->name('storefront.orders.show');
+
+    Route::get('/kyc', [\App\Http\Controllers\Storefront\KycController::class, 'show'])->name('storefront.kyc.show');
+    Route::post('/kyc/start', [\App\Http\Controllers\Storefront\KycController::class, 'start'])->name('storefront.kyc.start');
+    Route::get('/kyc/callback', [\App\Http\Controllers\Storefront\KycController::class, 'callback'])->name('storefront.kyc.callback');
 
     Route::get('/wallet', [\App\Http\Controllers\Storefront\WalletController::class, 'index'])->name('storefront.wallet.index');
     Route::post('/wallet/topup', [\App\Http\Controllers\Storefront\WalletController::class, 'fund'])->name('storefront.wallet.topup');
@@ -40,6 +46,11 @@ Route::middleware(['auth:web', 'storefront.customer'])->group(function () {
 
     Route::get('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'edit'])->name('storefront.profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\Storefront\ProfileController::class, 'update'])->name('storefront.profile.update');
+
+    // Identity verification (Didit) — reseller-storefront twin of the main site's /kyc routes.
+    Route::get('/kyc', [\App\Http\Controllers\Storefront\KycController::class, 'show'])->name('storefront.kyc.show');
+    Route::post('/kyc/start', [\App\Http\Controllers\Storefront\KycController::class, 'start'])->name('storefront.kyc.start');
+    Route::get('/kyc/callback', [\App\Http\Controllers\Storefront\KycController::class, 'callback'])->name('storefront.kyc.callback');
 });
 
 /*
