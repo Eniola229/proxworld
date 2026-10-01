@@ -55,6 +55,20 @@ Route::post('/webhooks/didit', [\App\Http\Controllers\DiditWebhookController::cl
 
 Route::get('/flutterwave/return', [\App\Http\Controllers\FlutterwaveController::class, 'callback'])
     ->name('flutterwave.checkout-return');
+    
+    
+Route::get('/geo-debug', function (\Illuminate\Http\Request $r) {
+    $c = app(\App\Services\CurrencyService::class);
+    return [
+        'ip'            => $r->ip(),
+        'forwarded_for' => $r->header('X-Forwarded-For'),
+        'cf_country'    => $r->header('CF-IPCountry'),
+        'trust_cf'      => config('services.geo.trust_cloudflare'),
+        'detected'      => $c->detect($r),
+        'session'       => $r->hasSession() ? $r->session()->get('visitor_currency') : null,
+        'visitor'       => $c->forVisitor($r),
+    ];
+});
 
 /*
 |--------------------------------------------------------------------------
