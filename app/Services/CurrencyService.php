@@ -91,11 +91,32 @@ class CurrencyService
 
     public function format(float|int|string|null $amount, ?string $code = null, ?int $decimals = null): string
     {
-        $code = strtoupper($code ?: $this->walletCurrency(auth()->user()));
+        $code = strtoupper($code ?: $this->defaultCurrency());
         $number = (float) $amount;
         $places = $decimals ?? $this->decimals($code);
 
         return ($number < 0 ? '-' : '').$this->prefix($code).number_format(abs($number), $places);
+    }
+
+    /**
+     * Currency used when none is passed to format()/@money.
+     * Logged in  -> wallet currency.
+     * Guest on a web request -> detected visitor currency.
+     * Console/queue (no real request) -> base currency, as before.
+     */
+    protected function defaultCurrency(): string
+    {
+        $user = auth()->user();
+
+        if ($user) {
+            return $this->walletCurrency($user);
+        }
+
+        if (app()->runningInConsole()) {
+            return CurrencyCatalog::BASE;
+        }
+
+        return $this->forVisitor(request());
     }
 
     public function formatCompact(float $amount, string $code): string
@@ -154,19 +175,24 @@ class CurrencyService
         return ($code && $this->isSupported($code)) ? $code : CurrencyCatalog::FALLBACK;
     }
 
-    /** Logged in → their wallet currency. Guest → IP-detected (remembered in session). Falls back to NGN if no rate exists. */
+    /**
+     * Logged in -> their wallet currency.
+     * Guest     -> detected from the request on every page load (no session caching),
+     *              so a changed VPN/location is picked up immediately and a failed
+     *              detection can never get "stuck". Falls back to NGN if there is no
+     *              exchange rate for the detected currency.
+     *
+     * The result is memoised on the request object only, so repeated @money calls
+     * within one page render don't redo the work.
+     */
     public function forVisitor(Request $request): string
     {
         if ($user = $request->user()) {
             return $this->walletCurrency($user);
         }
 
-        if ($request->hasSession()) {
-            $remembered = $request->session()->get('visitor_currency');
-
-            if ($remembered && $this->isSupported($remembered)) {
-                return $remembered;
-            }
+        if ($request->attributes->has('visitor_currency')) {
+            return $request->attributes->get('visitor_currency');
         }
 
         $currency = $this->detect($request)['currency'];
@@ -175,9 +201,7 @@ class CurrencyService
             $currency = CurrencyCatalog::BASE;
         }
 
-        if ($request->hasSession()) {
-            $request->session()->put('visitor_currency', $currency);
-        }
+        $request->attributes->set('visitor_currency', $currency);
 
         return $currency;
     }
