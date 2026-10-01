@@ -186,6 +186,27 @@ class SecurityHeaders
             "object-src 'none'",
 
             /*
+             * Control full-page redirects and navigation.
+             */
+            "navigate-to 'self'
+                https://*.flutterwave.com
+                https://*.dev-flutterwave.com
+                https://checkout-v2.dev-flutterwave.com
+                https://developersandbox.flutterwave.com",
+
+            /*
+             * Restrict where forms can submit / redirect.
+             */
+            "form-action 'self'
+                https://checkout.flutterwave.com
+                https://developersandbox.flutterwave.com
+                https://*.flutterwave.com
+                https://*.dev-flutterwave.com
+                https://*.flutterwave.cloud
+                https://verify.didit.me
+                https://*.didit.me",
+
+            /*
              * Prevent <base> from changing the document's base URL.
              */
             "base-uri 'self'",

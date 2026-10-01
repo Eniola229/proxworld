@@ -207,10 +207,10 @@
                 <!-- Currency switcher -->
                 @auth
                 <div class="dropdown nxl-h-item">
-                    <a class="nxl-head-link me-2" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
-                        <span class="fw-semibold fs-12">{{ $walletCurrency }}</span>
-                        <i class="feather-chevron-down ms-1 fs-11"></i>
-                    </a>
+                <a class="nxl-head-link me-2" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside" style="background-color: var(--bs-tertiary-bg, rgba(127, 127, 127, 0.15)); border: 1px solid var(--bs-border-color, rgba(127, 127, 127, 0.25)); padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; text-decoration: none;">
+                    <span class="fw-semibold fs-12">{{ $walletCurrency }}</span>
+                    <i class="feather-chevron-down ms-1 fs-11"></i>
+                </a>
                     <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown" style="min-width: 250px; max-height: 360px; overflow-y: auto;">
                         <div class="dropdown-header">
                             <h6 class="text-dark fs-13 mb-1">Wallet currency</h6>

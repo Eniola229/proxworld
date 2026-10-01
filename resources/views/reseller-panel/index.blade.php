@@ -25,6 +25,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
+                    <div class="alert alert-{{ session('alert.type') === 'success' ? 'success' : 'info' }} alert-dismissible fade show mb-4" role="alert">
+                  IMPORTANT: RESELLER PANELS ARE NGN ONLY. ALL REVENUE WILL BE IN NGN, AND WITHDRAWALS ARE LIMITED TO NGN BANK ACCOUNTS.
+                </div>
                 <div class="alert alert-{{ session('alert.type') === 'success' ? 'success' : 'danger' }} alert-dismissible fade show mb-4" role="alert">
                    WE ADVIDE YOU LOGIN TO YOUR PANEL USING YOUR CURRENT LOGIN DETAILS FOR THIS ACCOUNT, TO SEE FULL BREAK DOWN OF ALL ORDERS, PROFIT, REVENUE, PENDING, PROCESSIONG AND OTHERS
                 </div>

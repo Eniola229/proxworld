@@ -106,6 +106,7 @@ class FlutterwaveService
         ], fn ($v) => ! is_null($v));
 
         $response = $this->client()->post('/transfers', $body);
+
         $data = $response->json();
 
         if (! $response->successful() || ($data['status'] ?? null) !== 'success') {

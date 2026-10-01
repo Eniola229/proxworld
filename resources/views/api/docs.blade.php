@@ -235,7 +235,7 @@
         "product_type": "residential",
         "quantity": 10,
         "charge": 68.75,
-        "currency": "NGN",
+        "currency": "USD",
         "status": "pending",
         "api_order_id": null,
         "proxy_access": null,
@@ -277,7 +277,7 @@
         "product_type": "residential",
         "quantity": 10,
         "charge": 68.75,
-        "currency": "NGN",
+        "currency": "USD",
         "status": "completed",
         "api_order_id": "prov_9f8e7d6c",
         "proxy_access": {
@@ -333,7 +333,7 @@
             "product_type": "residential",
             "quantity": 10,
             "charge": 68.75,
-            "currency": "NGN",
+            "currency": "USD",
             "status": "completed",
             "api_order_id": "prov_9f8e7d6c",
             "created_at": "2026-09-08T10:00:00.000000Z",
@@ -366,7 +366,7 @@
         <h3>Response</h3>
         <pre><code class="language-json">{
     "balance": 5000.00,
-    "currency": "NGN"
+    "currency": "USD"
 }</code></pre>
 
         <div class="tryit">

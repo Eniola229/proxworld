@@ -30,30 +30,6 @@ class FlutterwaveController extends Controller
     ) {
     }
 
-    /** User/reseller is redirected here after the Mono/bank-account authorization page. */
-    public function callback(Request $request)
-    {
-        // v4's redirect query params for this flow aren't documented as reliably
-        // as v3's tx_ref/status/transaction_id were, so we treat them as a hint
-        // only and always re-verify against our own cached reference -> charge id.
-        $txRef = $request->query('reference') ?? $request->query('tx_ref');
-
-        if (! $txRef) {
-            return redirect()->route('wallet.index')->with('error', 'Payment reference missing.');
-        }
-
-        $result = $this->verifyAndCreditTopUp($txRef);
-
-        $redirectRoute = str_starts_with($txRef, 'PXWR-') ? 'reseller.wallet.index' : 'wallet.index';
-
-        return redirect()->route($redirectRoute)->with('alert', [
-            'type' => $result ? 'success' : 'error',
-            'message' => $result
-                ? 'Your wallet has been funded successfully.'
-                : 'We could not verify this payment. Contact support if you were charged.',
-        ]);
-    }
-
     /** Customer lands here after hosted checkout (?status=&tx_ref=&transaction_id=). Only a hint — we re-verify. */
     public function callback(Request $request)
     {

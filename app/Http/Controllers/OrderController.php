@@ -18,7 +18,7 @@ use App\Services\CurrencyService;
 
 class OrderController extends Controller
 {
-    public function create()
+    public function create(CurrencyService $currencies)
     {
         $providersByType = Provider::active()
             ->withCount(['services as service_count' => fn ($q) => $q->where('is_active', true)])
@@ -154,7 +154,7 @@ class OrderController extends Controller
             'cost_price_snapshot' => $costPriceBase,
             'platform_price_snapshot' => $sellPriceBase,
             'charge' => $chargeInUserCurrency,
-            'currency' => $userCurrency
+            'currency' => $userCurrency,
             'exchange_rate_snapshot' => $rates->rate('NGN', $userCurrency),
             'markup_percentage' => $pricing->getMarkupPercentage($service->type, providerId: $service->provider_id),
             'profit' => $pricing->calculateProfit($sellPriceBase, $costPriceBase),
