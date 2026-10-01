@@ -440,7 +440,7 @@
                                                     </a>
                                                 </td>
                                                 <td>{{ Str::limit($order->service_name, 25) }}</td>
-                                                <td>₦{{ number_format($order->charge, 2) }}</td>
+                                                <td>@money($order->charge, $order->currency)</td>
                                                 <td>
                                                     @if($order->status == 'completed')
                                                         <span class="badge bg-soft-success text-success">Completed</span>
@@ -538,7 +538,7 @@
                                                         <span class="badge bg-soft-danger text-danger">Debit</span>
                                                     @endif
                                                 </td>
-                                                <td>₦{{ number_format($transaction->amount, 2) }}</td>
+                                                <td>@money($transaction->amount, $transaction->currency)</td>
                                                 <td>{{ ucfirst($transaction->payment_method) }}</td>
                                                 <td>
                                                     @if($transaction->status == 'success')

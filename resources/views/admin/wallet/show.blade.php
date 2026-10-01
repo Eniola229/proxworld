@@ -86,7 +86,7 @@
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fs-12 text-muted">Amount:</span>
                                     <span class="fs-4 fw-bold {{ $transaction->type == 'credit' ? 'text-success' : 'text-danger' }}">
-                                        {{ $transaction->type == 'credit' ? '+' : '-' }}₦{{ number_format($transaction->amount, 2) }}
+                                        {{ $transaction->type == 'credit' ? '+' : '-' }}@money($transaction->amount, $transaction->currency)
                                     </span>
                                 </div>
                             </div>
@@ -103,14 +103,14 @@
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fs-12 text-muted">Balance Before:</span>
-                                    <span class="fs-12 fw-bold">₦{{ number_format($transaction->balance_before, 2) }}</span>
+                                    <span class="fs-12 fw-bold">@money($transaction->balance_before, $transaction->balanceBeforeCurrency())</span>
                                 </div>
                             </div>
 
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fs-12 text-muted">Balance After:</span>
-                                    <span class="fs-12 fw-bold text-success">₦{{ number_format($transaction->balance_after, 2) }}</span>
+                                   <span class="fs-12 fw-bold text-success">@money($transaction->balance_after, $transaction->currency)</span>
                                 </div>
                             </div>
 
@@ -154,7 +154,12 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
                                 <span class="fs-12 text-muted">Current Balance:</span>
-                                <span class="fs-12 fw-bold text-success">₦{{ number_format($customerBalance, 2) }}</span>
+                                <span class="fs-12 fw-bold text-success">
+                                    @money($transaction->user->balance, $transaction->user->preferred_currency)
+                                    @if(($transaction->user->preferred_currency ?? 'NGN') !== 'NGN')
+                                        <small class="text-muted d-block text-end">≈ ₦{{ number_format($customerBalance, 2) }}</small>
+                                    @endif
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
                                 <span class="fs-12 text-muted">Total Transactions:</span>
@@ -185,7 +190,7 @@
                                 <!-- Approve Transaction -->
                                 @if($transaction->status == 'pending' && $transaction->type == 'credit')
                                 <div class="col-md-4">
-                                    <form method="POST" action="{{ route('admin.wallet.approve', $transaction->id) }}" onsubmit="return confirm('Are you sure you want to approve this transaction? ₦{{ number_format($transaction->amount, 2) }} will be credited to customer.')">
+                                    <form method="POST" action="{{ route('admin.wallet.approve', $transaction->id) }}" onsubmit="return confirm('Are you sure you want to approve this transaction? @money($transaction->amount, $transaction->currency) will be credited to customer.')">
                                         @csrf
                                         <label class="form-label fw-bold">Approve Transaction</label>
                                         <button type="submit" class="btn btn-success w-100">
@@ -206,7 +211,7 @@
                                 @endif
 
                                 <!-- Delete Transaction -->
-                                @if(auth('admin')->user()->canDeleteTransactions() && $transaction->status != 'completed')
+                               @if(auth('admin')->user()->canDeleteTransactions() && $transaction->status == 'pending')
                                 <div class="col-md-4">
                                     <form method="POST" action="{{ route('admin.wallet.destroy', $transaction->id) }}" onsubmit="return confirm('Are you sure you want to DELETE this transaction? This action cannot be undone.')">
                                         @csrf
@@ -225,7 +230,7 @@
                     @endif
 
                     <!-- Transaction Logs -->
-                 <!--    <div class="card">
+                  <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">Transaction Activity Logs</h5>
                         </div>
@@ -261,7 +266,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <small class="text-muted d-block">Amount</small>
-                                            <strong>₦{{ number_format($log->amount ?? 0, 2) }}</strong>
+                                            <strong>@money($log->amount ?? 0, $log->currency ?? 'NGN')</strong>
                                         </div>
                                     </div>
 
@@ -325,7 +330,7 @@
                             {{ $logs->links() }}
                         </div>
                         @endif
-                    </div> -->
+                    </div> 
 
                 </div>
 
@@ -348,7 +353,7 @@
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <i class="feather-alert-triangle me-2"></i>
-                        Are you sure you want to reject this transaction? The customer's balance will be reversed if this is a credit transaction.
+                        Are you sure you want to reject this transaction? The customer's wallet is not affected, because a pending top-up was never credited.
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Reason for Rejection <span class="text-muted">(Optional)</span></label>

@@ -121,25 +121,27 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($order->proxy_data as $proxy)
-                                                @php
-                                                    $ip = $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—';
-                                                    $port = $proxy['port'] ?? $proxy['proxy_http_port'] ?? '—';
-                                                    $user = $proxy['username'] ?? $proxy['login'] ?? $proxy['default_proxy_user_username'] ?? '—';
-                                                    $pass = $proxy['password'] ?? $proxy['default_proxy_user_password'] ?? '—';
-                                                @endphp
-                                                <tr>
-                                                    <td><code>{{ $ip }}</code></td>
-                                                    <td><code>{{ $port }}</code></td>
-                                                    <td><code>{{ $user }}</code></td>
-                                                    <td><code>{{ $pass }}</code></td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-xs btn-light" onclick="navigator.clipboard.writeText('{{ $connString }}')">
-                                                            <i class="feather-copy"></i> Copy
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
+                                        @foreach($order->proxy_data as $proxy)
+                                            @php
+                                                $ip   = $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—';
+                                                $port = $proxy['port'] ?? $proxy['proxy_http_port'] ?? '—';
+                                                $user = $proxy['username'] ?? $proxy['login'] ?? $proxy['default_proxy_user_username'] ?? '—';
+                                                $pass = $proxy['password'] ?? $proxy['default_proxy_user_password'] ?? '—';
+                                                $connString = "{$ip}:{$port}:{$user}:{$pass}";
+                                            @endphp
+                                            <tr>
+                                                <td><code>{{ $ip }}</code></td>
+                                                <td><code>{{ $port }}</code></td>
+                                                <td><code>{{ $user }}</code></td>
+                                                <td><code>{{ $pass }}</code></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-xs btn-light"
+                                                            onclick="navigator.clipboard.writeText(@js($connString))">
+                                                        <i class="feather-copy"></i> Copy
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         </tbody>
                                     </table>
                                 </div>

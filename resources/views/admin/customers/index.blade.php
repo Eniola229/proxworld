@@ -38,7 +38,7 @@
 
         <!-- Statistics Cards -->
         <div class="row mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -53,7 +53,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -68,7 +68,22 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-text avatar-lg bg-warning-subtle me-3">
+                                <i class="feather-shield text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Verified Users</h6>
+                                <h3 class="mb-0">{{ number_format($verifiedCustomers) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -76,7 +91,7 @@
                                 <i class="feather-activity text-info"></i>
                             </div>
                             <div>
-                                <h6 class="text-muted mb-1">Active (30 days)</h6>
+                                <h6 class="text-muted mb-1">Active (ordered in 30 days)</h6>
                                 <h3 class="mb-0">{{ number_format($activeCustomers) }}</h3>
                             </div>
                         </div>

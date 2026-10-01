@@ -5,16 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\ProxyProviders\ProxyProviderFactory;
+use App\Services\ExchangeRateService;
 use App\Services\ResellerWalletService;
 use App\Services\WalletService;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
-use App\Services\ExchangeRateService;
 
 class OrderController extends Controller
 {
-
     public function index(Request $request, ExchangeRateService $rates)
     {
         $filtered = Order::query()
@@ -36,8 +35,6 @@ class OrderController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $orders->getCollection()->each->withNgnCharge();
-
         return view('admin.orders.index', [
             'orders' => $orders,
             'totalOrders' => (clone $filtered)->count(),
@@ -52,14 +49,15 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load(['user', 'reseller', 'provider']);
-        $customerBalance = $order->user->balanceInNgn();
-        $order->withNgnCharge();
+        $customerBalance = $order->user->balanceInNgn(); // NGN equivalent, shown beside the customer's real balance
 
         return view('admin.orders.show', [
             'order' => $order,
             'customerBalance' => $customerBalance,
             'logs' => \App\Models\ActivityLog::where('subject_type', Order::class)
-                ->where('subject_id', $order->id)->latest()->paginate(15),
+                ->where('subject_id', $order->id)
+                ->latest()
+                ->paginate(15),
         ]);
     }
 

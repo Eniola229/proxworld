@@ -59,7 +59,7 @@
                                     {{ $order->service_name }}
                                 </td>
                                 <td>{{ number_format($order->quantity) }}</td>
-                                <td>₦{{ number_format($order->charge, 2) }}</td>
+                                <td>@money($order->charge, $order->currency)</td>
                                 <td class="text-success">₦{{ number_format($reseller->realProfitForOrder($order), 2) }}</td>
                                 <td>
                                     @php $badges=['completed'=>'success','processing'=>'info','pending'=>'warning','cancelled'=>'danger','partial'=>'primary']; @endphp

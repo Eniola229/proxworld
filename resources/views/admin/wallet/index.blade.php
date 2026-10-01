@@ -247,9 +247,9 @@
                                                         </span>
                                                     @endif
                                                 </td>
-                                                <td class="fw-bold">₦{{ number_format($transaction->amount, 2) }}</td>
-                                                <td>₦{{ number_format($transaction->balance_before, 2) }}</td>
-                                                <td class="fw-bold">₦{{ number_format($transaction->balance_after, 2) }}</td>
+                                                    <td class="fw-bold">@money($transaction->amount, $transaction->currency)</td>
+                                                    <td>@money($transaction->balance_before, $transaction->balanceBeforeCurrency())</td>
+                                                    <td class="fw-bold">@money($transaction->balance_after, $transaction->currency)</td>
                                                 <td>
                                                     <span class="badge bg-soft-info text-info">
                                                         {{ ucfirst(str_replace('_', ' ', $transaction->payment_method)) }}

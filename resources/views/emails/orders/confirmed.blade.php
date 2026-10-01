@@ -24,7 +24,7 @@
         </tr>
         <tr>
             <td style="padding:10px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#6b7280;">Amount</td>
-            <td style="padding:10px 0; border-bottom:1px solid #eef1f6; font-size:14px; color:#111827; font-weight:600; text-align:right;">{{ $order->currency ?? '₦' }} {{ number_format($order->charge, 2) }}</td>
+            <td style="padding:10px 0; border-bottom:1px solid #eef1f6; font-size:14px; color:#111827; font-weight:600; text-align:right;">@money($order->charge, $order->currency ?: 'NGN')</td>
         </tr>
         <tr>
             <td style="padding:10px 0; font-size:13px; color:#6b7280;">Status</td>
@@ -37,7 +37,7 @@
     </table>
 
     @if($order->isDataBasedProduct())
-        @php($access = $order->provider->config['static_proxy_access'] ?? null)
+        @php($access = $order->provider?->config['static_proxy_access'] ?? null)
         @if($access)
             <h2 style="margin:24px 0 8px; font-size:16px; font-weight:700; color:#111827;">Proxy access details</h2>
             <p style="margin:0 0 12px; font-size:13px; color:#6b7280;">
@@ -46,19 +46,19 @@
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin:0 0 8px;">
                 <tr>
                     <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#6b7280;">Host</td>
-                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['host'] }}</td>
+                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['host'] ?? '' }}</td>
                 </tr>
                 <tr>
                     <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#6b7280;">Port</td>
-                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['port'] }}</td>
+                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['port'] ?? '' }}</td>
                 </tr>
                 <tr>
                     <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#6b7280;">Username</td>
-                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['username'] }}</td>
+                    <td style="padding:8px 0; border-bottom:1px solid #eef1f6; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['username'] ?? '' }}</td>
                 </tr>
                 <tr>
                     <td style="padding:8px 0; font-size:13px; color:#6b7280;">Password</td>
-                    <td style="padding:8px 0; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['password'] }}</td>
+                    <td style="padding:8px 0; font-size:13px; color:#111827; font-family:monospace; text-align:right;">{{ $access['password'] ?? '' }}</td>
                 </tr>
             </table>
 

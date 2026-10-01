@@ -165,7 +165,7 @@
                                             $profitQuery->where(fn($q) => $q->where('id','like',"%$s%")->orWhere('service_name','like',"%$s%"));
                                         }
                                         $allOrders = $profitQuery->get();
-                                        $totalProfit = $allOrders->sum(fn($o) => $o->profit ?? \App\Services\PricingService::calculateProfit($o->charge, $o->quantity, $o->service_name));
+                                        $totalProfit = $allOrders->sum(fn($o) => $o->profit ?? \App\Services\PricingService::calculateProfit($o->charge_ngn, $o->quantity, $o->service_name));
                                     @endphp
                                     <h2 class="text-dark mb-0">₦{{ number_format($totalProfit, 2) }}</h2>
                                     <small class="text-dark-50">{{ number_format($allOrders->count()) }} completed orders</small>
@@ -266,12 +266,12 @@
                             </thead>
                             <tbody>
                                 @forelse($orders as $orderItem)
-                                    @php
-                                        $profit = $orderItem->profit ?? \App\Services\PricingService::calculateProfit(
-                                            $orderItem->charge, $orderItem->quantity, $orderItem->service_name
-                                        );
-                                        $profitPct = $orderItem->charge > 0 ? ($profit / $orderItem->charge * 100) : 0;
-                                    @endphp
+                                @php
+                                    $profit = $orderItem->profit ?? \App\Services\PricingService::calculateProfit(
+                                        $orderItem->charge_ngn, $orderItem->quantity, $orderItem->service_name
+                                    );
+                                    $profitPct = $orderItem->charge_ngn > 0 ? ($profit / $orderItem->charge_ngn * 100) : 0;
+                                @endphp
                                     <tr>
                                         <td><code class="fs-11">#{{ substr($orderItem->id, 0, 8) }}</code></td>
                                         <td>
@@ -285,7 +285,7 @@
                                             </span>
                                         </td>
                                         <td>{{ number_format($orderItem->quantity) }}</td>
-                                        <td class="text-success fw-bold">₦{{ number_format($orderItem->charge, 2) }}</td>
+                                       <td class="text-success fw-bold">@money($orderItem->charge, $orderItem->currency)</td>
                                         @if(!auth('admin')->user()->isSupport())
                                         <td>
                                             <span class="text-primary fw-bold">₦{{ number_format($profit, 2) }}</span>

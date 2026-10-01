@@ -113,15 +113,6 @@
                             </div>
 
                             <div class="mb-3 pb-3 border-bottom">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="fs-12 text-muted">Link/URL:</span>
-                                </div>
-                                <a href="{{ $order->link }}" target="_blank" class="fs-11 text-primary text-break">
-                                    {{ $order->link }}
-                                </a>
-                            </div>
-
-                            <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between">
                                     <span class="fs-12 text-muted">Quantity:</span>
                                     <span class="fs-12 fw-bold">{{ number_format($order->quantity) }}</span>
@@ -131,23 +122,23 @@
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between">
                                     <span class="fs-12 text-muted">Charge:</span>
-                                    <span class="fs-12 fw-bold text-success">₦{{ number_format($order->charge, 2) }}</span>
+                                    <span class="fs-12 fw-bold text-success">@money($order->charge, $order->currency)</span>
                                 </div>
                             </div>
 
                             @php
                                 if ($order->profit !== null) {
                                     $profitAmount   = $order->profit;
-                                    $profitMargin   = $order->charge > 0 ? ($profitAmount / $order->charge) * 100 : 0;
+                                    $profitMargin   = $order->charge_ngn > 0 ? ($profitAmount / $order->charge_ngn) * 100 : 0;
                                     $profitBreakdown = [
                                         'profit_amount'     => $profitAmount,
                                         'profit_margin'     => $profitMargin,
-                                        'original_cost'     => $order->charge - $profitAmount,
+                                        'original_cost'     => $order->charge_ngn - $profitAmount,
                                         'markup_percentage' => $order->markup_percentage ?? \App\Services\PricingService::getMarkupPercentage($order->service_name),
                                     ];
                                 } else {
                                     $profitBreakdown = \App\Services\PricingService::getProfitBreakdown(
-                                        $order->charge, $order->quantity, $order->service_name
+                                        $order->charge_ngn, $order->quantity, $order->service_name
                                     );
                                 }
                             @endphp
@@ -205,7 +196,12 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
                                 <span class="fs-12 text-muted">Balance:</span>
-                                <span class="fs-12 fw-bold text-success">₦{{ number_format($customerBalance, 2) }}</span>
+                               <span class="fs-12 fw-bold text-success">
+                                @money($order->user->balance, $order->user->preferred_currency)
+                                @if(($order->user->preferred_currency ?? 'NGN') !== 'NGN')
+                                    <small class="text-muted d-block text-end">≈ ₦{{ number_format($customerBalance, 2) }}</small>
+                                @endif
+                            </span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="fs-12 text-muted">Member Since:</span>
@@ -225,48 +221,52 @@
                         <div class="card-body">
                             @if($order->status !== 'completed')
                                 <div class="text-muted fs-12">Proxy access details will appear here once this order completes.</div>
-                            @elseif($order->isDataBasedProduct())
-                                @php($access = $order->provider->config['static_proxy_access'] ?? null)
-                                @if($access)
-                                    <div class="alert alert-info fs-12">This is a shared account-wide connection, the same for every order on this provider:</div>
-                                    <table class="table table-sm mb-0">
-                                        <tr><td>Host</td><td><code>{{ $access['host'] }}</code></td></tr>
-                                        <tr><td>Port</td><td><code>{{ $access['port'] }}</code></td></tr>
-                                        <tr><td>Username</td><td><code>{{ $access['username'] }}</code></td></tr>
-                                        <tr><td>Password</td><td><code>{{ $access['password'] }}</code></td></tr>
-                                    </table>
-                                    @if(!empty($access['username_format']))
-                                        <div class="fs-11 text-muted mt-2">To target a country/session, format your username as: <code>{{ $access['username_format'] }}</code></div>
+                                @elseif($order->isDataBasedProduct())
+                                    @php
+                                        $access = $order->provider->config['static_proxy_access'] ?? null;
+                                    @endphp
+                                    @if($access)
+                                        <div class="alert alert-info fs-12">This is a shared account-wide connection, the same for every order on this provider:</div>
+                                        <table class="table table-sm mb-0">
+                                            <tr><td>Host</td><td><code>{{ $access['host'] }}</code></td></tr>
+                                            <tr><td>Port</td><td><code>{{ $access['port'] }}</code></td></tr>
+                                            <tr><td>Username</td><td><code>{{ $access['username'] }}</code></td></tr>
+                                            <tr><td>Password</td><td><code>{{ $access['password'] }}</code></td></tr>
+                                        </table>
+                                        @if(!empty($access['username_format']))
+                                            <div class="fs-11 text-muted mt-2">To target a country/session, format your username as: <code>{{ $access['username_format'] }}</code></div>
+                                        @endif
+                                    @else
+                                        <div class="alert alert-warning fs-12 mb-0">Proxy access hasn't been configured for this provider yet.</div>
                                     @endif
-                                @else
-                                    <div class="alert alert-warning fs-12 mb-0">Proxy access hasn't been configured for this provider yet.</div>
-                                @endif
-                            @elseif($order->hasProxyCredentials())
+                                @elseif($order->hasProxyCredentials())
                                 <div class="table-responsive">
                                     <table class="table table-sm mb-0">
                                         <thead>
                                             <tr><th>IP</th><th>Port</th><th>Username</th><th>Password</th><th></th></tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($order->proxy_data as $proxy)
-                                                $ip = $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—';
+                                        @foreach($order->proxy_data as $proxy)
+                                            @php
+                                                $ip   = $proxy['ip'] ?? $proxy['host'] ?? $proxy['proxy_ip_address'] ?? '—';
                                                 $port = $proxy['port'] ?? $proxy['proxy_http_port'] ?? '—';
                                                 $user = $proxy['username'] ?? $proxy['login'] ?? $proxy['default_proxy_user_username'] ?? '—';
                                                 $pass = $proxy['password'] ?? $proxy['default_proxy_user_password'] ?? '—';
-                                                @endphp
-                                                <tr>
-                                                    <td><code>{{ $ip }}</code></td>
-                                                    <td><code>{{ $port }}</code></td>
-                                                    <td><code>{{ $user }}</code></td>
-                                                    <td><code>{{ $pass }}</code></td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-xs btn-light"
-                                                                onclick="navigator.clipboard.writeText('{{ $connString }}')">
-                                                            <i class="feather-copy"></i> Copy
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
+                                                $connString = "{$ip}:{$port}:{$user}:{$pass}";
+                                            @endphp
+                                            <tr>
+                                                <td><code>{{ $ip }}</code></td>
+                                                <td><code>{{ $port }}</code></td>
+                                                <td><code>{{ $user }}</code></td>
+                                                <td><code>{{ $pass }}</code></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-xs btn-light"
+                                                            onclick="navigator.clipboard.writeText(@js($connString))">
+                                                        <i class="feather-copy"></i> Copy
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         </tbody>
                                     </table>
                                 </div>

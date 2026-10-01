@@ -40,7 +40,7 @@
                             <tr>
                                 <td class="fw-semibold">{{ $u->name }}</td>
                                 <td class="text-muted">{{ $u->email }}</td>
-                                <td>₦{{ number_format($u->balance, 2) }}</td>
+                                <td>@money($u->balance, $u->preferred_currency)</td>
                                 <td>{{ $u->orders_count }}</td>
                                 <td>{{ $u->created_at->format('M d, Y') }}</td>
                                 <td>

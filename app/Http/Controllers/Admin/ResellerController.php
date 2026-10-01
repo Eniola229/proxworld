@@ -35,12 +35,13 @@ class ResellerController extends Controller
     public function show(Reseller $reseller)
     {
         $reseller->load('owner');
-        $totalRevenue = app(\App\Services\ExchangeRateService::class)->sumConverted($reseller->orders(), 'charge', 'NGN');   // show()
-        $recentOrders = $reseller->orders()->with('user')->latest()->take(5)->get()->each->withNgnCharge();                  // show()
-        $ownerBalance = $reseller->owner->balanceInNgn();
+
+        $totalRevenue     = app(\App\Services\ExchangeRateService::class)->sumConverted($reseller->orders(), 'charge', 'NGN');
         $totalProfit      = $reseller->orders()->where('status', 'completed')->sum('profit');
         $totalOrders      = $reseller->orders()->count();
         $totalCustomers   = $reseller->customers()->count();
+        $recentOrders     = $reseller->orders()->with('user')->latest()->take(5)->get();
+        $ownerBalance     = $reseller->owner->balanceInNgn();
         $detectedServerIp = $this->getServerIp();
 
         $this->logViewed('Reseller', $reseller->id, auth('admin')->user()->name . ' viewed reseller [' . $reseller->subdomain . ']');
@@ -56,10 +57,10 @@ class ResellerController extends Controller
     {
         $owner = $reseller->owner;
 
-        $transactions->getCollection()->each->withNgnAmounts()->excludingSwitches()
+        $transactions = \App\Models\WalletTransaction::where('user_id', $owner->id)
+            ->excludingSwitches()
             ->latest()
             ->paginate(20);
-        $owner->withNgnBalance();
 
         $this->logActivity('viewed',
             auth('admin')->user()->name . ' viewed wallet for reseller [' . $reseller->subdomain . ']',
@@ -71,7 +72,8 @@ class ResellerController extends Controller
 
     public function customers(Reseller $reseller)
     {
-       $customers->getCollection()->each->withNgnBalance();
+        $customers = $reseller->customers()
+            ->withCount(['orders' => fn ($q) => $q->where('reseller_id', $reseller->id)])
             ->latest()
             ->paginate(30);
 
@@ -85,7 +87,8 @@ class ResellerController extends Controller
 
     public function orders(Reseller $reseller)
     {
-        $orders->getCollection()->each->withNgnCharge()->latest()->paginate(30);
+        $orders = $reseller->orders()->with('user')->latest()->paginate(30);
+
         $totalCharge = app(\App\Services\ExchangeRateService::class)->sumConverted($reseller->orders(), 'charge', 'NGN');
         $totalProfit = $reseller->profitTransactions()->where('type', 'credit')->sum('amount');
 

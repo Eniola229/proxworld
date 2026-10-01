@@ -189,7 +189,7 @@
                         </dd>
 
                         <dt class="col-sm-5 text-muted fs-13">Owner Balance</dt>
-                        <dd class="col-sm-7 fw-semibold text-success">₦{{ number_format($ownerBalance, 2) }}</dd>
+                        <dd class="col-sm-7 fw-semibold text-success">@money($reseller->owner->balance, $reseller->owner->preferred_currency)</dd>
 
                         <dt class="col-sm-5 text-muted fs-13">Default Markup</dt>
                         <dd class="col-sm-7">{{ $reseller->default_markup_percent }}%</dd>
@@ -333,7 +333,7 @@
                                     <td>{{ $order->user->name ?? 'Deleted User' }}</td>
                                     <td class="text-truncate" style="max-width:160px;">{{ $order->service_name }}</td>
                                     <td>{{ number_format($order->quantity) }}</td>
-                                    <td>₦{{ number_format($order->charge, 2) }}</td>
+                                    <td>@money($order->charge, $order->currency)</td>
                                     <td>
                                         @php
                                             $badges = [

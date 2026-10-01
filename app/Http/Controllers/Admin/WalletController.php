@@ -5,16 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WalletTransaction;
+use App\Services\ExchangeRateService;
 use App\Services\WalletService;
 use App\Types\TransactionType;
 use App\Types\WalletTransactionDirection;
 use App\Types\WalletTransactionStatus;
 use Illuminate\Http\Request;
-use App\Services\ExchangeRateService;
 
 class WalletController extends Controller
 {
-
     public function index(Request $request, ExchangeRateService $rates)
     {
         $query = WalletTransaction::excludingSwitches()
@@ -24,8 +23,7 @@ class WalletController extends Controller
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to));
 
         return view('admin.wallet.index', [
-            'transactions' => tap((clone $query)->with('user:id,name,email')->latest()->paginate(20)->withQueryString(),
-                fn ($page) => $page->getCollection()->each->withNgnAmounts()),
+            'transactions' => (clone $query)->with('user:id,name,email')->latest()->paginate(20)->withQueryString(),
             'totalTransactions' => (clone $query)->count(),
             'totalDeposits' => $rates->sumConverted((clone $query)->where('type', WalletTransactionDirection::CREDIT), 'amount', 'NGN'),
             'totalDebits' => $rates->sumConverted((clone $query)->where('type', WalletTransactionDirection::DEBIT), 'amount', 'NGN'),
@@ -41,9 +39,6 @@ class WalletController extends Controller
         $customerBalance = $transaction->user->balanceInNgn();
 
         $logs = WalletTransaction::where('user_id', $transaction->user_id)->latest()->paginate(15);
-        $logs->getCollection()->each->withNgnAmounts();
-
-        $transaction->withNgnAmounts();
 
         return view('admin.wallet.show', [
             'transaction' => $transaction,
@@ -52,6 +47,7 @@ class WalletController extends Controller
             'logs' => $logs,
         ]);
     }
+
     /** Approves a pending manual top-up (e.g. bank transfer submitted for review) — actually credits the wallet now. */
     public function approve(Request $request, WalletTransaction $transaction, WalletService $wallet)
     {
@@ -88,7 +84,7 @@ class WalletController extends Controller
         return back()->with('success', 'Transaction record deleted.');
     }
 
-    /** Manual balance adjustment from the customer detail page. */
+    /** Manual balance adjustment from the customer detail page. Admin types the amount in naira. */
     public function adjust(Request $request, User $user, WalletService $wallet)
     {
         $data = $request->validate([
@@ -101,8 +97,8 @@ class WalletController extends Controller
 
         try {
             $data['type'] === 'credit'
-              ? $wallet->credit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN'])
-        : $wallet->debit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN']);
+                ? $wallet->credit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN'])
+                : $wallet->debit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN']);
         } catch (\App\Services\InsufficientBalanceException $e) {
             return back()->with('error', 'User has insufficient balance for this debit.');
         }

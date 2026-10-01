@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\ExchangeRateService;
 use App\Services\InsufficientBalanceException;
 use App\Services\WalletService;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use App\Types\WalletTransactionStatus;
 use Illuminate\Http\Request;
+use App\Types\KycStatus;
 
 class CustomerController extends Controller
 {
@@ -32,7 +34,9 @@ class CustomerController extends Controller
             'customers' => $customers,
             'totalCustomers' => User::count(),
             'todayCustomers' => User::whereDate('created_at', today())->count(),
-            'activeCustomers' => User::where('updated_at', '>=', now()->subDays(30))->count(),
+            'verifiedCustomers' => User::where('kyc_status', KycStatus::VERIFIED)->count(),
+            // Active = placed at least one order in the last 30 days
+            'activeCustomers' => User::whereHas('orders', fn ($q) => $q->where('created_at', '>=', now()->subDays(30)))->count(),
         ]);
     }
 
@@ -48,19 +52,34 @@ class CustomerController extends Controller
                 ->paginate(15, ['*'], 'logs_page');
         }
 
+        $walletBalance = $user->balanceInNgn(); // NGN equivalent; the real balance stays in $customer->balance
+
+        $recentOrders = $user->orders()->latest()->paginate(10, ['*'], 'orders_page');
+
+        $recentTransactions = $user->wallet()->excludingSwitches()->latest()->paginate(10, ['*'], 'transactions_page');
+
+        $totalDeposits = $rates->sumConverted(
+            $user->wallet()->where('purpose', TransactionType::TOPUP)->where('status', WalletTransactionStatus::SUCCESS),
+            'amount', 'NGN'
+        );
+        $totalSpent = $rates->sumConverted(
+            $user->wallet()->where('purpose', TransactionType::ORDER_DEBIT)->where('status', WalletTransactionStatus::SUCCESS),
+            'amount', 'NGN'
+        );
+
         return view('admin.customers.show', [
             'customer' => $user,
             'walletBalance' => $walletBalance,
-            'recentOrders' => $recentOrders,
-            'recentTransactions' => $recentTransactions,
-            'totalDeposits' => $totalDeposits,
-            'totalSpent' => $totalSpent
 
+            'recentOrders' => $recentOrders,
             'totalOrders' => $user->orders()->count(),
             'completedOrders' => $user->orders()->where('status', OrderStatus::COMPLETED)->count(),
             'pendingOrders' => $user->orders()->where('status', OrderStatus::PENDING)->count(),
             'processingOrders' => $user->orders()->where('status', OrderStatus::PROCESSING)->count(),
-          
+
+            'recentTransactions' => $recentTransactions,
+            'totalDeposits' => $totalDeposits,
+            'totalSpent' => $totalSpent,
 
             'referredUsers' => $user->referrals()->with('referredUser')->latest()->paginate(10, ['*'], 'referrals_page'),
             'totalReferred' => $user->referrals()->count(),
@@ -90,6 +109,7 @@ class CustomerController extends Controller
         return back()->with('success', 'Customer updated.');
     }
 
+    /** Admin types the amount in naira; WalletService converts it into the customer's wallet currency. */
     public function adjustBalance(Request $request, User $user, WalletService $wallet)
     {
         $data = $request->validate([
@@ -102,8 +122,8 @@ class CustomerController extends Controller
 
         try {
             $data['type'] === 'credit'
-                ? $wallet->credit($user, $data['amount'], $purpose, ['description' => $data['reason']])
-                : $wallet->debit($user, $data['amount'], $purpose, ['description' => $data['reason']]);
+                ? $wallet->credit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN'])
+                : $wallet->debit($user, $data['amount'], $purpose, ['description' => $data['reason'], 'currency' => 'NGN']);
         } catch (InsufficientBalanceException $e) {
             return back()->with('error', 'Customer has insufficient balance for this debit.');
         }

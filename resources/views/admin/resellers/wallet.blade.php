@@ -18,19 +18,19 @@
         </ul>
     </div>
 </div>
- 
+
 <div class="main-content">
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-lg-3">
             <div class="card text-center py-3">
-                <div class="fs-4 fw-bold text-success">₦{{ number_format($owner->balance, 2) }}</div>
+                <div class="fs-4 fw-bold text-success">@money($owner->balance, $owner->preferred_currency)</div>
                 <div class="fs-13 text-muted">Current Balance</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="card text-center py-3">
                 <div class="fs-4 fw-bold text-dark">
-                    ₦{{ number_format($transactions->where('type','credit')->sum('amount'), 2) }}
+                    ₦{{ number_format($transactions->where('type','credit')->sum('amount_ngn'), 2) }}
                 </div>
                 <div class="fs-13 text-muted">Total Credited (this page)</div>
             </div>
@@ -66,10 +66,10 @@
                                     @endif
                                 </td>
                                 <td class="{{ $tx->type === 'credit' ? 'text-success' : 'text-danger' }} fw-semibold">
-                                    {{ $tx->type === 'credit' ? '+' : '-' }}₦{{ number_format($tx->amount, 2) }}
+                                    {{ $tx->type === 'credit' ? '+' : '-' }}@money($tx->amount, $tx->currency)
                                 </td>
-                                <td class="text-muted">₦{{ number_format($tx->balance_before, 2) }}</td>
-                                <td class="fw-semibold">₦{{ number_format($tx->balance_after, 2) }}</td>
+                                <td class="text-muted">@money($tx->balance_before, $tx->balanceBeforeCurrency())</td>
+                                <td class="fw-semibold">@money($tx->balance_after, $tx->currency)</td>
                                 <td class="text-muted fs-12" style="max-width:180px;">{{ $tx->description }}</td>
                                 <td><span class="badge bg-soft-secondary text-secondary">{{ $tx->payment_method }}</span></td>
                                 <td>

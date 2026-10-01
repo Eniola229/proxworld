@@ -9,7 +9,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Append-only. Rows are only ever created by App\Services\WalletService. */
+/**
+ * Append-only. Rows here are only ever created by App\Services\WalletService.
+ * Never update a row's amount/balance_before/balance_after after the fact —
+ * if a correction is needed, create a new offsetting transaction instead,
+ * so the ledger always reflects exactly what happened and when.
+ */
 class WalletTransaction extends Model
 {
     use HasUuids;
@@ -36,7 +41,7 @@ class WalletTransaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** Hides the "currency switched" rows from money totals (they aren't deposits or spend). */
+    /** Hides the internal "wallet currency switched" rows from money totals (they aren't deposits or spend). */
     public function scopeExcludingSwitches(Builder $query): Builder
     {
         return $query->where(fn ($q) => $q->whereNull('purpose')->orWhere('purpose', '!=', TransactionType::CURRENCY_SWITCH));
@@ -57,18 +62,9 @@ class WalletTransaction extends Model
         return $this->currency ?: 'NGN';
     }
 
-    /** ADMIN DISPLAY ONLY: re-expresses amounts in NGN on this in-memory instance. Never save() afterwards. */
-    public function withNgnAmounts(): static
+    /** NGN value of this row's amount (for page totals). Does not touch the real `amount`. */
+    public function getAmountNgnAttribute(): float
     {
-        $rates = app(ExchangeRateService::class);
-        $cur = $this->currency ?: 'NGN';
-        $beforeCur = $this->balanceBeforeCurrency();
-
-        $this->setAttribute('amount', $rates->convert((float) $this->amount, $cur, 'NGN'));
-        $this->setAttribute('balance_before', $rates->convert((float) $this->balance_before, $beforeCur, 'NGN'));
-        $this->setAttribute('balance_after', $rates->convert((float) $this->balance_after, $cur, 'NGN'));
-        $this->setAttribute('currency', 'NGN');
-
-        return $this;
+        return app(ExchangeRateService::class)->convert((float) $this->amount, $this->currency ?: 'NGN', 'NGN');
     }
 }

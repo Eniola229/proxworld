@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                                     <span class="fs-12 text-muted">Wallet Balance:</span>
-                                    <span class="fs-12 fw-bold text-success">₦{{ number_format($customer->balance, 2) }}</span>
+                                    <span class="fs-12 fw-bold text-success">@money($customer->balance, $customer->preferred_currency)</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                                     <span class="fs-12 text-muted">Total Deposits:</span>
@@ -237,7 +237,7 @@
                                                     </a>
                                                 </td>
                                                 <td>{{ Str::limit($order->service_name, 30) }}</td>
-                                                <td>₦{{ number_format($order->charge, 2) }}</td>
+                                                <td>@money($order->charge, $order->currency)</td>
                                                 <td>
                                                     @if($order->status == 'completed')
                                                         <span class="badge bg-soft-success text-success">Completed</span>
@@ -311,9 +311,9 @@
                                                         </span>
                                                     @endif
                                                 </td>
-                                                <td>₦{{ number_format($transaction->amount, 2) }}</td>
-                                                <td>₦{{ number_format($transaction->balance_before, 2) }}</td>
-                                                <td>₦{{ number_format($transaction->balance_after, 2) }}</td>
+                                                <td>@money($transaction->amount, $transaction->currency)</td>
+                                                <td>@money($transaction->balance_before, $transaction->balanceBeforeCurrency())</td>
+                                                <td>@money($transaction->balance_after, $transaction->currency)</td>
                                                 <td>{{ ucfirst(str_replace('_', ' ', $transaction->payment_method)) }}</td>
                                                 <td>
                                                     @if($transaction->status == 'success')
@@ -690,7 +690,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        <strong>Current Balance:</strong> ₦{{ number_format($walletBalance, 2) }}
+                        <strong>Current Balance:</strong> @money($customer->balance, $customer->preferred_currency) (≈ ₦{{ number_format($walletBalance, 2) }})
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Transaction Type</label>

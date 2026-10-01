@@ -8,15 +8,15 @@ use App\Models\ProfitTransaction;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\WalletTransaction;
+use App\Services\ExchangeRateService;
 use App\Types\OrderStatus;
 use App\Types\TicketStatus;
 use App\Types\WalletTransactionDirection;
 use Illuminate\Http\Request;
-use App\Services\ExchangeRateService;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ExchangeRateService $rates)
     {
         $period = $request->get('period', 'today');
         $from = $this->periodStart($period);
@@ -43,13 +43,11 @@ class DashboardController extends Controller
             'pendingOrders' => Order::where('status', OrderStatus::PENDING)->count(),
             'cancelledOrders' => Order::where('status', OrderStatus::CANCELLED)->count(),
 
-            // Revenue (based on order `charge`, matching how the reseller
-            // dashboard treats "revenue" — total collected from customers)
+            // Revenue (order `charge`, every currency converted to NGN)
             'revenueInPeriod' => $rates->sumConverted(Order::where('created_at', '>=', $from), 'charge', 'NGN'),
-            'revenueToday'    => $rates->sumConverted(Order::whereDate('created_at', today()), 'charge', 'NGN'),
-            'revenueWeek'     => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfWeek()), 'charge', 'NGN'),
-            'revenueMonth'    => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfMonth()), 'charge', 'NGN'),
-
+            'revenueToday' => $rates->sumConverted(Order::whereDate('created_at', today()), 'charge', 'NGN'),
+            'revenueWeek' => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfWeek()), 'charge', 'NGN'),
+            'revenueMonth' => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfMonth()), 'charge', 'NGN'),
 
             // Support tickets
             'totalTickets' => Ticket::count(),
@@ -57,21 +55,22 @@ class DashboardController extends Controller
             'closedTickets' => Ticket::where('status', TicketStatus::CLOSED)->count(),
 
             // Wallet / deposits — "deposit" = a credit-direction wallet transaction.
-            // NOTE: 'status' values ('pending'/'success'/'failed') are still a
-            // guess — send me the WalletTransaction status Types class (if one
-            // exists) and I'll swap these to the real constants.
-            'totalDeposits' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->count(),
-            'depositsInPeriod' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', $from)->count(),
+            // excludingSwitches() keeps "currency switched" rows out of the totals.
+            'totalDeposits' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->count(),
+            'depositsInPeriod' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', $from)->count(),
+            'depositsToday' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->whereDate('created_at', today())->count(),
             'depositAmountToday' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->whereDate('created_at', today()), 'amount', 'NGN'),
-            'depositAmountWeek'  => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek()), 'amount', 'NGN'),
+            'depositsWeek' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek())->count(),
+            'depositAmountWeek' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek()), 'amount', 'NGN'),
+            'depositsMonth' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfMonth())->count(),
             'depositAmountMonth' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfMonth()), 'amount', 'NGN'),
+            'pendingDeposits' => WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('status', 'pending')->count(),
             'pendingDepositAmount' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('status', 'pending'), 'amount', 'NGN'),
 
-
-            // Recent activity tables
+            // Recent activity tables (shown in NGN)
             'recentCustomers' => User::latest()->take(5)->get(),
-            'recentOrders' => Order::with('user')->latest()->take(10)->get()->each->withNgnCharge(),
-            'recentTransactions' => WalletTransaction::excludingSwitches()->with('user')->latest()->take(10)->get()->each->withNgnAmounts(),
+            'recentOrders' => Order::with('user')->latest()->take(10)->get(),
+            'recentTransactions' => WalletTransaction::excludingSwitches()->with('user')->latest()->take(10)->get(),
         ];
 
         // Profit numbers only computed/passed if the admin actually has
