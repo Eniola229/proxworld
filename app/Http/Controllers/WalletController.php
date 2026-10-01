@@ -2,67 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CurrencyService;
+use App\Services\FlutterwaveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class WalletController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, CurrencyService $currencies)
     {
         $user = $request->user();
+        $currency = $currencies->walletCurrency($user);
 
         return view('wallet.index', [
             'balance'      => $user->balance,
+            'currency'     => $currency,
+            'minTopUp'     => $currencies->minTopUp($currency),   // 500 for NGN, 5 for any other
             'transactions' => $user->wallet()->latest()->paginate(15),
-            'currencies'   => \App\Models\Currency::where('is_active', true)->get(),
         ]);
     }
 
-    public function fund(Request $request)
+    public function fund(Request $request, CurrencyService $currencies)
     {
+        $currency = $currencies->walletCurrency($request->user());
+
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:100'],
+            'amount' => ['required', 'numeric', 'min:' . $currencies->minTopUp($currency)],
+        ], [
+            'amount.min' => 'Minimum top-up is ' . $currencies->format($currencies->minTopUp($currency), $currency) . '.',
         ]);
 
+        return $currency === 'NGN'
+            ? $this->fundWithVirtualAccount($request, (float) $data['amount'])
+            : $this->fundWithCheckout($request, $currencies, $currency, (float) $data['amount']);
+    }
+
+    protected function fundWithVirtualAccount(Request $request, float $amount)
+    {
         $user = $request->user();
         $txRef = 'PXW-' . strtoupper(Str::random(16));
 
         try {
-            $account = app(\App\Services\FlutterwaveService::class)->createVirtualAccount([
-                'amount'   => (float) $data['amount'],
-                'currency' => 'NGN',
+            $account = app(FlutterwaveService::class)->createVirtualAccount([
+                'amount'    => $amount,
+                'currency'  => 'NGN',
                 'reference' => $txRef,
-                'customer' => [
-                    'email' => $user->email,
-                    'name'  => $user->name,
-                ],
-                'meta' => ['user_id' => $user->id],
-                'expiry' => 900, // 15 minutes
+                'customer'  => ['email' => $user->email, 'name' => $user->name],
+                'meta'      => ['user_id' => $user->id],
             ]);
         } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             \Log::critical('Unhandled error in user payment fund:', [
-                'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
+                'error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),
             ]);
             return back()->with('error', 'An unexpected error occurred while starting payment.');
         }
 
-        // Store the reference so we can look up the eventual webhook-confirmed
-        // status from the wallet page (e.g. via polling) without trusting
-        // anything from the client.
         session(['pending_topup_reference' => $txRef]);
 
         return back()->with('virtualAccount', [
-            'account_number'   => $account['account_number'] ?? null,
-            'account_bank_name'=> $account['account_bank_name'] ?? null,
-            'amount'           => $account['amount'] ?? $data['amount'],
-            'reference'        => $txRef,
-            'expires_at'       => $account['account_expiration_datetime'] ?? null,
-            'note'             => $account['note'] ?? null,
+            'account_number'    => $account['account_number'] ?? null,
+            'account_bank_name' => $account['account_bank_name'] ?? null,
+            'amount'            => $account['amount'] ?? $amount,
+            'reference'         => $txRef,
+            'expires_at'        => $account['account_expiration_datetime'] ?? null,
+            'note'              => $account['note'] ?? null,
         ]);
+    }
+
+    protected function fundWithCheckout(Request $request, CurrencyService $currencies, string $currency, float $amount)
+    {
+        $user = $request->user();
+        $amount = $currencies->roundForCharge($amount, $currency);
+        $txRef = 'PXC-' . strtoupper(Str::random(16));
+
+        try {
+            $link = app(FlutterwaveService::class)->createCheckoutLink([
+                'amount'       => $amount,
+                'currency'     => $currency,
+                'reference'    => $txRef,
+                'redirect_url' => route('flutterwave.checkout-return'),
+                'customer'     => ['email' => $user->email, 'name' => $user->name],
+                'meta'         => ['user_id' => $user->id],
+            ]);
+        } catch (\RuntimeException $e) {
+            return back()->with('alert', ['type' => 'error', 'message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            \Log::critical('Unhandled error starting Flutterwave checkout:', [
+                'error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),
+            ]);
+            return back()->with('alert', ['type' => 'error', 'message' => 'An unexpected error occurred while starting payment.']);
+        }
+
+        return redirect()->away($link);
     }
 
     public function topupStatus(Request $request)
@@ -71,8 +104,6 @@ class WalletController extends Controller
 
         $log = $request->user()->wallet()->where('reference', $reference)->first();
 
-        return response()->json([
-            'status' => $log?->status ?? 'pending',
-        ]);
+        return response()->json(['status' => $log?->status ?? 'pending']);
     }
 }

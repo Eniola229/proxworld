@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Services\ExchangeRateService;
 
 class User extends Authenticatable
 {
@@ -140,4 +141,18 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Reseller::class, 'reseller_id');
     }
+
+    public function balanceInNgn(): float
+    {
+        return app(ExchangeRateService::class)->convert((float) $this->balance, $this->preferred_currency ?: 'NGN', 'NGN');
+    }
+
+    /** ADMIN DISPLAY ONLY. Never save() this instance afterwards. */
+    public function withNgnBalance(): static
+    {
+        $this->setAttribute('balance', $this->balanceInNgn());
+
+        return $this;
+    }
+
 }

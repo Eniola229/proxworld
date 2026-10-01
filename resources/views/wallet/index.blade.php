@@ -37,7 +37,7 @@
                             <div class="card-body">
                                 <h5 class="card-title text-muted mb-4">Current Balance</h5>
                                 <h2 class="display-6 fw-bold text-primary" id="wallet-balance">
-                                    ₦{{ number_format(auth()->user()->balance, 2) }}
+                                    @money($balance, $currency)
                                 </h2>
                                 <p class="text-muted mt-3">Available funds for orders</p>
                             </div>
@@ -183,17 +183,25 @@
 
                                     <div id="copy-toast" role="status" aria-live="polite"></div>
                                 @else
-                                    <form method="POST" action="{{ route('wallet.topup') }}">
-                                        @csrf
-                                        <input type="hidden" name="currency" value="NGN">
-                                        <div class="mb-3">
-                                            <label class="form-label">Amount (₦)</label>
-                                            <input type="number" name="amount" class="form-control form-control-lg" placeholder="e.g. 5000" min="500" required>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
-                                        </div>
-                                    </form>
+                                <form method="POST" action="{{ route('wallet.topup') }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount ({{ $currency }})</label>
+                                        <input type="number" name="amount" class="form-control form-control-lg"
+                                               placeholder="e.g. {{ $currency === 'NGN' ? '5000' : '20' }}"
+                                               min="{{ $minTopUp }}"
+                                               step="{{ app(\App\Services\CurrencyService::class)->decimals($currency) === 0 ? '1' : '0.01' }}"
+                                               required>
+                                        <div class="form-text">Minimum top-up: @money($minTopUp, $currency)</div>
+                                        @error('amount') <small class="text-danger">{{ $message }}</small> @enderror
+                                    </div>
+                                    @if($currency !== 'NGN')
+                                        <p class="text-muted small">You'll be taken to Flutterwave's secure checkout to pay in {{ $currency }}.</p>
+                                    @endif
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
+                                    </div>
+                                </form>
                                 @endif
 
                             </div>
@@ -228,14 +236,14 @@
                                                     <td>{{ $log->created_at->format('M d, Y') }}</td>
                                                     <td><code>{{ $log->reference }}</code></td>
                                                     <td>{{ $log->payment_method }}</td>
-                                                    <td class="text-muted">₦{{ number_format($log->balance_before, 2) }}</td>
+                                                    <td class="text-muted">@money($log->balance_before, $log->balanceBeforeCurrency())</td>
 
                                                     <td class="fw-bold {{ $log->type == 'credit' ? 'text-success' : 'text-danger' }}">
                                                         @if($log->type == 'credit') + @else - @endif
-                                                        ₦{{ number_format($log->amount, 2) }}
+                                                        @money($log->amount, $log->currency)
                                                     </td>
 
-                                                    <td class="text-muted">₦{{ number_format($log->balance_after, 2) }}</td>
+                                                    <td class="text-muted">@money($log->balance_after, $log->currency)</td>
                                                     <td>
                                                   <span class="badge bg-{{ $log->status == 'success' ? 'success' : ($log->status == 'pending' ? 'warning' : 'danger') }}">
                                                         {{ ucfirst($log->status) }}

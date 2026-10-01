@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CurrencyService;
 
 class RegisterController extends Controller
 {
@@ -19,19 +20,21 @@ class RegisterController extends Controller
         return view('auth.register', ['referralCode' => request('ref')]);
     }
 
-    public function store(RegisterRequest $request): RedirectResponse
+    public function store(RegisterRequest $request, CurrencyService $currencies): RedirectResponse
     {
-        $user = DB::transaction(function () use ($request) {
+        $geo = $currencies->detect($request);
+
+        $user = DB::transaction(function () use ($request, $geo) {
             $newUser = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'phone' => $request->phone,
-                'country' => $request->country,
+                'country' => $geo['country'],
+                'preferred_currency' => $geo['currency'],
                 'status' => AccountStatus::ACTIVE,
                 'terms_accepted_at' => now(),
             ]);
-
             if ($request->filled('referral_code')) {
                 $referrer = User::where('referral_code', $request->referral_code)->first();
 

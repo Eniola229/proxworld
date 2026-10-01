@@ -22,17 +22,22 @@ class ExchangeRateService
 {
     public function convert(float $amount, string $from, string $to): float
     {
+        $from = strtoupper($from);
+        $to = strtoupper($to);
+
         if ($from === $to) {
             return $amount;
         }
 
-        $rate = $this->rate($from, $to);
-
-        return round($amount * $rate, 4);
+        return round($amount * $this->rate($from, $to), 4);
     }
 
-    public function rate(string $from, string $to): float
+    /** Like rate() but null instead of a silent 1.0. Anything that moves money between currencies must use this. */
+    public function rateOrNull(string $from, string $to): ?float
     {
+        $from = strtoupper($from);
+        $to = strtoupper($to);
+
         if ($from === $to) {
             return 1.0;
         }
@@ -43,7 +48,6 @@ class ExchangeRateService
             return (float) $direct->rate;
         }
 
-        // Fall back to going via the base currency if a direct pair isn't cached.
         $base = config('services.exchange.base_currency', 'NGN');
         $toBase = ExchangeRate::where('from_currency', $from)->where('to_currency', $base)->first();
         $fromBase = ExchangeRate::where('from_currency', $base)->where('to_currency', $to)->first();
@@ -52,9 +56,40 @@ class ExchangeRateService
             return (float) $toBase->rate * (float) $fromBase->rate;
         }
 
-        Log::warning("No exchange rate found for {$from} -> {$to}; defaulting to 1.0");
+        return null;
+    }
 
-        return 1.0;
+    public function rate(string $from, string $to): float
+    {
+        $rate = $this->rateOrNull($from, $to);
+
+        if ($rate === null) {
+            Log::warning("No exchange rate found for {$from} -> {$to}; defaulting to 1.0");
+
+            return 1.0;
+        }
+
+        return $rate;
+    }
+
+    /** Sums a money column stored per-row in mixed currencies and returns it in $to (one GROUP BY query + a few conversions). */
+    public function sumConverted($query, string $column, string $to, string $currencyColumn = 'currency'): float
+    {
+        $base = config('services.exchange.base_currency', 'NGN');
+
+        $rows = (clone $query)
+            ->reorder()
+            ->selectRaw("{$currencyColumn} as cur, SUM({$column}) as total")
+            ->groupBy($currencyColumn)
+            ->get();
+
+        $sum = 0.0;
+
+        foreach ($rows as $row) {
+            $sum += $this->convert((float) $row->total, $row->cur ?: $base, $to);
+        }
+
+        return round($sum, 4);
     }
 
     /** Called by the `exchange-rates:sync` scheduled command, and by the admin "Refresh Exchange Rates" button. */

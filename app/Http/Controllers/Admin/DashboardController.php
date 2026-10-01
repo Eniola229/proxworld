@@ -12,6 +12,7 @@ use App\Types\OrderStatus;
 use App\Types\TicketStatus;
 use App\Types\WalletTransactionDirection;
 use Illuminate\Http\Request;
+use App\Services\ExchangeRateService;
 
 class DashboardController extends Controller
 {
@@ -44,10 +45,11 @@ class DashboardController extends Controller
 
             // Revenue (based on order `charge`, matching how the reseller
             // dashboard treats "revenue" — total collected from customers)
-            'revenueInPeriod' => Order::where('created_at', '>=', $from)->sum('charge'),
-            'revenueToday' => Order::whereDate('created_at', today())->sum('charge'),
-            'revenueWeek' => Order::where('created_at', '>=', now()->startOfWeek())->sum('charge'),
-            'revenueMonth' => Order::where('created_at', '>=', now()->startOfMonth())->sum('charge'),
+            'revenueInPeriod' => $rates->sumConverted(Order::where('created_at', '>=', $from), 'charge', 'NGN'),
+            'revenueToday'    => $rates->sumConverted(Order::whereDate('created_at', today()), 'charge', 'NGN'),
+            'revenueWeek'     => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfWeek()), 'charge', 'NGN'),
+            'revenueMonth'    => $rates->sumConverted(Order::where('created_at', '>=', now()->startOfMonth()), 'charge', 'NGN'),
+
 
             // Support tickets
             'totalTickets' => Ticket::count(),
@@ -60,19 +62,16 @@ class DashboardController extends Controller
             // exists) and I'll swap these to the real constants.
             'totalDeposits' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->count(),
             'depositsInPeriod' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', $from)->count(),
-            'depositsToday' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->whereDate('created_at', today())->count(),
-            'depositAmountToday' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->whereDate('created_at', today())->sum('amount'),
-            'depositsWeek' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek())->count(),
-            'depositAmountWeek' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek())->sum('amount'),
-            'depositsMonth' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfMonth())->count(),
-            'depositAmountMonth' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfMonth())->sum('amount'),
-            'pendingDeposits' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('status', 'pending')->count(),
-            'pendingDepositAmount' => WalletTransaction::where('type', WalletTransactionDirection::CREDIT)->where('status', 'pending')->sum('amount'),
+            'depositAmountToday' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->whereDate('created_at', today()), 'amount', 'NGN'),
+            'depositAmountWeek'  => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfWeek()), 'amount', 'NGN'),
+            'depositAmountMonth' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('created_at', '>=', now()->startOfMonth()), 'amount', 'NGN'),
+            'pendingDepositAmount' => $rates->sumConverted(WalletTransaction::excludingSwitches()->where('type', WalletTransactionDirection::CREDIT)->where('status', 'pending'), 'amount', 'NGN'),
+
 
             // Recent activity tables
-            'recentOrders' => Order::with('user')->latest()->take(10)->get(),
             'recentCustomers' => User::latest()->take(5)->get(),
-            'recentTransactions' => WalletTransaction::with('user')->latest()->take(10)->get(),
+            'recentOrders' => Order::with('user')->latest()->take(10)->get()->each->withNgnCharge(),
+            'recentTransactions' => WalletTransaction::excludingSwitches()->with('user')->latest()->take(10)->get()->each->withNgnAmounts(),
         ];
 
         // Profit numbers only computed/passed if the admin actually has

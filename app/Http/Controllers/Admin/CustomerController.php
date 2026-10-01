@@ -36,7 +36,7 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function show(User $user)
+    public function show(User $user, ExchangeRateService $rates)
     {
         $logs = null;
         if (auth('admin')->user()->canViewCustomerLogs()) {
@@ -50,23 +50,17 @@ class CustomerController extends Controller
 
         return view('admin.customers.show', [
             'customer' => $user,
-            'walletBalance' => $user->balance,
+            'walletBalance' => $walletBalance,
+            'recentOrders' => $recentOrders,
+            'recentTransactions' => $recentTransactions,
+            'totalDeposits' => $totalDeposits,
+            'totalSpent' => $totalSpent
 
-            'recentOrders' => $user->orders()->latest()->paginate(10, ['*'], 'orders_page'),
             'totalOrders' => $user->orders()->count(),
             'completedOrders' => $user->orders()->where('status', OrderStatus::COMPLETED)->count(),
             'pendingOrders' => $user->orders()->where('status', OrderStatus::PENDING)->count(),
             'processingOrders' => $user->orders()->where('status', OrderStatus::PROCESSING)->count(),
-
-            'recentTransactions' => $user->wallet()->latest()->paginate(10, ['*'], 'transactions_page'),
-            'totalDeposits' => $user->wallet()
-                ->where('type', TransactionType::TOPUP)
-                ->where('status', WalletTransactionStatus::SUCCESS)
-                ->sum('amount'),
-            'totalSpent' => $user->wallet()
-                ->where('type', TransactionType::ORDER_DEBIT)
-                ->where('status', WalletTransactionStatus::SUCCESS)
-                ->sum('amount'),
+          
 
             'referredUsers' => $user->referrals()->with('referredUser')->latest()->paginate(10, ['*'], 'referrals_page'),
             'totalReferred' => $user->referrals()->count(),

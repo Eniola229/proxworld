@@ -43,6 +43,7 @@
                             </div>
                             <div>
                                 <h2 class="fw-bold mb-2">₦{{ number_format($referral->referral_balance, 2) }}</h2>
+                                @if($referralApprox)<div class="fs-12 text-muted mb-1">{{ $referralApprox }}</div>@endif
                                 <p class="fs-12 text-muted mb-0">Referral Balance</p>
                             </div>
                         </div>
@@ -264,7 +265,7 @@
                                                         <span class="badge bg-soft-danger text-danger">Debit</span>
                                                     @endif
                                                 </td>
-                                                <td class="fw-bold">₦{{ number_format($transaction->amount, 2) }}</td>
+                                                <td class="fw-bold">@money($transaction->amount, $transaction->currency)</td>
                                                 <td>{{ $transaction->description }}</td>
                                                 <td>
                                                     @if($transaction->status == 'success')

@@ -38,6 +38,7 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $ticket->load('user', 'messages.senderAdmin');
+        $ticket->user?->withNgnBalance();
 
         return view('admin.support.show', [
             'ticket' => $ticket,

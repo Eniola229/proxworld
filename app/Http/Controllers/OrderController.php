@@ -14,6 +14,7 @@ use App\Types\OrderChannel;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
+use App\Services\CurrencyService;
 
 class OrderController extends Controller
 {
@@ -35,7 +36,10 @@ class OrderController extends Controller
             })
             ->groupBy('type');
 
-        return view('order.new', ['providersByType' => $providersByType]);
+        return view('order.new', [
+            'providersByType' => $providersByType,
+            'currencyDisplay' => $currencies->display($currencies->walletCurrency(auth()->user())),
+        ]);
     }
 
     public function countries(Request $request)
@@ -60,7 +64,7 @@ class OrderController extends Controller
         return response()->json(['data' => $countries]);
     }
 
-    public function services(Request $request, PricingService $pricing, ExchangeRateService $rates)
+    public function services(Request $request, PricingService $pricing, ExchangeRateService $rates, CurrencyService $currencies)
     {
         $data = $request->validate([
             'provider_id' => ['required', 'uuid', 'exists:providers,id'],
@@ -93,14 +97,17 @@ class OrderController extends Controller
 
         $services = $query->orderBy('name')->paginate(25, page: $data['page'] ?? 1);
 
-        $services->getCollection()->transform(function (ProviderServiceCache $service) use ($pricing, $rates) {
+        $userCurrency = $currencies->walletCurrency($request->user());
+
+        $services->getCollection()->transform(function (ProviderServiceCache $service) use ($pricing, $rates, $userCurrency) {
             $costPriceBase = $rates->convert((float) $service->raw_rate, $service->raw_currency, 'NGN');
+            $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
 
             return [
                 'id' => $service->id,
                 'name' => $service->name,
                 'unit' => $service->unit,
-                'price' => round($pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id), 2),
+                'price' => round($rates->convert($sellPriceBase, 'NGN', $userCurrency), 4),
             ];
         });
 
@@ -112,7 +119,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet)
+    public function store(Request $request, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet, CurrencyService $currencies)
     {
         $data = $request->validate([
             'service_id' => ['required', 'uuid', 'exists:provider_services_cache,id'],
@@ -125,11 +132,12 @@ class OrderController extends Controller
         $costPriceInServiceCurrency = (float) $service->raw_rate * $data['quantity'];
         $costPriceBase = $rates->convert($costPriceInServiceCurrency, $service->raw_currency, 'NGN');
         $sellPriceBase = $pricing->calculateSellPrice($costPriceBase, $service->type, providerId: $service->provider_id);
-        $chargeInUserCurrency = $rates->convert($sellPriceBase, 'NGN', $user->preferred_currency);
+        $userCurrency = $currencies->walletCurrency($user);
+        $chargeInUserCurrency = $currencies->roundForCharge($rates->convert($sellPriceBase, 'NGN', $userCurrency), $userCurrency);
 
         try {
             $walletTx = $wallet->debit($user, $chargeInUserCurrency, TransactionType::ORDER_DEBIT, [
-                'currency' => $user->preferred_currency,
+                'currency' => $userCurrency,
                 'description' => "Order: {$service->name} x{$data['quantity']}",
             ]);
         } catch (\App\Services\InsufficientBalanceException $e) {
@@ -146,8 +154,8 @@ class OrderController extends Controller
             'cost_price_snapshot' => $costPriceBase,
             'platform_price_snapshot' => $sellPriceBase,
             'charge' => $chargeInUserCurrency,
-            'currency' => $user->preferred_currency,
-            'exchange_rate_snapshot' => $rates->rate('NGN', $user->preferred_currency),
+            'currency' => $userCurrency
+            'exchange_rate_snapshot' => $rates->rate('NGN', $userCurrency),
             'markup_percentage' => $pricing->getMarkupPercentage($service->type, providerId: $service->provider_id),
             'profit' => $pricing->calculateProfit($sellPriceBase, $costPriceBase),
             'channel' => OrderChannel::DIRECT,

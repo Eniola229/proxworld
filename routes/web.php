@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\WelcomeModalController;
 use App\Http\Controllers\ReferralWithdrawalController;
+use App\Http\Controllers\CurrencyController;
 use Illuminate\Support\Facades\Route;
 
 // RESELLER SUBDOMAIN ROUTES — must be registered first, before any
@@ -51,6 +52,10 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 Route::post('/wallet/flutterwave-webhook', [\App\Http\Controllers\FlutterwaveController::class, 'webhook'])->name('flutterwave.webhook');
 Route::post('/webhooks/didit', [\App\Http\Controllers\DiditWebhookController::class, 'handle'])->name('didit.webhook');
 
+
+Route::get('/flutterwave/return', [\App\Http\Controllers\FlutterwaveController::class, 'callback'])
+    ->name('flutterwave.checkout-return');
+
 /*
 |--------------------------------------------------------------------------
 | Guest-only auth
@@ -86,6 +91,10 @@ Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\Emai
 Route::middleware(['auth:web'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::post('/welcome-modal/dismiss', [WelcomeModalController::class, 'dismiss'])->name('welcome-modal.dismiss');
+
+    Route::post('/currency/switch', [CurrencyController::class, 'switch'])
+    ->middleware('throttle:10,1')->name('currency.switch');
+
 
     Route::get('/order/new', [\App\Http\Controllers\OrderController::class, 'create'])->name('order.create');
     Route::get('/order/services', [\App\Http\Controllers\OrderController::class, 'services'])->name('order.services');

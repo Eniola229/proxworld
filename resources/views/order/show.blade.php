@@ -71,7 +71,7 @@
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between">
                                     <span class="fs-12 text-muted">Amount:</span>
-                                    <span class="fs-12 fw-bold">₦{{ number_format($order->charge, 2) }}</span>
+                                    <span class="fs-12 fw-bold">@money($order->charge, $order->currency)</span>
                                 </div>
                             </div>
                             <div class="mb-0">

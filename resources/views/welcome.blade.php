@@ -1192,7 +1192,7 @@
 
                 <div class="feat-card reveal">
                     <div class="type-top">
-                        <span class="type-price tp-res"><i class="fas fa-house-user"></i> from ₦2,408/GB</span>
+                        <span class="type-price tp-res"><i class="fas fa-house-user"></i> from {{ $homePrices['residential'] }}/GB</span>
                         <span class="type-unit">Per GB</span>
                     </div>
                     <h3>Residential</h3>
@@ -1201,7 +1201,7 @@
 
                 <div class="feat-card reveal">
                     <div class="type-top">
-                        <span class="type-price tp-isp"><i class="fas fa-network-wired"></i> from ₦2,477/proxy</span>
+                        <span class="type-price tp-isp"><i class="fas fa-network-wired"></i> from {{ $homePrices['isp'] }}/proxy</span>
                         <span class="type-unit">Per proxy</span>
                     </div>
                     <h3>ISP</h3>
@@ -1210,7 +1210,7 @@
 
                 <div class="feat-card reveal">
                     <div class="type-top">
-                        <span class="type-price tp-dc"><i class="fas fa-server"></i> from ₦1,913/proxy</span>
+                        <span class="type-price tp-dc"><i class="fas fa-server"></i> from {{ $homePrices['datacenter'] }}/proxy</span>
                         <span class="type-unit">Per proxy</span>
                     </div>
                     <h3>Datacenter</h3>
@@ -1219,7 +1219,7 @@
 
                 <div class="feat-card reveal">
                     <div class="type-top">
-                        <span class="type-price tp-mob"><i class="fas fa-mobile-screen"></i> from ₦7,911/day</span>
+                        <span class="type-price tp-mob"><i class="fas fa-mobile-screen"></i> from {{ $homePrices['mobile'] }}/day</span>
                         <span class="type-unit">Per day</span>
                     </div>
                     <h3>Mobile</h3>

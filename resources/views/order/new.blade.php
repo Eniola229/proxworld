@@ -288,7 +288,7 @@
                                     <div class="text-end">
                                         <div style="font-size: 11px; color: #888; margin-bottom: 2px;">Total charge</div>
                                         <h4 class="m-0 fw-bold" id="total_charge_display" style="color: #a32d2d; transition: color 0.3s ease;">
-                                            ₦<span id="total_charge">0.00</span>
+                                           {{ $currencyDisplay['prefix'] }}<span id="total_charge">0.00</span>
                                         </h4>
                                     </div>
                                 </div>
@@ -343,6 +343,14 @@
 @include('components.g-footer')
 
 <script>
+
+const CUR = @json($currencyDisplay);
+function fmtUnit(p) {
+    p = parseFloat(p) || 0;
+    const d = CUR.decimals === 0 ? 0 : (p > 0 && p < 0.1 ? 4 : 2);
+    return CUR.prefix + p.toFixed(d);
+}
+
 // providersByType: { residential: [{type, provider_id, provider_name}, ...], ... }
 const providersByType = {!! json_encode($providersByType) !!};
 const servicesUrl  = "{{ route('order.services') }}";
@@ -485,7 +493,7 @@ function spRenderItems() {
         return '<div class="sp-item ' + sel + '" data-id="' + s.id + '" onclick="spSelect(\'' + s.id + '\')">'
             + '<span class="sp-item-name">' + highlight(s.name, spSearchTerm) + '</span>'
             + '<div class="sp-item-right">'
-            + '<span class="sp-item-price">&#8358;' + parseFloat(s.price).toFixed(2) + '/' + escHtml(s.unit) + '</span>'
+            + '<span class="sp-item-price">' + escHtml(fmtUnit(s.price)) + '/' + escHtml(s.unit) + '</span>'
             + '<i class="fas fa-check sp-item-check"></i>'
             + '</div></div>';
     }).join('');
@@ -541,7 +549,7 @@ function spSelect(serviceId) {
     const triggerPrice = document.getElementById('sp-trigger-price');
     triggerText.textContent = service.name;
     triggerText.classList.remove('placeholder');
-    triggerPrice.textContent = '\u20a6' + parseFloat(service.price).toFixed(2) + '/' + service.unit;
+    triggerPrice.textContent = fmtUnit(service.price) + '/' + service.unit;
     triggerPrice.style.display = '';
 
     document.getElementById('service_info').innerHTML =
@@ -555,7 +563,7 @@ function spSelect(serviceId) {
 
     document.getElementById('quantity_unit_label').textContent = '(in ' + service.unit + ')';
     document.getElementById('quantity_info').innerHTML =
-        'Total = quantity &times; \u20a6' + parseFloat(service.price).toFixed(2) + ' per ' + escHtml(service.unit) + '.';
+        'Total = quantity &times; ' + escHtml(fmtUnit(service.price)) + ' per ' + escHtml(service.unit) + '.';
 
     calculateTotal();
     spClose();
@@ -906,7 +914,7 @@ function calculateTotal() {
 }
 
 function updateTotalDisplay(total, ready) {
-    const formattedTotal = (total || 0).toFixed(2);
+    const formattedTotal = (total || 0).toFixed(CUR.decimals);
     document.getElementById('total_charge').innerText = formattedTotal;
     document.getElementById('charge').value = formattedTotal;
 

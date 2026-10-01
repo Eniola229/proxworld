@@ -27,7 +27,6 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
             'country' => ['nullable', 'string', 'size:2'],
-            'preferred_currency' => ['required', 'string', 'size:3'],
         ]);
 
         $user->update($data);

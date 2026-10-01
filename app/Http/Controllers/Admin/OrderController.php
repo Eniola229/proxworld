@@ -10,10 +10,12 @@ use App\Services\WalletService;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
+use App\Services\ExchangeRateService;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+
+    public function index(Request $request, ExchangeRateService $rates)
     {
         $filtered = Order::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
@@ -34,6 +36,8 @@ class OrderController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        $orders->getCollection()->each->withNgnCharge();
+
         return view('admin.orders.index', [
             'orders' => $orders,
             'totalOrders' => (clone $filtered)->count(),
@@ -41,19 +45,21 @@ class OrderController extends Controller
             'processingOrders' => (clone $filtered)->where('status', OrderStatus::PROCESSING)->count(),
             'completedOrders' => (clone $filtered)->where('status', OrderStatus::COMPLETED)->count(),
             'cancelledOrders' => (clone $filtered)->where('status', OrderStatus::CANCELLED)->count(),
-            'totalRevenue' => (clone $filtered)->where('status', OrderStatus::COMPLETED)->sum('charge'),
+            'totalRevenue' => $rates->sumConverted((clone $filtered)->where('status', OrderStatus::COMPLETED), 'charge', 'NGN'),
         ]);
     }
 
     public function show(Order $order)
     {
+        $order->load(['user', 'reseller', 'provider']);
+        $customerBalance = $order->user->balanceInNgn();
+        $order->withNgnCharge();
+
         return view('admin.orders.show', [
-            'order' => $order->load(['user', 'reseller', 'provider']),
-            'customerBalance' => $order->user->balance,
+            'order' => $order,
+            'customerBalance' => $customerBalance,
             'logs' => \App\Models\ActivityLog::where('subject_type', Order::class)
-                ->where('subject_id', $order->id)
-                ->latest()
-                ->paginate(15),
+                ->where('subject_id', $order->id)->latest()->paginate(15),
         ]);
     }
 

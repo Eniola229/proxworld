@@ -32,7 +32,7 @@
                                         </div>
                                         <div>
                                             <!-- Real Data: Wallet Balance -->
-                                            <div class="fs-4 fw-bold text-dark">₦{{ number_format($balance, 2) }}</div>
+                                            <div class="fs-4 fw-bold text-dark">@money($balance, $currency)</div>
                                             <h3 class="fs-13 fw-semibold text-truncate-1-line">Current Balance</h3>
                                         </div>
                                     </div>
@@ -216,7 +216,7 @@
                                                             </div>
                                                             <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
                                                                 <span class="text-muted"><i class="feather-credit-card me-1"></i>Amount:</span>
-                                                                <span class="fw-bold text-primary">₦{{ number_format($order->charge, 2) }}</span>
+                                                                <span class="fw-bold text-primary">@money($order->charge, $order->currency)</span>
                                                             </div>
                                                             <div class="d-flex justify-content-between align-items-center fs-12">
                                                                 <span class="text-muted"><i class="feather-calendar me-1"></i>Date:</span>
@@ -251,7 +251,7 @@
                         <div class="card stretch stretch-full">
                             <div class="card-body">
                                 <h5 class="card-title mb-4">Total Spent</h5>
-                                <h2 class="display-6 fw-bold text-dark mb-3">₦{{ number_format($totalSpent, 2) }}</h2>
+                                <h2 class="display-6 fw-bold text-dark mb-3">@money($totalSpent, $currency)</h2>
                                 <p class="text-muted mb-4">Lifetime spending on ProxWorld.com</p>
                                 
                                 <hr class="border-dashed my-4">

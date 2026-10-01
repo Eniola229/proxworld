@@ -36,14 +36,15 @@ return [
     ],
 
     'flutterwave' => [
-        'environment' => env('FLUTTERWAVE_ENV', 'sandbox'), // sandbox | production
-        'base_url' => env('FLUTTERWAVE_ENV', 'sandbox') === 'production'
-            ? 'https://f4bexperience.flutterwave.com'
-            : 'https://developersandbox-api.flutterwave.com',
-        'auth_url' => 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
-        'client_id' => env('FLUTTERWAVE_CLIENT_ID'),
-        'client_secret' => env('FLUTTERWAVE_CLIENT_SECRET'),
-        'secret_hash' => env('FLUTTERWAVE_SECRET_HASH'), // webhook verif-hash, unchanged from v3
+        'base_url'    => 'https://api.flutterwave.com/v3',
+        'public_key'  => env('FLW_PUBLIC_KEY'),
+        'secret_key'  => env('FLW_SECRET_KEY'),
+        'secret_hash' => env('FLW_SECRET_HASH'),
+    ],
+
+    'geo' => [
+        'trust_cloudflare' => env('GEO_TRUST_CLOUDFLARE', false),
+        'fake_country'     => env('GEO_FAKE_COUNTRY'),
     ],
     
     'exchange' => [

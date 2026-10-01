@@ -66,6 +66,7 @@
                                 <i class="feather-dollar-sign text-success" style="font-size: 2rem;"></i>
                             </div>
                             <h3 class="fw-bold mb-2">₦{{ number_format($referral->referral_balance, 2) }}</h3>
+                            @if($referralApprox)<div class="text-muted mb-2">{{ $referralApprox }}</div>@endif
                             <p class="text-muted mb-0">Available Referral Balance</p>
                         </div>
                     </div>
@@ -86,12 +87,14 @@
                                         To Wallet
                                     </button>
                                 </li>
+                                @if($bankAllowed)
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bank-tab" type="button">
                                         <i class="feather-briefcase me-2"></i>
                                         To Bank Account
                                     </button>
                                 </li>
+                                @endif
                             </ul>
 
                             <div class="tab-content">
@@ -130,6 +133,7 @@
                                 </div>
 
                                 <!-- Withdraw to Bank Tab -->
+                                @if($bankAllowed)
                                 <div class="tab-pane fade" id="bank-tab">
                                     <div class="alert alert-info mb-4">
                                         <i class="feather-info me-2"></i>
@@ -219,6 +223,7 @@
                                         </button>
                                     </form>
                                 </div>
+                                @endif
 
                             </div>
                         </div>
@@ -287,6 +292,7 @@
     </div>
 </main>
 
+@if($bankAllowed)
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bankSearchInput');
@@ -405,4 +411,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endif
 @include('components.g-footer')

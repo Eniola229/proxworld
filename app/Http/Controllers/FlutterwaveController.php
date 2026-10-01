@@ -19,6 +19,8 @@ use App\Types\WithdrawalStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 
 class FlutterwaveController extends Controller
 {
@@ -52,47 +54,63 @@ class FlutterwaveController extends Controller
         ]);
     }
 
+    /** Customer lands here after hosted checkout (?status=&tx_ref=&transaction_id=). Only a hint — we re-verify. */
+    public function callback(Request $request)
+    {
+        $txRef = $request->query('tx_ref') ?? $request->query('reference');
+
+        if (! $txRef) {
+            return redirect()->route('wallet.index')->with('error', 'Payment reference missing.');
+        }
+
+        $redirectRoute = str_starts_with($txRef, 'PXWR-') ? 'reseller.wallet.index' : 'wallet.index';
+
+        if ($request->query('status') === 'cancelled') {
+            return redirect()->route($redirectRoute)->with('alert', [
+                'type' => 'error',
+                'message' => 'Payment was cancelled. You have not been charged.',
+            ]);
+        }
+
+        $result = $this->verifyAndCreditTopUp($txRef);
+
+        return redirect()->route($redirectRoute)->with('alert', [
+            'type' => $result ? 'success' : 'error',
+            'message' => $result
+                ? 'Your wallet has been funded successfully.'
+                : 'We could not confirm this payment yet. If you were charged it will reflect shortly, otherwise contact support.',
+        ]);
+    }
+
     public function webhook(Request $request)
     {
-        $configuredHash = config('services.flutterwave.secret_hash');
-        $signature = $request->header('flutterwave-signature');
+        $configuredHash = (string) config('services.flutterwave.secret_hash');
 
-        if (! $configuredHash) {
-            Log::error('Flutterwave webhook rejected: FLUTTERWAVE_SECRET_HASH is not configured.');
+        if ($configuredHash === '') {
+            Log::error('Flutterwave webhook rejected: FLW_SECRET_HASH is not configured.');
 
             return response()->json(['message' => 'Webhook not configured'], 500);
         }
 
-        if (! $signature) {
-            Log::warning('Flutterwave webhook rejected: missing signature header.');
+        // v3 sends your Secret Hash as-is in `verif-hash` (newer dashboards may also send an HMAC `flutterwave-signature`; accepted too).
+        $verifHash = (string) $request->header('verif-hash');
+        $signature = (string) $request->header('flutterwave-signature');
+
+        $valid = ($verifHash !== '' && hash_equals($configuredHash, $verifHash))
+            || ($signature !== '' && hash_equals(base64_encode(hash_hmac('sha256', $request->getContent(), $configuredHash, true)), $signature));
+
+        if (! $valid) {
+            Log::warning('Flutterwave webhook rejected: missing or invalid signature.');
 
             return response()->json(['message' => 'Invalid signature'], 401);
         }
 
-        // v4 changed the signature scheme: it's no longer the secret hash sent
-        // verbatim. Flutterwave now computes HMAC-SHA256 over the RAW request
-        // body using your secret hash as the key, base64-encodes the digest,
-        // and sends that as flutterwave-signature. We must reproduce that
-        // exact computation and compare digests — comparing the raw secret
-        // directly against the header (the v3 approach) will always fail.
-        $computedSignature = base64_encode(
-            hash_hmac('sha256', $request->getContent(), (string) $configuredHash, true)
-        );
+        $event = (string) ($request->input('event') ?? '');
+        $data = (array) $request->input('data', []);
 
-        if (! hash_equals($computedSignature, (string) $signature)) {
-            Log::warning('Flutterwave webhook rejected: invalid signature.');
-
-            return response()->json(['message' => 'Invalid signature'], 401);
-        }
-
-        // v4 uses "type" (e.g. "charge.completed", "transfer.completed"),
-        // not v3's "event".
-        $type = (string) $request->input('type');
-        $data = $request->input('data', []);
-
-        if (str_starts_with($type, 'transfer.')) {
+        if (str_starts_with($event, 'transfer')) {
             $this->handleTransferEvent($data);
-        } elseif (str_starts_with($type, 'charge.')) {
+        } elseif (str_starts_with($event, 'charge')) {
             $this->handleChargeEvent($data);
         }
 
@@ -101,14 +119,13 @@ class FlutterwaveController extends Controller
 
     protected function handleChargeEvent(array $data): void
     {
-        $chargeId = $data['id'] ?? null;
-        $reference = $data['reference'] ?? null;
+        $reference = $data['tx_ref'] ?? null;
 
-        if ($chargeId && $reference) {
-            $this->verifyAndCreditTopUp($reference, $chargeId);
+        // Only our own references; credit happens only after verifyByReference() confirms with Flutterwave.
+        if ($reference && str_starts_with((string) $reference, 'PX')) {
+            $this->verifyAndCreditTopUp((string) $reference);
         }
     }
-
     protected function handleTransferEvent(array $data): void
     {
         $transferId = $data['id'] ?? null;
@@ -196,7 +213,29 @@ class FlutterwaveController extends Controller
         }
     }
 
-    protected function verifyAndCreditTopUp(string $reference, ?string $chargeId = null): bool
+    protected function verifyAndCreditTopUp(string $reference): bool
+    {
+        $lock = Cache::lock("flutterwave:credit:{$reference}", 30);
+
+        try {
+            $lock->block(10);
+        } catch (LockTimeoutException $e) {
+            return WalletTransaction::where('reference', $reference)->exists()
+                || ResellerWalletTransaction::where('reference', $reference)->exists();
+        }
+
+        try {
+            return $this->verifyAndCredit($reference);
+        } catch (\Throwable $e) {
+            Log::error("Flutterwave top-up {$reference} failed while crediting: ".$e->getMessage());
+
+            return false;
+        } finally {
+            $lock->release();
+        }
+    }
+
+    protected function verifyAndCredit(string $reference): bool
     {
         if (WalletTransaction::where('reference', $reference)->exists()) {
             return true;
@@ -206,21 +245,25 @@ class FlutterwaveController extends Controller
             return true;
         }
 
-        $charge = $chargeId
-            ? $this->flutterwave->getCharge($chargeId)
-            : $this->flutterwave->getChargeByReference($reference); // still used by callback(), which only has the reference
+        $charge = $this->flutterwave->verifyByReference($reference);
 
-        if (! $charge || ($charge['status'] ?? null) !== 'succeeded' || ($charge['reference'] ?? null) !== $reference) {
-            Log::warning("Flutterwave charge for reference {$reference} not verified successful.", $charge ?? []);
+        if (! $charge) {
+            Log::warning("Flutterwave charge for reference {$reference} not verified successful.");
 
             return false;
         }
 
-        // v4 doesn't reliably echo the meta we set at charge-creation time
-        // back through the webhook or GET /charges/{id} — we cached it
-        // ourselves in FlutterwaveService at initiation time. Fall back to
-        // $charge['meta'] only in case Flutterwave starts returning it.
-        $meta = $this->flutterwave->getCachedMeta($reference) ?: ($charge['meta'] ?? []);
+        $meta = $this->flutterwave->getCachedMeta($reference);
+
+        // Cache cleared? Match by the customer email on the Flutterwave-verified transaction (never browser input).
+        if (empty($meta) && ! str_starts_with($reference, 'PXWR-')) {
+            $email = $charge['raw']['customer']['email'] ?? null;
+            $found = $email ? User::where('email', $email)->first() : null;
+
+            if ($found) {
+                $meta = ['user_id' => $found->id];
+            }
+        }
 
         if (isset($meta['reseller_id'])) {
             return $this->creditReseller($charge, $reference, $meta);

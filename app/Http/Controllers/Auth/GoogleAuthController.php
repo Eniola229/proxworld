@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use App\Services\CurrencyService;
 
 class GoogleAuthController extends Controller
 {
@@ -39,7 +40,10 @@ class GoogleAuthController extends Controller
         } else {
             $referralCode = session('referral_code'); // captured on landing if ?ref=CODE was present
 
-            $user = DB::transaction(function () use ($googleUser, $referralCode) {
+            $referralCode = session('referral_code');
+            $geo = app(CurrencyService::class)->detect(request());
+
+            $user = DB::transaction(function () use ($googleUser, $referralCode, $geo) {
                 $newUser = new User();
                 $newUser->forceFill([
                     'name' => $googleUser->getName() ?? $googleUser->getNickname() ?? 'ProxWorld User',
@@ -47,7 +51,9 @@ class GoogleAuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'password' => null,
-                    'email_verified_at' => now(), // Google already verified this email
+                    'country' => $geo['country'],
+                    'preferred_currency' => $geo['currency'],
+                    'email_verified_at' => now(),
                     'status' => AccountStatus::ACTIVE,
                     'terms_accepted_at' => now(),
                 ]);

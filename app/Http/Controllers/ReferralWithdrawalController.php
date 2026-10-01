@@ -8,6 +8,9 @@ use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use RuntimeException;
+use App\Services\CurrencyService;
+use App\Services\ExchangeRateService;
+
 
 class ReferralWithdrawalController extends Controller
 {
@@ -15,9 +18,10 @@ class ReferralWithdrawalController extends Controller
     {
     }
 
-    public function create(Request $request)
+    public function create(Request $request, CurrencyService $currencies, ExchangeRateService $rates)
     {
         $user = $request->user();
+        $bankAllowed = $currencies->walletCurrency($user) === 'NGN';
 
         $recentWithdrawals = ReferralWithdrawal::where('user_id', $user->id)
             ->latest()
@@ -25,18 +29,26 @@ class ReferralWithdrawalController extends Controller
             ->get();
 
         return view('referral.withdraw', [
-            'referral' => $user, // referral_balance is a column on User
-            'banks' => $this->flutterwave->getBanks(),
+            'referral' => $user,
+            'banks' => $bankAllowed ? $this->flutterwave->getBanks() : [],
+            'bankAllowed' => $bankAllowed,
+            'referralApprox' => $currencies->referralApprox($user, $rates),
             'recentWithdrawals' => $recentWithdrawals,
         ]);
     }
 
     public function resolveAccount(Request $request)
     {
+
+        if ($request->user()->preferred_currency !== 'NGN') {
+            return response()->json(['success' => false, 'message' => 'Bank withdrawals are only available for NGN accounts.'], 403);
+        }
+
         $data = $request->validate([
             'bank_name' => ['required', 'string'],
             'account_number' => ['required', 'digits:10'],
         ]);
+
 
         $bank = collect($this->flutterwave->getBanks())
             ->first(fn ($b) => $b['name'] === $data['bank_name']);
@@ -90,6 +102,11 @@ class ReferralWithdrawalController extends Controller
 
     public function withdrawToBank(Request $request, ReferralService $referralService)
     {
+
+         if ($request->user()->preferred_currency !== 'NGN') {
+            return back()->with('alert', ['type' => 'error', 'message' => 'Bank withdrawals are only available for NGN accounts. Please withdraw to your wallet.']);
+        }
+
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:1000'],
             'bank_name' => ['required', 'string', 'max:100'],

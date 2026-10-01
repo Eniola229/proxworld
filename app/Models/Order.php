@@ -6,6 +6,7 @@ use App\Types\OrderStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Services\ExchangeRateService;
 
 class Order extends Model
 {
@@ -71,4 +72,15 @@ class Order extends Model
     {
         return in_array($this->product_type, ['residential', 'mobile']);
     }
+
+    /** ADMIN DISPLAY ONLY: charge in NGN on this in-memory instance. Never save() afterwards. */
+    public function withNgnCharge(): static
+    {
+        $this->setAttribute('charge', app(ExchangeRateService::class)->convert((float) $this->charge, $this->currency ?: 'NGN', 'NGN'));
+        $this->setAttribute('currency', 'NGN');
+
+        return $this;
+    }
+
+    
 }

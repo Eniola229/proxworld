@@ -117,7 +117,7 @@
                                                         </div>
                                                         <div class="d-flex justify-content-between align-items-center mb-1 fs-12">
                                                             <span class="text-muted"><i class="feather-credit-card me-1"></i>Charge:</span>
-                                                            <span class="fw-bold text-primary">₦{{ number_format($order->charge, 2) }}</span>
+                                                            <span class="fw-bold text-primary">@money($order->charge, $order->currency)</span>
                                                         </div>
                                                         <div class="d-flex justify-content-between align-items-center fs-12">
                                                             <span class="text-muted"><i class="feather-calendar me-1"></i>Date:</span>

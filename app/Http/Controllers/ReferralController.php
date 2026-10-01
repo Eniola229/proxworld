@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
+use App\Services\CurrencyService;
+use App\Services\ExchangeRateService;
 
 class ReferralController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, CurrencyService $currencies, ExchangeRateService $rates)
     {
         $user = $request->user();
 
         return view('referral.index', [
             'referral' => $user,
+            'referralApprox' => $currencies->referralApprox($user, $rates),
             'totalReferred'  => $user->referrals()->count(),
             'depositedCount' => $user->referrals()->where('has_deposited', true)->count(),
             'bonusPaidCount' => $user->referrals()->where('bonus_paid', true)->count(),

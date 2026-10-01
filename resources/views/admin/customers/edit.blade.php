@@ -127,7 +127,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="d-flex justify-content-between">
                                         <span class="text-muted">Total Spent:</span>
-                                        <strong>₦{{ number_format($customer->orders()->sum('charge'), 2) }}</strong>
+                                        <strong>₦{{ number_format(app(\App\Services\ExchangeRateService::class)->sumConverted($customer->orders(), 'charge', 'NGN'), 2) }}</strong>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">

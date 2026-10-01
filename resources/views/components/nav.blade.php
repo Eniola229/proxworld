@@ -203,6 +203,33 @@
                     </a>
                 </div>
 
+
+                <!-- Currency switcher -->
+                @auth
+                <div class="dropdown nxl-h-item">
+                    <a class="nxl-head-link me-2" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
+                        <span class="fw-semibold fs-12">{{ $walletCurrency }}</span>
+                        <i class="feather-chevron-down ms-1 fs-11"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown" style="min-width: 250px; max-height: 360px; overflow-y: auto;">
+                        <div class="dropdown-header">
+                            <h6 class="text-dark fs-13 mb-1">Wallet currency</h6>
+                            <small class="text-muted">Your balance is converted at today's rate when you switch.</small>
+                        </div>
+                        <form method="POST" action="{{ route('currency.switch') }}">
+                            @csrf
+                            @foreach($currencyOptions as $c)
+                                <button type="submit" name="currency" value="{{ $c['code'] }}"
+                                        class="dropdown-item d-flex align-items-center justify-content-between {{ $c['code'] === $walletCurrency ? 'active' : '' }}">
+                                    <span><strong>{{ $c['code'] }}</strong> <span class="text-muted ms-1">{{ $c['name'] }}</span></span>
+                                    <span class="text-muted">{{ $c['symbol'] }}</span>
+                                </button>
+                            @endforeach
+                        </form>
+                    </div>
+                </div>
+                @endauth
+
                 <!-- DYNAMIC NOTIFICATIONS (Header) -->
                 <div class="dropdown nxl-h-item">
                     <a class="nxl-head-link me-3" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
