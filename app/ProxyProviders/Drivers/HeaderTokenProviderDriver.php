@@ -118,7 +118,7 @@ class HeaderTokenProviderDriver implements ProxyProviderContract
 
     public function extendOrder(string $apiOrderId, array $params = []): array
     {
-        throw new \RuntimeException('This provider does not support order extension via API.');
+        throw new \RuntimeException('This Service does not support order extension currently.');
     }
 
     public function listProxies(string $apiOrderId): array

@@ -78,4 +78,16 @@ class Order extends Model
     {
         return in_array($this->product_type, ['residential', 'mobile']);
     }
+
+    public function extensions()
+    {
+        return $this->hasMany(\App\Models\OrderExtension::class);
+    }
+
+    public function getTotalProfitAttribute(): float
+    {
+        return (float) $this->profit
+            + (float) $this->extensions()->completed()->sum('profit');
+    }
+    
 }

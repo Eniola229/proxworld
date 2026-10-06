@@ -60,4 +60,12 @@ class Provider extends Model
     {
         return $query->where('is_active', true)->orderBy('priority');
     }
+
+    public function supportsExtend(): bool
+    {
+        // ConfigurableHttpProviderDriver providers opt in via config.supports_extend.
+        // BearerTokenProviderDriver always has an /extend endpoint; HeaderToken never does.
+        return (bool) ($this->config['supports_extend']
+            ?? ($this->driver === \App\ProxyProviders\Drivers\BearerTokenProviderDriver::class));
+    }
 }

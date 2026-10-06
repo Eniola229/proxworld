@@ -2,6 +2,8 @@
 @include('admin.components.nav')
 @include('admin.components.header')
 
+@php $isSupport = auth('admin')->user()->isSupport(); @endphp
+
 <main class="nxl-container">
     <div class="nxl-content">
 
@@ -60,7 +62,7 @@
                                 @elseif($order->status == 'pending')
                                     <span class="badge bg-warning">Pending</span>
                                 @elseif($order->status == 'refunded')
-                                    <span class="badge bg-primary">Refunded</span>
+                                    <span class="badge bg-secondary">Refunded</span>
                                 @else
                                     <span class="badge bg-danger">Cancelled</span>
                                 @endif
@@ -126,44 +128,67 @@
                                 </div>
                             </div>
 
+                            @if(!$isSupport)
                             @php
+                                // ---- Original order figures (all NGN) ----
                                 if ($order->profit !== null) {
-                                    $profitAmount   = $order->profit;
-                                    $profitMargin   = $order->charge_ngn > 0 ? ($profitAmount / $order->charge_ngn) * 100 : 0;
-                                    $profitBreakdown = [
-                                        'profit_amount'     => $profitAmount,
-                                        'profit_margin'     => $profitMargin,
-                                        'original_cost'     => $order->charge_ngn - $profitAmount,
-                                        'markup_percentage' => $order->markup_percentage ?? \App\Services\PricingService::getMarkupPercentage($order->service_name),
-                                    ];
+                                    $baseProfit  = (float) $order->profit;
+                                    $baseRevenue = (float) $order->charge_ngn;
+                                    $baseCost    = $baseRevenue - $baseProfit;
+                                    $markupPct   = $order->markup_percentage
+                                        ?? \App\Services\PricingService::getMarkupPercentage($order->service_name);
                                 } else {
-                                    $profitBreakdown = \App\Services\PricingService::getProfitBreakdown(
+                                    $pb          = \App\Services\PricingService::getProfitBreakdown(
                                         $order->charge_ngn, $order->quantity, $order->service_name
                                     );
+                                    $baseProfit  = (float) $pb['profit_amount'];
+                                    $baseRevenue = (float) $order->charge_ngn;
+                                    $baseCost    = (float) $pb['original_cost'];
+                                    $markupPct   = $pb['markup_percentage'];
                                 }
+
+                                // ---- Extensions: only completed ones count toward profit ----
+                                $doneExt    = $order->extensions->where('status', 'completed');
+                                $extProfit  = (float) $doneExt->sum('profit');
+                                $extRevenue = (float) $doneExt->sum('platform_price_snapshot');
+                                $extCost    = (float) $doneExt->sum('cost_price_snapshot');
+
+                                // ---- Lifetime ----
+                                $lifetimeProfit  = $baseProfit + $extProfit;
+                                $lifetimeRevenue = $baseRevenue + $extRevenue;
+                                $lifetimeMargin  = $lifetimeRevenue > 0 ? ($lifetimeProfit / $lifetimeRevenue) * 100 : 0;
                             @endphp
 
                             <div class="mb-3 pb-3 border-bottom bg-soft-primary rounded p-2">
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="fs-12 text-muted"><i class="feather-trending-up me-1"></i> Profit:</span>
-                                    <span class="fs-12 fw-bold text-primary">₦{{ number_format($profitBreakdown['profit_amount'], 2) }}</span>
+                                    <span class="fs-12 text-muted"><i class="feather-trending-up me-1"></i> Lifetime Profit:</span>
+                                    <span class="fs-12 fw-bold text-primary">₦{{ number_format($lifetimeProfit, 2) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="fs-11 text-muted">Margin:</span>
-                                    <span class="fs-11 fw-bold text-primary">{{ number_format($profitBreakdown['profit_margin'], 1) }}%</span>
+                                    <span class="fs-11 fw-bold text-primary">{{ number_format($lifetimeMargin, 1) }}%</span>
                                 </div>
                             </div>
 
                             <div class="mb-3 pb-3 border-bottom">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fs-11 text-muted">API Cost:</span>
-                                    <span class="fs-11">₦{{ number_format($profitBreakdown['original_cost'], 2) }}</span>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fs-11 text-muted">Original order profit:</span>
+                                    <span class="fs-11">₦{{ number_format($baseProfit, 2) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fs-11 text-muted">Extension profit ({{ $doneExt->count() }}):</span>
+                                    <span class="fs-11">₦{{ number_format($extProfit, 2) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fs-11 text-muted">API Cost (order + ext.):</span>
+                                    <span class="fs-11">₦{{ number_format($baseCost + $extCost, 2) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="fs-11 text-muted">Markup Applied:</span>
-                                    <span class="fs-11">{{ number_format($profitBreakdown['markup_percentage'], 0) }}%</span>
+                                    <span class="fs-11">{{ number_format($markupPct, 0) }}%</span>
                                 </div>
                             </div>
+                            @endif
 
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between">
@@ -196,12 +221,12 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
                                 <span class="fs-12 text-muted">Balance:</span>
-                               <span class="fs-12 fw-bold text-success">
-                                @money($order->user->balance, $order->user->preferred_currency)
-                                @if(($order->user->preferred_currency ?? 'NGN') !== 'NGN')
-                                    <small class="text-muted d-block text-end">≈ ₦{{ number_format($customerBalance, 2) }}</small>
-                                @endif
-                            </span>
+                                <span class="fs-12 fw-bold text-success">
+                                    @money($order->user->balance, $order->user->preferred_currency)
+                                    @if(($order->user->preferred_currency ?? 'NGN') !== 'NGN')
+                                        <small class="text-muted d-block text-end">≈ ₦{{ number_format($customerBalance, 2) }}</small>
+                                    @endif
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="fs-12 text-muted">Member Since:</span>
@@ -211,9 +236,10 @@
                     </div>
                 </div>
 
-                <!-- Actions, Proxy Details & Logs -->
+                <!-- Actions, Proxy Details, Extensions & Logs -->
                 <div class="col-xxl-8 col-xl-6">
 
+                    <!-- Proxy Access -->
                     <div class="card mb-3">
                         <div class="card-header">
                             <h5 class="card-title"><i class="feather-key me-1"></i> Proxy Access Details</h5>
@@ -221,25 +247,23 @@
                         <div class="card-body">
                             @if($order->status !== 'completed')
                                 <div class="text-muted fs-12">Proxy access details will appear here once this order completes.</div>
-                                @elseif($order->isDataBasedProduct())
-                                    @php
-                                        $access = $order->provider->config['static_proxy_access'] ?? null;
-                                    @endphp
-                                    @if($access)
-                                        <div class="alert alert-info fs-12">This is a shared account-wide connection, the same for every order on this provider:</div>
-                                        <table class="table table-sm mb-0">
-                                            <tr><td>Host</td><td><code>{{ $access['host'] }}</code></td></tr>
-                                            <tr><td>Port</td><td><code>{{ $access['port'] }}</code></td></tr>
-                                            <tr><td>Username</td><td><code>{{ $access['username'] }}</code></td></tr>
-                                            <tr><td>Password</td><td><code>{{ $access['password'] }}</code></td></tr>
-                                        </table>
-                                        @if(!empty($access['username_format']))
-                                            <div class="fs-11 text-muted mt-2">To target a country/session, format your username as: <code>{{ $access['username_format'] }}</code></div>
-                                        @endif
-                                    @else
-                                        <div class="alert alert-warning fs-12 mb-0">Proxy access hasn't been configured for this provider yet.</div>
+                            @elseif($order->isDataBasedProduct())
+                                @php $access = $order->provider->config['static_proxy_access'] ?? null; @endphp
+                                @if($access)
+                                    <div class="alert alert-info fs-12">This is a shared account-wide connection, the same for every order on this provider:</div>
+                                    <table class="table table-sm mb-0">
+                                        <tr><td>Host</td><td><code>{{ $access['host'] }}</code></td></tr>
+                                        <tr><td>Port</td><td><code>{{ $access['port'] }}</code></td></tr>
+                                        <tr><td>Username</td><td><code>{{ $access['username'] }}</code></td></tr>
+                                        <tr><td>Password</td><td><code>{{ $access['password'] }}</code></td></tr>
+                                    </table>
+                                    @if(!empty($access['username_format']))
+                                        <div class="fs-11 text-muted mt-2">To target a country/session, format your username as: <code>{{ $access['username_format'] }}</code></div>
                                     @endif
-                                @elseif($order->hasProxyCredentials())
+                                @else
+                                    <div class="alert alert-warning fs-12 mb-0">Proxy access hasn't been configured for this provider yet.</div>
+                                @endif
+                            @elseif($order->hasProxyCredentials())
                                 <div class="table-responsive">
                                     <table class="table table-sm mb-0">
                                         <thead>
@@ -276,6 +300,7 @@
                         </div>
                     </div>
 
+                    <!-- Admin Actions -->
                     @if(auth('admin')->user()->canEditOrders())
                     <div class="card mb-3">
                         <div class="card-header bg-soft-warning">
@@ -318,6 +343,60 @@
                     </div>
                     @endif
 
+                    <!-- Extensions -->
+                    @if($order->extensions->isNotEmpty())
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="feather-clock me-1"></i> Extensions ({{ $order->extensions->count() }})</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th>Date</th>
+                                            <th>Qty</th>
+                                            <th>Paid</th>
+                                            @if(!$isSupport)
+                                            <th>Cost (₦)</th>
+                                            <th>Revenue (₦)</th>
+                                            <th>Profit (₦)</th>
+                                            @endif
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($order->extensions as $ext)
+                                        <tr>
+                                            <td class="fs-11">{{ $ext->created_at->format('M d, Y H:i') }}</td>
+                                            <td>{{ number_format($ext->quantity) }}</td>
+                                            <td>@money($ext->charge, $ext->currency)</td>
+                                            @if(!$isSupport)
+                                            <td>{{ number_format($ext->cost_price_snapshot, 2) }}</td>
+                                            <td>{{ number_format($ext->platform_price_snapshot, 2) }}</td>
+                                            <td class="{{ $ext->status === 'completed' ? 'text-primary fw-bold' : 'text-muted' }}">
+                                                {{ number_format($ext->profit, 2) }}
+                                            </td>
+                                            @endif
+                                            <td>
+                                                @if($ext->status === 'completed')
+                                                    <span class="badge bg-soft-success text-success">Completed</span>
+                                                @elseif($ext->status === 'failed')
+                                                    <span class="badge bg-soft-danger text-danger" title="{{ $ext->failure_reason }}">Failed (refunded)</span>
+                                                @else
+                                                    <span class="badge bg-soft-warning text-warning">Pending</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- API Response -->
                     @if($order->api_response)
                     <div class="card mb-3">
                         <div class="card-header"><h5 class="card-title">API Response</h5></div>
@@ -327,6 +406,7 @@
                     </div>
                     @endif
 
+                    <!-- Activity Logs -->
                     <div class="card">
                         <div class="card-header"><h5 class="card-title">Order Activity Logs</h5></div>
                         <div class="card-body p-0">
@@ -367,6 +447,9 @@
                                 </table>
                             </div>
                         </div>
+                        @if($logs->hasPages())
+                        <div class="card-footer">{{ $logs->links() }}</div>
+                        @endif
                     </div>
 
                 </div>
@@ -375,3 +458,5 @@
         </div>
     </div>
 </main>
+
+@include('admin.components.footer')

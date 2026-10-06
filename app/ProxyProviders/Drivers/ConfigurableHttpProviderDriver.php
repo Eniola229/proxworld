@@ -374,11 +374,22 @@ class ConfigurableHttpProviderDriver implements ProxyProviderContract
             throw new \RuntimeException('This provider does not support order extension via API.');
         }
 
+        $fields = $this->config['request_fields'] ?? [];
         [$url, $query] = $this->resolveOrderUrl('order_extend', $apiOrderId);
-        $response = $this->client()->post($url, $this->withQueryAuth(array_merge($query, $params)));
+
+        $body = $query;
+
+        if (isset($params['quantity'])) {
+            $body[$fields['extend_quantity_key'] ?? 'quantity'] = $params['quantity'];
+            unset($params['quantity']);
+        }
+
+        $body = array_merge($body, $params);
+
+        $response = $this->client()->post($url, $this->withQueryAuth($body));
 
         if (! $response->successful()) {
-            throw new ProviderOrderException('Extend failed: '.$response->body());
+            throw new ProviderOrderException('Extend failed: '.$response->body(), $response->json());
         }
 
         return $response->json() ?? [];

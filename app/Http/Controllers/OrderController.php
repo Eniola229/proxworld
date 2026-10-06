@@ -15,6 +15,11 @@ use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
 use App\Services\CurrencyService;
+use App\Models\OrderExtension;
+use App\ProxyProviders\ProxyProviderFactory;
+use App\Services\ProfitService;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -40,7 +45,7 @@ class OrderController extends Controller
             'providersByType' => $providersByType,
             'currencyDisplay' => $currencies->display($currencies->walletCurrency(auth()->user())),
         ]);
-    }
+    } 
 
     public function countries(Request $request)
     {
@@ -191,10 +196,188 @@ class OrderController extends Controller
         return view('order.index', ['orders' => $orders]);
     }
 
-    public function show(Request $request, Order $order)
+    public function show(Request $request, Order $order, PricingService $pricing, ExchangeRateService $rates, CurrencyService $currencies)
     {
         abort_unless($order->user_id === $request->user()->id, 403);
 
-        return view('order.show', ['order' => $order]);
+        $extend = null;
+        $service = $this->extendableService($order);
+
+        if ($service) {
+            $quote = $this->quoteExtension($service, 1, $request->user(), $pricing, $rates, $currencies);
+
+            $extend = [
+                'unit' => $service->unit,
+                'currency' => $quote['currency'],
+                'unit_price' => round($quote['amount'], 4),
+            ];
+        }
+
+        return view('order.show', [
+            'order' => $order->load(['extensions' => fn ($q) => $q->completed()->latest()]),
+            'extend' => $extend,
+        ]);
+    }
+
+    /**
+     * Returns the service row to price an extension against, or null if this
+     * order can't be extended. Used by both show() (to render the button) and
+     * extend() (to enforce it server-side).
+     */
+    protected function extendableService(Order $order): ?ProviderServiceCache
+    {
+        if ($order->status !== OrderStatus::COMPLETED
+            || $order->reseller_id
+            || ! $order->api_order_id
+            || $order->isDataBasedProduct()) {
+            return null;
+        }
+
+        $provider = $order->provider;
+
+        if (! $provider || ! $provider->supportsExtend()) {
+            return null;
+        }
+
+        return ProviderServiceCache::where('provider_id', $order->provider_id)
+            ->where('external_service_id', $order->external_service_id)
+            ->first();
+    }
+
+    protected function quoteExtension(
+        ProviderServiceCache $service,
+        int $quantity,
+        $user,
+        PricingService $pricing,
+        ExchangeRateService $rates,
+        CurrencyService $currencies,
+    ): array {
+        $costBase = $rates->convert((float) $service->raw_rate * $quantity, $service->raw_currency, 'NGN');
+        $sellBase = $pricing->calculateSellPrice($costBase, $service->type, providerId: $service->provider_id);
+        $currency = $currencies->walletCurrency($user);
+        $amount   = $rates->convert($sellBase, 'NGN', $currency);
+
+        return [
+            'cost_base' => $costBase,
+            'sell_base' => $sellBase,
+            'profit'    => $pricing->calculateProfit($sellBase, $costBase),
+            'markup'    => $pricing->getMarkupPercentage($service->type, providerId: $service->provider_id),
+            'currency'  => $currency,
+            'rate'      => $rates->rate('NGN', $currency),
+            'amount'    => $amount,
+            'charge'    => $currencies->roundForCharge($amount, $currency),
+        ];
+    }
+
+    protected function extensionCharge(
+        ProviderServiceCache $service,
+        int $quantity,
+        $user,
+        PricingService $pricing,
+        ExchangeRateService $rates,
+        CurrencyService $currencies,
+        bool $round = true,
+    ): float {
+        $costBase = $rates->convert((float) $service->raw_rate * $quantity, $service->raw_currency, 'NGN');
+        $sellBase = $pricing->calculateSellPrice($costBase, $service->type, providerId: $service->provider_id);
+        $userCurrency = $currencies->walletCurrency($user);
+        $amount = $rates->convert($sellBase, 'NGN', $userCurrency);
+
+        return $round ? $currencies->roundForCharge($amount, $userCurrency) : round($amount, 4);
+    }
+
+    public function extend(Request $request, Order $order, PricingService $pricing, ExchangeRateService $rates, WalletService $wallet, CurrencyService $currencies, ProfitService $profits)
+    {
+        abort_unless($order->user_id === $request->user()->id, 403);
+
+        $data = $request->validate([
+            'quantity' => ['required', 'integer', 'min:1', 'max:10000'],
+        ]);
+
+        $user = $request->user();
+        $lock = Cache::lock("order-extend:{$order->id}", 60);
+
+        if (! $lock->get()) {
+            return back()->with('error', 'An extension for this order is already in progress.');
+        }
+
+        try {
+            $order->refresh();
+            $service = $this->extendableService($order);
+
+            if (! $service) {
+                return back()->with('error', 'This order can\'t be extended.');
+            }
+
+            $q = $this->quoteExtension($service, $data['quantity'], $user, $pricing, $rates, $currencies);
+            $label = "Extension: {$order->service_name} x{$data['quantity']} (order #" . substr($order->id, 0, 8) . ')';
+
+            try {
+                $walletTx = $wallet->debit($user, $q['charge'], TransactionType::ORDER_DEBIT, [
+                    'currency' => $q['currency'],
+                    'description' => $label,
+                    'order_id' => $order->id,
+                ]);
+            } catch (\App\Services\InsufficientBalanceException $e) {
+                return back()->with('error', 'Insufficient wallet balance. Please fund your wallet first.');
+            }
+
+            $extension = OrderExtension::create([
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'provider_id' => $order->provider_id,
+                'quantity' => $data['quantity'],
+                'cost_price_snapshot' => $q['cost_base'],
+                'platform_price_snapshot' => $q['sell_base'],
+                'profit' => $q['profit'],
+                'markup_percentage' => $q['markup'],
+                'charge' => $q['charge'],
+                'currency' => $q['currency'],
+                'exchange_rate_snapshot' => $q['rate'],
+                'status' => 'pending',
+                'wallet_transaction_id' => $walletTx->id ?? null,
+            ]);
+
+            $driver = ProxyProviderFactory::make($order->provider);
+
+            try {
+                $driver->extendOrder($order->api_order_id, ['quantity' => $data['quantity']]);
+            } catch (\Throwable $e) {
+                Log::warning("Extend failed for order {$order->id}: " . $e->getMessage());
+
+                $wallet->credit($user, $q['charge'], TransactionType::ORDER_REFUND, [
+                    'description' => "Refund for failed extension of order #{$order->id}",
+                    'order_id' => $order->id,
+                    'currency' => $q['currency'],
+                ]);
+
+                $extension->update(['status' => 'failed', 'failure_reason' => mb_substr($e->getMessage(), 0, 1000)]);
+
+                return back()->with('error', 'The provider couldn\'t extend this order. You have not been charged.');
+            }
+
+            $extension->update(['status' => 'completed']);
+
+            try {
+                $profits->recordForExtension($extension->fresh());
+            } catch (\Throwable $e) {
+                Log::error("Profit ledger write failed for extension {$extension->id}: " . $e->getMessage());
+            }
+
+            try {
+                $order->update([
+                    'proxy_data' => $driver->listProxies($order->api_order_id),
+                    'proxy_synced_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::info("Post-extend proxy refresh skipped for order {$order->id}: " . $e->getMessage());
+            }
+
+            $order->update(['provider_synced_at' => now()]);
+
+            return back()->with('success', 'Order extended successfully.');
+        } finally {
+            $lock->release();
+        }
     }
 }

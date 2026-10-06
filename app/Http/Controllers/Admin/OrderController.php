@@ -11,44 +11,105 @@ use App\Services\WalletService;
 use App\Types\OrderStatus;
 use App\Types\TransactionType;
 use Illuminate\Http\Request;
+use App\Models\OrderExtension;
+use App\Models\Provider;
+
 
 class OrderController extends Controller
 {
-    public function index(Request $request, ExchangeRateService $rates)
-    {
-        $filtered = Order::query()
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('channel'), fn ($q) => $q->where('channel', $request->channel))
-            ->when($request->filled('provider_id'), fn ($q) => $q->where('provider_id', $request->provider_id))
-            ->when($request->filled('date_from'), fn ($q) => $q->whereDate('created_at', '>=', $request->date_from))
-            ->when($request->filled('date_to'), fn ($q) => $q->whereDate('created_at', '<=', $request->date_to))
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->search;
-                $q->where(fn ($q2) => $q2
-                    ->where('id', 'like', "%{$search}%")
-                    ->orWhere('service_name', 'like', "%{$search}%"));
-            });
 
-        $orders = (clone $filtered)
-            ->with(['user:id,name,email', 'provider:id,name'])
+    public function index(Request $request)
+    {
+        $search     = $request->query('search');
+        $status     = $request->query('status');
+        $providerId = $request->query('provider_id');
+        $from       = $request->query('date_from');
+        $to         = $request->query('date_to');
+
+        // Orders table (all filters)
+        $orders = Order::with(['user', 'provider'])
+            ->withCount(['extensions as extensions_count' => fn ($q) => $q->where('status', 'completed')])
+            ->withSum(['extensions as extensions_profit' => fn ($q) => $q->where('status', 'completed')], 'profit')
+            ->withSum(['extensions as extensions_revenue' => fn ($q) => $q->where('status', 'completed')], 'platform_price_snapshot')
+            ->when($search, fn ($q) => $q->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhere('service_name', 'like', "%{$search}%")
+                  ->orWhere('api_order_id', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"));
+            }))
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($providerId, fn ($q) => $q->where('provider_id', $providerId))
+            ->when($from, fn ($q) => $q->whereDate('created_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('created_at', '<=', $to))
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
+        // Top stat cards (global counts)
+        $totalOrders      = Order::count();
+        $pendingOrders    = Order::where('status', 'pending')->count();
+        $processingOrders = Order::where('status', 'processing')->count();
+        $completedOrders  = Order::where('status', 'completed')->count();
+        $cancelledOrders  = Order::whereIn('status', ['cancelled', 'refunded'])->count();
+
+        // Profit / revenue period: explicit range if given, otherwise the current month
+        $applyPeriod = function ($q) use ($from, $to) {
+            if ($from) {
+                $q->whereDate('created_at', '>=', $from);
+            } elseif (! $to) {
+                $q->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+            }
+            if ($to) {
+                $q->whereDate('created_at', '<=', $to);
+            }
+        };
+
+        $profitOrders = Order::where('status', 'completed');
+        $applyPeriod($profitOrders);
+        if ($providerId) $profitOrders->where('provider_id', $providerId);
+        if ($search) {
+            $profitOrders->where(fn ($q) => $q->where('id', 'like', "%{$search}%")->orWhere('service_name', 'like', "%{$search}%"));
+        }
+        $periodOrderCount   = (clone $profitOrders)->count();
+        $periodOrderProfit  = (float) (clone $profitOrders)->sum('profit');
+        $periodOrderRevenue = (float) (clone $profitOrders)->sum('platform_price_snapshot');
+
+        // Extensions count in the period they were bought
+        $ext = OrderExtension::completed();
+        $applyPeriod($ext);
+        if ($providerId) $ext->where('provider_id', $providerId);
+        if ($search) {
+            $ext->whereHas('order', fn ($q) => $q->where('id', 'like', "%{$search}%")->orWhere('service_name', 'like', "%{$search}%"));
+        }
+        $periodExtCount   = (clone $ext)->count();
+        $periodExtProfit  = (float) (clone $ext)->sum('profit');
+        $periodExtRevenue = (float) (clone $ext)->sum('platform_price_snapshot');
+
         return view('admin.orders.index', [
-            'orders' => $orders,
-            'totalOrders' => (clone $filtered)->count(),
-            'pendingOrders' => (clone $filtered)->where('status', OrderStatus::PENDING)->count(),
-            'processingOrders' => (clone $filtered)->where('status', OrderStatus::PROCESSING)->count(),
-            'completedOrders' => (clone $filtered)->where('status', OrderStatus::COMPLETED)->count(),
-            'cancelledOrders' => (clone $filtered)->where('status', OrderStatus::CANCELLED)->count(),
-            'totalRevenue' => $rates->sumConverted((clone $filtered)->where('status', OrderStatus::COMPLETED), 'charge', 'NGN'),
+            'orders'           => $orders,
+            'providers'        => Provider::orderBy('name')->get(['id', 'name']),
+            'totalOrders'      => $totalOrders,
+            'pendingOrders'    => $pendingOrders,
+            'processingOrders' => $processingOrders,
+            'completedOrders'  => $completedOrders,
+            'cancelledOrders'  => $cancelledOrders,
+            'periodOrderCount' => $periodOrderCount,
+            'periodExtCount'   => $periodExtCount,
+            'periodExtProfit'  => $periodExtProfit,
+            'totalProfit'      => $periodOrderProfit + $periodExtProfit,
+            'totalRevenue'     => $periodOrderRevenue + $periodExtRevenue,
         ]);
     }
-
+    
     public function show(Order $order)
     {
-        $order->load(['user', 'reseller', 'provider']);
+        $order->load([
+            'user',
+            'reseller',
+            'provider',
+            'extensions' => fn ($q) => $q->latest(),
+        ]);
+
         $customerBalance = $order->user->balanceInNgn(); // NGN equivalent, shown beside the customer's real balance
 
         return view('admin.orders.show', [
@@ -60,7 +121,6 @@ class OrderController extends Controller
                 ->paginate(15),
         ]);
     }
-
     public function checkStatus(Order $order)
     {
         if (! $order->provider || ! $order->api_order_id) {

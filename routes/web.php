@@ -18,7 +18,7 @@ $excluded = collect([$appHost, 'localhost', '127.0.0.1'])->map(fn($h) => preg_qu
 Route::domain('{domain}')
     ->where(['domain' => '^(?!('.$excluded.')$).+$'])
     ->middleware('storefront')
-    ->group(function () {
+    ->group(function () { 
         require base_path('routes/storefront.php');
     });
 
@@ -117,6 +117,9 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/check-status', [\App\Http\Controllers\OrderController::class, 'checkStatus'])->name('orders.check-status');
+    Route::post('/orders/{order}/extend', [\App\Http\Controllers\OrderController::class, 'extend'])
+    ->middleware(['sufficient.balance', 'kyc.verified', 'throttle:10,1'])
+    ->name('orders.extend');
 
     Route::get('/kyc', [\App\Http\Controllers\KycController::class, 'show'])->name('kyc.show');
     Route::post('/kyc/start', [\App\Http\Controllers\KycController::class, 'start'])->name('kyc.start');

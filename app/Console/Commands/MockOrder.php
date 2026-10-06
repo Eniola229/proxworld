@@ -4,11 +4,14 @@ namespace App\Console\Commands;
 
 use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
+use App\Models\OrderExtension;
 use App\Models\Provider;
+use App\Models\ProfitTransaction;
 use App\Models\User;
 use App\Services\CurrencyService;
 use App\Services\ExchangeRateService;
 use App\Services\InsufficientBalanceException;
+use App\Services\ProfitService;
 use App\Services\WalletService;
 use App\Types\OrderChannel;
 use App\Types\OrderStatus;
@@ -19,24 +22,25 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Local testing only: creates a COMPLETED order without calling any provider,
- * debits the user's wallet for real (in their wallet currency), and sends/previews
- * the order confirmation email.
+ * debits the user's wallet for real (priced in their wallet currency), writes the
+ * profit ledger row, and sends/previews the order confirmation email.
  *
- *   php artisan orders:mock you@example.com
- *   php artisan orders:mock you@example.com --ngn=5000 --mail=preview
- *   php artisan orders:mock you@example.com --cleanup      (refunds + deletes the mock orders)
+ *   php artisan orders:mock you@example.com --amount=10 --mail=none
+ *   php artisan orders:mock you@example.com --amount=10 --margin=30 --mail=preview
+ *   php artisan orders:mock you@example.com --cleanup   (refunds + deletes mock orders AND their extensions)
  */
 class MockOrder extends Command
 {
     protected $signature = 'orders:mock
                             {email : Email of the user to charge}
-                            {--ngn=2500 : Order price expressed in NGN (converted to the user\'s wallet currency)}
+                            {--amount=10 : Order price in the USER\'S WALLET CURRENCY}
+                            {--margin=20 : Profit margin % of the sell price}
                             {--qty=1 : Quantity}
                             {--mail=send : send | preview | none}
-                            {--cleanup : Refund and delete this user\'s mock orders instead of creating one}
+                            {--cleanup : Refund and delete this user\'s mock orders (and their extensions) instead of creating one}
                             {--force : Allow running in production}';
 
-    protected $description = 'Create a mock completed order that debits the wallet and sends the confirmation email (no provider call)';
+    protected $description = 'Create a mock completed order that debits the wallet and writes the profit ledger (no provider call)';
 
     private const MARKER = 'MOCK TEST ORDER';
 
@@ -59,11 +63,11 @@ class MockOrder extends Command
         $currency = $currencies->walletCurrency($user);
 
         if ($this->option('cleanup')) {
-            return $this->cleanup($user, $currency, $wallet);
+            return $this->cleanup($user, $wallet);
         }
 
-        $ngn = max(1.0, (float) $this->option('ngn'));
         $qty = max(1, (int) $this->option('qty'));
+        $margin = min(95, max(0, (float) $this->option('margin')));
 
         $rate = $rates->rateOrNull('NGN', $currency);
 
@@ -73,8 +77,9 @@ class MockOrder extends Command
             return self::FAILURE;
         }
 
-        $charge = $currencies->roundForCharge($ngn * $rate, $currency);
-        $cost = round($ngn * 0.8, 4); // pretend 20% margin, all in NGN like real orders
+        $charge = $currencies->roundForCharge((float) $this->option('amount'), $currency);
+        $ngn = $rates->convert($charge, $currency, 'NGN');   // NGN base derived from what the user paid
+        $cost = round($ngn * (1 - $margin / 100), 4);
 
         try {
             $walletTx = $wallet->debit($user, $charge, TransactionType::ORDER_DEBIT, [
@@ -82,7 +87,7 @@ class MockOrder extends Command
                 'description' => '[MOCK] Order: Mock ISP Proxy x'.$qty,
             ]);
         } catch (InsufficientBalanceException $e) {
-            $this->error('Insufficient balance. Top up this wallet first (or lower --ngn).');
+            $this->error('Insufficient balance. Top up this wallet first (or lower --amount).');
 
             return self::FAILURE;
         }
@@ -100,7 +105,7 @@ class MockOrder extends Command
             'charge' => $charge,
             'currency' => $currency,
             'exchange_rate_snapshot' => $rate,
-            'markup_percentage' => 25,
+            'markup_percentage' => round($margin / (100 - $margin) * 100, 4),
             'profit' => round($ngn - $cost, 4),
             'channel' => OrderChannel::DIRECT,
             'status' => OrderStatus::COMPLETED,
@@ -117,7 +122,10 @@ class MockOrder extends Command
 
         $walletTx->update(['order_id' => $order->id]);
 
+        app(ProfitService::class)->recordForOrder($order->fresh());
+
         $this->info("Order {$order->id} created and wallet debited {$currencies->format($charge, $currency)}.");
+        $this->line('Sell (NGN): '.number_format($ngn, 2).' | Cost (NGN): '.number_format($cost, 2).' | Profit (NGN): '.number_format((float) $order->profit, 2));
         $this->line('New balance: '.$currencies->format((float) $user->fresh()->balance, $currency));
 
         return $this->handleMail($order->fresh('user'));
@@ -146,7 +154,7 @@ class MockOrder extends Command
         return self::SUCCESS;
     }
 
-    private function cleanup(User $user, string $currency, WalletService $wallet): int
+    private function cleanup(User $user, WalletService $wallet): int
     {
         $orders = Order::where('user_id', $user->id)->where('admin_note', self::MARKER)->get();
 
@@ -156,7 +164,21 @@ class MockOrder extends Command
             return self::SUCCESS;
         }
 
+        $extCount = 0;
+
         foreach ($orders as $order) {
+            // Refund every extension that was charged and not already refunded (failed ones were)
+            foreach (OrderExtension::where('order_id', $order->id)->where('status', '!=', 'failed')->get() as $ext) {
+                $wallet->credit($user, (float) $ext->charge, TransactionType::ORDER_REFUND, [
+                    'currency' => $ext->currency,
+                    'description' => "[MOCK] Refund for mock extension {$ext->id}",
+                ]);
+                $extCount++;
+            }
+
+            ProfitTransaction::where('order_id', $order->id)->delete();
+            OrderExtension::where('order_id', $order->id)->delete();
+
             $wallet->credit($user, (float) $order->charge, TransactionType::ORDER_REFUND, [
                 'currency' => $order->currency,
                 'description' => "[MOCK] Refund for mock order {$order->id}",
@@ -164,7 +186,7 @@ class MockOrder extends Command
             $order->delete();
         }
 
-        $this->info($orders->count().' mock order(s) refunded and deleted.');
+        $this->info($orders->count()." mock order(s) and {$extCount} extension(s) refunded and deleted.");
 
         return self::SUCCESS;
     }

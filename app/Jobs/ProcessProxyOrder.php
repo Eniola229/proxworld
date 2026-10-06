@@ -19,7 +19,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-
+ 
 /**
  * Queued so a slow/flaky provider API never blocks the checkout response.
  * On failure: auto-refunds whoever paid (the reseller's wallet if this was

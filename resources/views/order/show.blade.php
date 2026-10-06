@@ -22,7 +22,7 @@
                 {{ session('alert')['message'] }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-        @endif
+        @endif 
 
         <div class="main-content">
             <div class="row">
@@ -88,6 +88,11 @@
                     <div class="card stretch stretch-full">
                         <div class="card-header">
                             <h5 class="card-title"><i class="feather-key me-1"></i> Proxy Access Details</h5>
+                            @if($extend)
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#extendModal">
+                                    <i class="feather-clock me-1"></i> Extend Order
+                                </button>
+                            @endif
                         </div>
                         <div class="card-body">
                             @if($order->status !== 'completed')
@@ -155,8 +160,72 @@
                 </div>
 
             </div>
+
+            @if($order->extensions->isNotEmpty())
+            <div class="card mt-3">
+                <div class="card-header"><h5 class="card-title">Extension History</h5></div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Date</th><th>Quantity</th><th>Paid</th></tr></thead>
+                        <tbody>
+                        @foreach($order->extensions as $ext)
+                            <tr>
+                                <td>{{ $ext->created_at->format('M d, Y H:i') }}</td>
+                                <td>{{ number_format($ext->quantity) }}</td>
+                                <td>@money($ext->charge, $ext->currency)</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </main>
+
+@if($extend)
+<div class="modal fade" id="extendModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{ route('orders.extend', $order) }}" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title">Extend Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fs-12 text-muted">{{ $order->service_name }}</p>
+                <label class="form-label fs-12">Quantity ({{ $extend['unit'] ?? 'units' }})</label>
+                <input type="number" name="quantity" id="extendQty" class="form-control"
+                       min="1" max="10000" value="{{ $order->quantity }}" required>
+                <div class="mt-3 d-flex justify-content-between">
+                    <span class="fs-12 text-muted">Estimated cost:</span>
+                    <span class="fs-12 fw-bold" id="extendTotal"></span>
+                </div>
+                <div class="fs-11 text-muted mt-1">Charged from your wallet at current rates.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Confirm &amp; Pay</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const unitPrice = @js($extend['unit_price']);
+        const currency = @js($extend['currency']);
+        const qty = document.getElementById('extendQty');
+        const total = document.getElementById('extendTotal');
+        function render() {
+            const n = Math.max(1, parseInt(qty.value || '1', 10));
+            total.textContent = (unitPrice * n).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' + currency;
+        }
+        qty.addEventListener('input', render);
+        render();
+    })();
+</script>
+@endif
 
 @include('components.g-footer')
