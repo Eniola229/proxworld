@@ -14,6 +14,11 @@
                         <li class="breadcrumb-item">Dashboard</li>
                     </ul>
                 </div>
+              <div class="page-header-right ms-auto">
+                    <a href="{{ route('order.create') }}" class="btn btn-primary">
+                        <i class="feather-plus me-2"></i> New Order
+                    </a>
+                </div>
             </div>
             <!-- [ page-header ] end -->
 
