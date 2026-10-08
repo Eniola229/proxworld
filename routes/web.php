@@ -22,7 +22,7 @@ Route::domain('{domain}')
         require base_path('routes/storefront.php');
     });
 
-/*
+/* 
 |--------------------------------------------------------------------------
 | Public / marketing
 |--------------------------------------------------------------------------
@@ -55,6 +55,14 @@ Route::post('/webhooks/didit', [\App\Http\Controllers\DiditWebhookController::cl
 
 Route::get('/flutterwave/return', [\App\Http\Controllers\FlutterwaveController::class, 'callback'])
     ->name('flutterwave.checkout-return');
+
+Route::post('/wallet/bachs-webhook', [\App\Http\Controllers\BachsController::class, 'webhook'])->name('bachs.webhook');
+
+Route::get('/bachs/return/{reference}', [\App\Http\Controllers\BachsController::class, 'callback'])
+    ->where('reference', 'PXB-[A-Z0-9]+')
+    ->name('bachs.return');
+
+Route::get('/bachs/cancelled', [\App\Http\Controllers\BachsController::class, 'cancelled'])->name('bachs.cancelled');
     
     
 Route::get('/geo-debug', function (\Illuminate\Http\Request $r) {

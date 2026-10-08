@@ -70,4 +70,10 @@ return [
         'webhook_secret' => env('DIDIT_WEBHOOK_SECRET'),
     ],
 
+    'bachs' => [
+        'base_url'       => env('BACHS_BASE_URL', 'https://api.bachs.io'),
+        'secret_key'     => env('BACHS_SECRET_KEY'),
+        'webhook_secret' => env('BACHS_WEBHOOK_SECRET'),
+    ],
+
 ];

@@ -75,7 +75,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // FlutterwaveController::webhook).
         $middleware->validateCsrfTokens(except: [
             'wallet/flutterwave-webhook',
-             'webhooks/didit',
+            'wallet/bachs-webhook',
+            'webhooks/didit',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

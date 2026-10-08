@@ -100,7 +100,7 @@ class OrderController extends Controller
             $query->whereIn('id', $matchingIds);
         }
 
-        $services = $query->orderBy('name')->paginate(25, page: $data['page'] ?? 1);
+        $services = $query->orderBy('name')->paginate(100, page: $data['page'] ?? 1);
 
         $userCurrency = $currencies->walletCurrency($request->user());
 

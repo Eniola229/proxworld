@@ -33,7 +33,7 @@ class SecurityHeaders
         $response->headers->set(
             'Referrer-Policy',
             'strict-origin-when-cross-origin'
-        );
+        ); 
 
         // X-XSS-Protection is obsolete in modern browsers.
         // Explicitly disable it because CSP provides the protection.
@@ -192,7 +192,8 @@ class SecurityHeaders
                 https://*.flutterwave.com
                 https://*.dev-flutterwave.com
                 https://checkout-v2.dev-flutterwave.com
-                https://developersandbox.flutterwave.com",
+                https://developersandbox.flutterwave.com
+                https://*.bachs.io",
 
             /*
              * Restrict where forms can submit / redirect.
@@ -204,7 +205,8 @@ class SecurityHeaders
                 https://*.dev-flutterwave.com
                 https://*.flutterwave.cloud
                 https://verify.didit.me
-                https://*.didit.me",
+                https://*.didit.me
+                https://*.bachs.io",
 
             /*
              * Prevent <base> from changing the document's base URL.
@@ -220,7 +222,8 @@ class SecurityHeaders
                 https://*.flutterwave.com
                 https://*.flutterwave.cloud
                 https://verify.didit.me
-                https://*.didit.me",
+                https://*.didit.me
+                https://*.bachs.io",
             /*
              * Prevent other websites from framing this application.
              */

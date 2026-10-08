@@ -38,7 +38,7 @@
                                 <h5 class="card-title text-muted mb-4">Current Balance</h5>
                                 <h2 class="display-6 fw-bold text-primary" id="wallet-balance">
                                     @money($balance, $currency)
-                                </h2>
+                                </h2> 
                                 <p class="text-muted mt-3">Available funds for orders</p>
                             </div>
                         </div>
@@ -194,13 +194,29 @@
                                                required>
                                         <div class="form-text">Minimum top-up: @money($minTopUp, $currency)</div>
                                         @error('amount') <small class="text-danger">{{ $message }}</small> @enderror
+                                        @error('provider') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
-                                    @if($currency !== 'NGN')
-                                        <p class="text-muted small">You'll be taken to Flutterwave's secure checkout to pay in {{ $currency }}.</p>
+
+                                    @if($currency === 'NGN')
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
+                                        </div>
+                                    @else
+                                        @php $bachsOk = \App\Services\BachsService::supports($currency); @endphp
+
+                                        <label class="form-label mb-2">Choose payment partner</label>
+                                        <div class="row g-2">
+                                            @if($bachsOk)
+                                                <div class="col-6 d-grid">
+                                                    <button type="submit" name="provider" value="bachs" class="btn btn-primary btn-lg">Pay with Bachs</button>
+                                                </div>
+                                            @endif
+                                            <div class="{{ $bachsOk ? 'col-6' : 'col-12' }} d-grid">
+                                                <button type="submit" name="provider" value="flutterwave" class="btn btn-outline-primary btn-lg">Pay with Flutterwave</button>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mt-3 mb-0">You'll be taken to your chosen partner's secure checkout to pay in {{ $currency }}.</p>
                                     @endif
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-lg">Proceed to Pay</button>
-                                    </div>
                                 </form>
                                 @endif
 

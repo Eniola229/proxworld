@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BachsService;
 use App\Services\CurrencyService;
 use App\Services\FlutterwaveService;
 use Illuminate\Http\Request;
@@ -21,19 +22,24 @@ class WalletController extends Controller
             'transactions' => $user->wallet()->latest()->paginate(15),
         ]);
     }
-
+ 
     public function fund(Request $request, CurrencyService $currencies)
     {
         $currency = $currencies->walletCurrency($request->user());
 
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:' . $currencies->minTopUp($currency)],
+            'amount'   => ['required', 'numeric', 'min:' . $currencies->minTopUp($currency)],
+            'provider' => ['nullable', 'in:flutterwave,bachs'],
         ], [
             'amount.min' => 'Minimum top-up is ' . $currencies->format($currencies->minTopUp($currency), $currency) . '.',
         ]);
 
-        return $currency === 'NGN'
-            ? $this->fundWithVirtualAccount($request, (float) $data['amount'])
+        if ($currency === 'NGN') {
+            return $this->fundWithVirtualAccount($request, (float) $data['amount']);
+        }
+
+        return ($data['provider'] ?? 'flutterwave') === 'bachs'
+            ? $this->fundWithBachs($request, $currencies, $currency, (float) $data['amount'])
             : $this->fundWithCheckout($request, $currencies, $currency, (float) $data['amount']);
     }
 
@@ -96,6 +102,38 @@ class WalletController extends Controller
         }
 
         return redirect()->away($link);
+    }
+
+    protected function fundWithBachs(Request $request, CurrencyService $currencies, string $currency, float $amount)
+    {
+        if (! BachsService::supports($currency)) {
+            return back()->with('alert', ['type' => 'error', 'message' => "Bachs does not support {$currency} yet. Please pay with Flutterwave."]);
+        }
+
+        $user = $request->user();
+        $amount = $currencies->roundForCharge($amount, $currency);
+        $txRef = 'PXB-' . strtoupper(Str::random(16));
+
+        try {
+            $checkout = app(BachsService::class)->createCheckout([
+                'amount'      => $amount,
+                'currency'    => $currency,
+                'reference'   => $txRef,
+                'success_url' => route('bachs.return', ['reference' => $txRef]),
+                'cancel_url'  => route('bachs.cancelled'),
+                'customer'    => ['email' => $user->email, 'name' => $user->name],
+                'meta'        => ['user_id' => $user->id],
+            ]);
+        } catch (\RuntimeException $e) {
+            return back()->with('alert', ['type' => 'error', 'message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            \Log::critical('Unhandled error starting Bachs checkout:', [
+                'error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),
+            ]);
+            return back()->with('alert', ['type' => 'error', 'message' => 'An unexpected error occurred while starting payment.']);
+        }
+
+        return redirect()->away($checkout['checkout_url']);
     }
 
     public function topupStatus(Request $request)
