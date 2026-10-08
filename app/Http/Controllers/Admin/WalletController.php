@@ -19,6 +19,7 @@ class WalletController extends Controller
         $query = WalletTransaction::excludingSwitches()
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+            ->when($request->filled('payment_method'), fn ($q) => $q->where('payment_method', $request->payment_method))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->from))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to));
 

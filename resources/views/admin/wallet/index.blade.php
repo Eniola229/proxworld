@@ -161,7 +161,7 @@
                                              
                                             <option value="paystack" {{ request('payment_method') == 'paystack' ? 'selected' : '' }}>Paystack</option>
                                             <option value="flutterwave" {{ request('payment_method') == 'flutterwave' ? 'selected' : '' }}>Flutterwave</option>
-                                            <option value="flutterwave" {{ request('payment_method') == 'flutterwave' ? 'selected' : '' }}>Bachs</option>
+                                            <option value="bachs" {{ request('payment_method') == 'bachs' ? 'selected' : '' }}>Bachs</option>
                                             <option value="bank_transfer" {{ request('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
                                             <option value="admin_adjustment" {{ request('payment_method') == 'admin_adjustment' ? 'selected' : '' }}>Admin Adjustment</option>
                                             <option value="refund" {{ request('payment_method') == 'refund' ? 'selected' : '' }}>Refund</option>
