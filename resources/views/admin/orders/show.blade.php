@@ -2,12 +2,12 @@
 @include('admin.components.nav')
 @include('admin.components.header')
 
-@php $isSupport = auth('admin')->user()->isSupport(); @endphp
+@php $canSeeProfit = auth('admin')->user()->can('profit.view'); @endphp
 
 <main class="nxl-container">
     <div class="nxl-content">
 
-        <div class="page-header">
+        <div class="page-header"> 
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
                     <h5 class="m-b-10">Order Details</h5>
@@ -128,7 +128,7 @@
                                 </div>
                             </div>
 
-                            @if(!$isSupport)
+                            @if($canSeeProfit)
                             @php
                                 // ---- Original order figures (all NGN) ----
                                 if ($order->profit !== null) {
@@ -357,7 +357,7 @@
                                             <th>Date</th>
                                             <th>Qty</th>
                                             <th>Paid</th>
-                                            @if(!$isSupport)
+                                            @if($canSeeProfit)
                                             <th>Cost (₦)</th>
                                             <th>Revenue (₦)</th>
                                             <th>Profit (₦)</th>
@@ -371,7 +371,7 @@
                                             <td class="fs-11">{{ $ext->created_at->format('M d, Y H:i') }}</td>
                                             <td>{{ number_format($ext->quantity) }}</td>
                                             <td>@money($ext->charge, $ext->currency)</td>
-                                            @if(!$isSupport)
+                                            @if($canSeeProfit)
                                             <td>{{ number_format($ext->cost_price_snapshot, 2) }}</td>
                                             <td>{{ number_format($ext->platform_price_snapshot, 2) }}</td>
                                             <td class="{{ $ext->status === 'completed' ? 'text-primary fw-bold' : 'text-muted' }}">

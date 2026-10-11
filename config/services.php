@@ -76,4 +76,8 @@ return [
         'webhook_secret' => env('BACHS_WEBHOOK_SECRET'),
     ],
 
+  'support' => [
+      'notify_email' => env('SUPPORT_NOTIFY_EMAIL'),
+  ],
+
 ];

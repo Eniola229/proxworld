@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\WelcomeModalController;
 use App\Http\Controllers\ReferralWithdrawalController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 // RESELLER SUBDOMAIN ROUTES — must be registered first, before any
@@ -162,10 +163,11 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/reseller-panel/domain/verify', [\App\Http\Controllers\ResellerApplicationController::class, 'verifyDomain'])->name('reseller-panel.verify-domain');
 
     Route::get('/support', [\App\Http\Controllers\TicketController::class, 'index'])->name('support.index');
-    Route::post('/support', [\App\Http\Controllers\TicketController::class, 'store'])->name('support.store');
+    Route::post('/support', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('support.store');
     Route::get('/support/{ticket}', [\App\Http\Controllers\TicketController::class, 'show'])->name('support.show');
-    Route::get('/support/{ticket}/messages', [\App\Http\Controllers\TicketController::class, 'messages'])->name('support.fetch-messages');
-    Route::post('/support/{ticket}/reply', [\App\Http\Controllers\TicketController::class, 'sendMessage'])->name('support.reply');
+    Route::get('/support/{ticket}/messages', [TicketController::class, 'messages'])->middleware('throttle:120,1')->name('support.fetch-messages');
+    Route::post('/support/{ticket}/reply', [TicketController::class, 'sendMessage'])->middleware('throttle:30,1')->name('support.reply');
+    Route::post('/support/{ticket}/rate', [TicketController::class, 'rate'])->name('support.rate');
 
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
@@ -177,3 +179,4 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'settings'])->name('notifications.settings');
 });
 
+ 

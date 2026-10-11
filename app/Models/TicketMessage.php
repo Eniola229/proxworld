@@ -25,5 +25,5 @@ class TicketMessage extends Model
     public function senderAdmin(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'sender_admin_id');
-    }
+    } 
 }

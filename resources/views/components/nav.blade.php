@@ -97,8 +97,10 @@
                         <span class="nxl-mtext">Support</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('support.index') }}">New Ticket</a></li>
-                        
+                        {{-- Opens the side chat popup without reloading the page --}}
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('support.index') }}" data-support-open>Live Chat</a></li>
+                        {{-- Full support page: all tickets, new ticket, chat --}}
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('support.index') }}">My Tickets</a></li>
                     </ul>
                 </li>
 
@@ -231,15 +233,31 @@
                 @endauth
 
                 <!-- DYNAMIC NOTIFICATIONS (Header) -->
+                {{-- Count and fetch in SQL (not by loading every notification into memory) --}}
+                @php
+                    // Direct table queries (bypasses the Eloquent notifications relationship)
+                    $unreadCount  = 0;
+                    $latestUnread = collect();
+                    if (auth()->check()) {
+                        try {
+                            $unreadBase   = \Illuminate\Support\Facades\DB::table('notifications')
+                                ->where('notifiable_id', auth()->id())
+                                ->whereNull('read_at');
+                            $unreadCount  = (clone $unreadBase)->count();
+                            $latestUnread = (clone $unreadBase)->orderByDesc('created_at')->limit(5)
+                                ->get(['id', 'data', 'created_at']);
+                        } catch (\Throwable $e) {
+                            // notifications table missing or misconfigured: show an empty bell instead of crashing
+                        }
+                    }
+                @endphp
                 <div class="dropdown nxl-h-item">
                     <a class="nxl-head-link me-3" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
                         <i class="feather-bell"></i>
-                        
+
                         <!-- Dynamic Badge Count -->
-                        @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
-                            <span class="badge bg-danger nxl-h-badge">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                            </span>
+                        @if($unreadCount > 0)
+                            <span class="badge bg-danger nxl-h-badge">{{ $unreadCount }}</span>
                         @endif
                     </a>
                     
@@ -248,33 +266,34 @@
                             <h6 class="fw-bold text-dark mb-0">Notifications</h6>
                         </div>
                         
-                        <!-- Loop through Unread Notifications -->
-                        @forelse(auth()->user()->unreadNotifications->take(5) as $notification)
+                        <!-- Loop through latest 5 unread notifications -->
+                        @forelse($latestUnread as $notification)
+                            @php $nData = json_decode($notification->data, true) ?: []; @endphp
                             <div class="notifications-item">
                                 
                                 <!-- Dynamic Icon: Checks if 'icon' exists in data, else default -->
                                 <div class="avatar-text avatar-md rounded bg-primary text-white me-3 border">
-                                    @if(isset($notification->data['icon']))
-                                        <i class="feather-{{ $notification->data['icon'] }}"></i>
+                                    @if(isset($nData['icon']))
+                                        <i class="feather-{{ $nData['icon'] }}"></i>
                                     @else
                                         <i class="feather-bell"></i>
                                     @endif
                                 </div>
                                 <div class="notifications-desc">
                                     <!-- Dynamic Message & Link -->
-                                    @if(isset($notification->data['link']))
-                                        <a href="{{ $notification->data['link'] }}" class="font-body text-truncate-2-line">
-                                            {{ $notification->data['message'] }}
+                                    @if(isset($nData['link']))
+                                        <a href="{{ $nData['link'] }}" class="font-body text-truncate-2-line">
+                                            {{ $nData['message'] ?? 'New notification' }}
                                         </a>
                                     @else
                                         <span class="font-body text-truncate-2-line">
-                                            {{ $notification->data['message'] }}
+                                            {{ $nData['message'] ?? 'New notification' }}
                                         </span>
                                     @endif
                                     
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="notifications-date text-muted border-bottom border-bottom-dashed">
-                                            {{ $notification->created_at->diffForHumans() }}
+                                            {{ \Illuminate\Support\Carbon::parse($notification->created_at)->diffForHumans() }}
                                         </div>
                                     </div>
                                 </div>

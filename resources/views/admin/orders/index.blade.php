@@ -2,7 +2,10 @@
 @include('admin.components.nav')
 @include('admin.components.header')
 
-@php $isSupport = auth('admin')->user()->isSupport(); @endphp
+@php
+    $isSupport     = auth('admin')->user()->isSupport();
+    $canSeeProfit  = auth('admin')->user()->can('profit.view');
+@endphp
 
 <main class="nxl-container">
     <div class="nxl-content">
@@ -83,7 +86,7 @@
                 @endif
             </div>
 
-            @if(!$isSupport)
+            @if($canSeeProfit)
             <!-- Profit Card -->
             <div class="row mb-4">
                 <div class="col-12">
@@ -194,7 +197,7 @@
                                     <th>Service</th>
                                     <th>Qty</th>
                                     <th>Charge</th>
-                                    @if(!$isSupport)<th>Profit</th>@endif
+                                    @if($canSeeProfit)<th>Profit</th>@endif
                                     <th>Provider</th>
                                     <th>Status</th>
                                     <th>Date</th>
@@ -204,16 +207,19 @@
                             <tbody>
                                 @forelse($orders as $orderItem)
                                 @php
-                                    $baseProfit = $orderItem->profit ?? \App\Services\PricingService::calculateProfit(
-                                        $orderItem->charge_ngn, $orderItem->quantity, $orderItem->service_name
-                                    );
-                                    $rowExtProfit  = (float) ($orderItem->extensions_profit ?? 0);
-                                    $rowExtRevenue = (float) ($orderItem->extensions_revenue ?? 0);
-                                    $rowExtCount   = (int) ($orderItem->extensions_count ?? 0);
+                                    $rowExtCount = (int) ($orderItem->extensions_count ?? 0);
 
-                                    $rowProfit  = $baseProfit + $rowExtProfit;
-                                    $rowRevenue = $orderItem->charge_ngn + $rowExtRevenue;
-                                    $profitPct  = $rowRevenue > 0 ? ($rowProfit / $rowRevenue * 100) : 0;
+                                    if ($canSeeProfit) {
+                                        $baseProfit = $orderItem->profit ?? \App\Services\PricingService::calculateProfit(
+                                            $orderItem->charge_ngn, $orderItem->quantity, $orderItem->service_name
+                                        );
+                                        $rowExtProfit  = (float) ($orderItem->extensions_profit ?? 0);
+                                        $rowExtRevenue = (float) ($orderItem->extensions_revenue ?? 0);
+
+                                        $rowProfit  = $baseProfit + $rowExtProfit;
+                                        $rowRevenue = $orderItem->charge_ngn + $rowExtRevenue;
+                                        $profitPct  = $rowRevenue > 0 ? ($rowProfit / $rowRevenue * 100) : 0;
+                                    }
                                 @endphp
                                     <tr>
                                         <td><code class="fs-11">#{{ substr($orderItem->id, 0, 8) }}</code></td>
@@ -232,7 +238,7 @@
                                         </td>
                                         <td>{{ number_format($orderItem->quantity) }}</td>
                                         <td class="text-success fw-bold">@money($orderItem->charge, $orderItem->currency)</td>
-                                        @if(!$isSupport)
+                                        @if($canSeeProfit)
                                         <td>
                                             <span class="text-primary fw-bold">₦{{ number_format($rowProfit, 2) }}</span>
                                             <small class="text-muted d-block">{{ number_format($profitPct, 1) }}%</small>
@@ -275,7 +281,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="{{ $isSupport ? 9 : 10 }}" class="text-center py-4 text-muted">
+                                        <td colspan="{{ $canSeeProfit ? 10 : 9 }}" class="text-center py-4 text-muted">
                                             <i class="feather-inbox fs-3 d-block mb-2"></i> No orders found
                                         </td>
                                     </tr>

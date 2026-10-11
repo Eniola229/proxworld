@@ -87,7 +87,7 @@
                                     <input type="text"
                                            name="panel_name"
                                            class="form-control @error('panel_name') is-invalid @enderror"
-                                           placeholder="e.g. SocialBoost Pro"
+                                           placeholder="e.g. Proxy Pro"
                                            value="{{ old('panel_name') }}" />
                                     @error('panel_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
