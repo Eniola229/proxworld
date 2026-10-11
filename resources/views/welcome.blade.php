@@ -168,42 +168,205 @@
             transform: translateY(-2px);
         }
 
-        /* HERO */
-        .hero {
-            min-height: 100vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            padding: 9rem 3rem 5rem;
-            position: relative;
-            overflow: hidden;
-            gap: 4rem;
+        .btn-large {
+            padding: 1rem 2.5rem;
+            font-size: 0.9rem;
         }
 
-        /* Subtle dot grid */
-        .hero::after {
+        /* HERO */
+        .hero {
+            padding: 6.5rem 1.5rem 1.5rem;
+        }
+        .hero-card {
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 8rem);
+            border-radius: 28px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #60A5FA 100%);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        /* Dot grid */
+        .hero-card::after {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(circle, rgba(37, 99, 235, 0.12) 1px, transparent 1px);
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
             background-size: 36px 36px;
             pointer-events: none;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
         }
 
         .hero-glow {
             position: absolute;
-            width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.09) 0%, transparent 70%);
-            top: -200px; right: -200px;
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
+            top: -280px; left: 50%;
+            transform: translateX(-50%);
             pointer-events: none;
         }
-        .hero-glow-2 {
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(8px);
+            padding: 0.6rem 1.3rem;
+            border-radius: 40px;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: rise 0.8s ease forwards 0.2s;
+        }
+        .hero-pill .dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #4ADE80;
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
+            animation: blink 1.4s ease-in-out infinite;
+        }
+        .hero-pill .sep { opacity: 0.4; }
+
+        .hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3.8rem, 9vw, 8.5rem);
+            line-height: 0.95;
+            letter-spacing: -1px;
+            color: #fff;
+            opacity: 0;
+            animation: rise 1s ease forwards 0.4s;
+        }
+        .hero h1 .outline {
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.55);
+            color: transparent;
+        }
+
+        .hero-desc {
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 1.1rem;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-top: 1.8rem;
+            max-width: 560px;
+            opacity: 0;
+            animation: rise 1s ease forwards 0.6s;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2.5rem;
+            opacity: 0;
+            animation: rise 1s ease forwards 0.8s;
+        }
+        .btn-white {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 0 6px 24px rgba(15, 23, 42, 0.22);
+        }
+        .btn-white:hover {
+            background: #F1F5FF;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(15, 23, 42, 0.3);
+        }
+        .btn-outline-white {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+        .btn-outline-white:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #fff;
+        }
+
+        .hero-note {
+            margin-top: 1.6rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.65);
+            opacity: 0;
+            animation: rise 1s ease forwards 1s;
+        }
+
+        /* Floating tiles */
+        .hero-tile {
             position: absolute;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
-            bottom: 0; left: 10%;
+            z-index: 1;
+            width: 76px; height: 76px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-size: 1.6rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        }
+        .hero-tile:nth-of-type(1) { top: 20%; left: 5%;  animation: orbit1 8s ease-in-out infinite; }
+        .hero-tile:nth-of-type(2) { top: 50%; left: 14%; animation: orbit2 9s ease-in-out infinite; }
+        .hero-tile:nth-of-type(3) { bottom: 8%; left: 4%; animation: orbit3 7s ease-in-out infinite; }
+        .hero-tile:nth-of-type(4) { top: 20%; right: 5%; animation: orbit2 8s ease-in-out infinite 0.5s; }
+        .hero-tile:nth-of-type(5) { top: 50%; right: 14%; animation: orbit1 9s ease-in-out infinite 1s; }
+        .hero-tile:nth-of-type(6) { bottom: 8%; right: 4%; animation: orbit3 10s ease-in-out infinite 1.5s; }
+
+        .hero-lines {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
             pointer-events: none;
+        }
+        .hero-lines path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.35);
+            stroke-width: 1.5;
+            stroke-dasharray: 6 8;
+            vector-effect: non-scaling-stroke;
+        }
+
+        @keyframes orbit1 {
+            0%,100% { transform: translate(0,0) rotate(0deg); }
+            33%      { transform: translate(8px,-10px) rotate(5deg); }
+            66%      { transform: translate(-5px,8px) rotate(-3deg); }
+        }
+        @keyframes orbit2 {
+            0%,100% { transform: translate(0,0); }
+            50%      { transform: translate(-10px,-8px); }
+        }
+        @keyframes orbit3 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(6px,10px) scale(1.05); }
+        }
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50%      { opacity: 0.3; }
         }
 
         /* PROXY TYPE CARDS */
@@ -229,361 +392,6 @@
         .tp-dc  { background: #EDE9FE; color: #6D28D9; }
         .tp-isp { background: #CCFBF1; color: #0F766E; }
         .tp-mob { background: #FFEDD5; color: #C2410C; }
-
-        .hero-left {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .hero-eyebrow {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--accent);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            opacity: 0;
-            animation: rise 0.8s ease forwards 0.3s;
-        }
-        .hero-eyebrow::before {
-            content: '';
-            display: inline-block;
-            width: 40px; height: 1.5px;
-            background: var(--accent);
-        }
-
-        .hero h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(5rem, 8vw, 9rem);
-            line-height: 0.92;
-            letter-spacing: -1px;
-            color: var(--navy);
-            opacity: 0;
-            animation: rise 1s ease forwards 0.5s;
-        }
-        .hero h1 .outline {
-            -webkit-text-stroke: 2px rgba(15, 23, 42, 0.2);
-            color: transparent;
-        }
-        .hero h1 .blue { color: var(--accent); }
-
-        .hero-desc {
-            color: var(--muted);
-            font-size: 1.05rem;
-            line-height: 1.75;
-            font-weight: 400;
-            margin-top: 1.8rem;
-            max-width: 420px;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.7s;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-top: 2.5rem;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.9s;
-        }
-
-        .btn-large {
-            padding: 1rem 2.5rem;
-            font-size: 0.9rem;
-        }
-
-        /* HERO RIGHT */
-        .hero-right {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.6s;
-        }
-
-        .social-panel {
-            position: relative;
-            width: 100%;
-            max-width: 420px;
-        }
-
-        .social-cards-scroll {
-            max-height: 340px;
-            overflow: hidden;
-            position: relative;
-            border-radius: 14px;
-        }
-
-        .social-cards-track {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            animation: scrollCards 22s linear infinite;
-        }
-        .social-cards-track:hover { animation-play-state: paused; }
-
-        @keyframes scrollCards {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-
-        .soc-card {
-            background: var(--white);
-            border: 1px solid var(--border-2);
-            border-radius: 14px;
-            padding: 0.9rem 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            box-shadow: var(--shadow);
-            flex-shrink: 0;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .soc-card:hover {
-            border-color: var(--electric);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .soc-card-icon {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        .ig-bg { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .tt-bg { background: #111; }
-        .yt-bg { background: #FF0000; }
-        .tw-bg { background: #1DA1F2; }
-        .fb-bg { background: #1877F2; }
-        .sp-bg { background: #1DB954; }
-        .tg-bg { background: #0088cc; }
-        .wa-bg { background: #25D366; }
-        .li-bg { background: #0A66C2; }
-        .res-bg { background: #2563EB; }
-        .dc-bg  { background: #7C3AED; }
-        .isp-bg { background: #0D9488; }
-        .mob-bg { background: #EA580C; }
-
-        .soc-card-info { flex: 1; min-width: 0; }
-        .soc-card-name {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--navy);
-            margin-bottom: 0.1rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .soc-card-handle {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--soft);
-            letter-spacing: 0.5px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .soc-card-right {
-            text-align: right;
-            flex-shrink: 0;
-            display: flex; flex-direction: column;
-            align-items: flex-end; gap: 0.2rem;
-        }
-        .soc-card-count {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.4rem; line-height: 1;
-            color: var(--navy);
-        }
-        .soc-card-count.green { color: #059669; }
-        .soc-card-count.gold  { color: var(--gold); }
-        .soc-card-metric {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.58rem;
-            color: var(--soft);
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .soc-card-country {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.55rem;
-            color: #059669; letter-spacing: 0.5px;
-            display: flex; align-items: center; gap: 0.3rem;
-        }
-        .soc-card-country::before { content: '▲'; font-size: 0.45rem; }
-
-        /* Fade edges */
-        .social-cards-scroll::before,
-        .social-cards-scroll::after {
-            content: '';
-            position: absolute;
-            left: 0; right: 0; height: 50px; z-index: 2; pointer-events: none;
-        }
-        .social-cards-scroll::before { top: 0; background: linear-gradient(to bottom, var(--bg), transparent); }
-        .social-cards-scroll::after  { bottom: 0; background: linear-gradient(to top, var(--bg), transparent); }
-
-        /* Orbit icons */
-        .orbit-icons {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none; z-index: -1;
-        }
-        .orbit-icon {
-            position: absolute;
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: var(--white);
-            border: 1px solid var(--border-2);
-            box-shadow: var(--shadow);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
-            color: var(--muted);
-        }
-        .orbit-icon:nth-child(1) { top: 2%; left: 40%; animation: orbit1 8s ease-in-out infinite; }
-        .orbit-icon:nth-child(2) { top: 20%; right: -8%; animation: orbit2 9s ease-in-out infinite; }
-        .orbit-icon:nth-child(3) { top: 55%; right: -10%; animation: orbit3 7s ease-in-out infinite; }
-        .orbit-icon:nth-child(4) { bottom: 5%; right: 20%; animation: orbit1 10s ease-in-out infinite 1s; }
-        .orbit-icon:nth-child(5) { bottom: 15%; left: -8%; animation: orbit2 8s ease-in-out infinite 2s; }
-        .orbit-icon:nth-child(6) { top: 38%; left: -10%; animation: orbit3 9s ease-in-out infinite 0.5s; }
-
-        @keyframes orbit1 {
-            0%,100% { transform: translate(0,0) rotate(0deg); }
-            33%      { transform: translate(8px,-10px) rotate(5deg); }
-            66%      { transform: translate(-5px,8px) rotate(-3deg); }
-        }
-        @keyframes orbit2 {
-            0%,100% { transform: translate(0,0); }
-            50%      { transform: translate(-10px,-8px); }
-        }
-        @keyframes orbit3 {
-            0%,100% { transform: translate(0,0) scale(1); }
-            50%      { transform: translate(6px,10px) scale(1.05); }
-        }
-
-        .live-badge {
-            position: absolute;
-            top: -14px; right: 0px;
-            background: linear-gradient(135deg, #059669, #047857);
-            color: white;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            display: flex; align-items: center; gap: 0.4rem;
-            box-shadow: 0 4px 14px rgba(5,150,105,0.35);
-            z-index: 3;
-        }
-        .live-dot {
-            width: 6px; height: 6px;
-            background: white; border-radius: 50%;
-            animation: blink 1.2s ease-in-out infinite;
-        }
-        @keyframes blink {
-            0%,100% { opacity: 1; }
-            50%      { opacity: 0.3; }
-        }
-
-        /* ACTIVITY FEED */
-        .activity-feed {
-            margin-top: 1rem;
-            background: var(--white);
-            border: 1px solid var(--border-2);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .activity-feed-header {
-            padding: 0.6rem 1rem;
-            border-bottom: 1px solid rgba(37,99,235,0.1);
-            display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-2);
-        }
-        .activity-feed-header span {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-        .activity-feed-header .green-dot {
-            width: 6px; height: 6px;
-            background: #059669; border-radius: 50%;
-            box-shadow: 0 0 6px #059669;
-            animation: blink 1.5s ease-in-out infinite;
-        }
-        .activity-items {
-            max-height: 115px;
-            overflow: hidden;
-            position: relative;
-        }
-        .activity-track { display: flex; flex-direction: column; }
-        .activity-item {
-            padding: 0.55rem 1rem;
-            display: flex; align-items: center; gap: 0.6rem;
-            border-bottom: 1px solid rgba(37,99,235,0.06);
-            animation: slideInActivity 0.4s ease;
-        }
-        @keyframes slideInActivity {
-            from { opacity: 0; transform: translateX(-10px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        .activity-icon {
-            width: 26px; height: 26px;
-            border-radius: 7px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem;
-            flex-shrink: 0;
-        }
-        .activity-text {
-            flex: 1;
-            font-size: 0.7rem;
-            color: var(--muted);
-            line-height: 1.3;
-        }
-        .activity-text strong { color: var(--navy); font-weight: 700; }
-        .activity-text .hl   { color: #059669; font-weight: 700; }
-        .activity-time {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.55rem;
-            color: var(--soft);
-            flex-shrink: 0;
-        }
-
-        /* Counter bar */
-        .counter-bar {
-            margin-top: 0.75rem;
-            background: var(--white);
-            border: 1px solid var(--border-2);
-            border-radius: 10px;
-            padding: 0.8rem 1.1rem;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: var(--shadow);
-        }
-
-        .scroll-hint {
-            position: absolute; bottom: 2.5rem; left: 50%;
-            transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-            opacity: 0;
-            animation: rise 1s ease forwards 1.2s;
-        }
-        .scroll-hint span {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            color: var(--soft);
-            text-transform: uppercase;
-        }
-        .scroll-line {
-            width: 1px; height: 50px;
-            background: linear-gradient(to bottom, var(--accent), transparent);
-            animation: pulse-line 2s ease-in-out infinite;
-        }
-        @keyframes pulse-line {
-            0%,100% { opacity: 0.3; }
-            50%      { opacity: 1; }
-        }
 
         /* TICKER */
         .ticker-wrap {
@@ -782,70 +590,86 @@
             font-family: 'DM Mono', monospace;
         }
 
-        /* PARTNER */
-        .partner-section {
+        /* BLOG (home page) */
+        .blog-section {
             padding: 6rem 3rem;
             background: var(--bg-2);
             border-top: 1px solid var(--border-2);
         }
-        .partner-inner {
-            max-width: 1400px; margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6rem; align-items: center;
+        .blog-inner { max-width: 1400px; margin: 0 auto; }
+        .blog-head {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            flex-wrap: wrap; gap: 2rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-2);
         }
-        .partner-left h2 {
+        .blog-head h2 {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3rem, 5vw, 4.5rem);
-            line-height: 1.0; margin: 1rem 0 1.5rem;
+            font-size: clamp(3rem, 6vw, 5rem); line-height: 1;
             color: var(--navy);
         }
-        .partner-left p {
+        .blog-head h2 .outline {
+            -webkit-text-stroke: 2px rgba(15, 23, 42, 0.2);
+            color: transparent;
+        }
+        .blog-head p {
             color: var(--muted);
-            line-height: 1.7; font-size: 0.95rem;
-            margin-bottom: 2rem;
+            font-size: 0.92rem; max-width: 340px;
+            text-align: right; line-height: 1.6;
         }
-        .partner-badges {
-            display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 2.5rem;
+
+        .hb-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.5rem;
         }
-        .badge {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 0.4rem 0.9rem;
-            border: 1px solid var(--border-2);
-            border-radius: 3px;
-            color: var(--muted);
+        .hb-card {
+            grid-column: span 2;
             background: var(--white);
-        }
-        .partner-right { position: relative; }
-        .partner-card {
-            background: var(--white);
-            border: 1px solid var(--border-2);
-            border-radius: 12px;
-            padding: 3rem;
-            position: relative;
+            border: 1px solid var(--border);
+            border-radius: 14px;
             overflow: hidden;
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            color: inherit;
+            display: flex; flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+        }
+        .hb-card:nth-child(-n+2) { grid-column: span 3; }
+        .hb-card:hover {
+            transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
+            border-color: var(--electric);
         }
-        .partner-card::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(circle at top right, rgba(37,99,235,0.04), transparent 60%);
-            pointer-events: none;
+        .hb-img {
+            width: 100%; aspect-ratio: 16/10;
+            background: var(--bg-3) center/cover no-repeat;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--soft); font-size: 2rem;
         }
-        .partner-logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 3.5rem; letter-spacing: 4px;
-            color: var(--navy); margin-bottom: 0.5rem;
+        .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/8; }
+        .hb-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+        .hb-date {
+            font-family: 'DM Mono', monospace; font-size: 0.68rem;
+            color: var(--soft); letter-spacing: 1px; text-transform: uppercase;
         }
-        .partner-logo span { color: var(--accent); }
-        .partner-card p {
-            color: var(--muted);
-            font-size: 0.85rem; line-height: 1.6; margin-bottom: 2rem;
+        .hb-title {
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+            line-height: 1.35; color: var(--navy);
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .partner-card .btn-solid { width: 100%; text-align: center; }
+        .hb-card:nth-child(-n+2) .hb-title { font-size: 1.3rem; }
+        .hb-excerpt {
+            color: var(--muted); font-size: 0.88rem; line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .hb-more {
+            margin-top: auto; padding-top: 0.5rem;
+            font-family: 'DM Mono', monospace; font-size: 0.72rem;
+            color: var(--accent); letter-spacing: 1px; text-transform: uppercase;
+        }
+        .blog-cta { text-align: center; margin-top: 3rem; }
 
         /* CTA */
         .cta-section {
@@ -962,12 +786,17 @@
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
         /* ─── RESPONSIVE ─── */
+        @media (max-width: 1100px) {
+            .hero-tile:nth-of-type(2),
+            .hero-tile:nth-of-type(5) { display: none; }
+        }
         @media (max-width: 900px) {
             nav { padding: 1.2rem 1.5rem; }
             .nav-links { display: none; }
-            .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 4rem; gap: 3rem; }
-            .hero h1 { font-size: clamp(3.5rem, 14vw, 7rem); }
-            .hero-right { display: none; }
+            .hero { padding: 5.5rem 1rem 1rem; }
+            .hero-card { min-height: auto; border-radius: 20px; padding: 4rem 1.5rem; }
+            .hero h1 { font-size: clamp(3.4rem, 15vw, 6rem); }
+            .hero-tile, .hero-lines { display: none; }
             .stats-section { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
             .stat-item { border-right: none; border-bottom: 1px solid var(--border-2); padding: 2rem 1.5rem; }
             .features { padding: 4rem 1.5rem; }
@@ -976,12 +805,22 @@
             .platforms-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
             .platforms-header p { text-align: left; }
             .platforms-grid { grid-template-columns: repeat(4, 1fr); }
-            .partner-section { padding: 4rem 1.5rem; }
-            .partner-inner { grid-template-columns: 1fr; gap: 3rem; }
+            .blog-section { padding: 4rem 1.5rem; }
+            .blog-head p { text-align: left; }
+            .hb-grid { grid-template-columns: repeat(2, 1fr); }
+            .hb-card, .hb-card:nth-child(-n+2) { grid-column: span 1; }
+            .hb-card:last-child:nth-child(odd) { grid-column: span 2; }
+            .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/10; }
+            .hb-card:nth-child(-n+2) .hb-title { font-size: 1.1rem; }
             .cta-section { padding: 5rem 1.5rem; }
             footer { padding: 3rem 1.5rem 2rem; }
             .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 600px) {
+            .hb-grid { grid-template-columns: 1fr; }
+            .hb-card:last-child:nth-child(odd) { grid-column: span 1; }
+            .hero-actions .btn-large { width: 100%; text-align: center; }
         }
         @media (max-width: 500px) {
             .platforms-grid { grid-template-columns: repeat(3, 1fr); }
@@ -1027,7 +866,7 @@
         <a href="#" class="logo">Prox<span>World</span></a>
         <ul class="nav-links">
             <li><a href="#features">Features</a></li>
-            <li><a href="#platforms">Platforms</a></li>
+            <li><a href="#platforms">Locations</a></li>
             <li><a href="{{ route('api.docs') }}">Api</a></li>
             <li><a href="{{ route('blog.index') }}">Blog</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -1039,69 +878,50 @@
     </nav>
 
     <section class="hero">
-        <div class="hero-glow"></div>
-        <div class="hero-glow-2"></div>
+        <div class="hero-card">
+            <div class="hero-glow"></div>
 
-        <div class="hero-left">
-            <div class="hero-eyebrow">Premium Proxy Network</div>
-            <h1>
-                Power<br>
-                <span class="outline">Your</span><br>
-                <span class="blue">Connections</span>
-            </h1>
-            <p class="hero-desc">
-                Residential, datacenter, ISP and mobile proxies across 190+ countries.
-                Fast, reliable, and built for scraping, automation, and anonymity at scale.
-            </p>
-            <div class="hero-actions">
-                <a href="{{ route('register') }}" class="btn btn-solid btn-large">Get Proxies</a>
-                <a href="#features" class="btn btn-ghost btn-large">See How</a>
+            <!-- Curved connector lines -->
+            <svg class="hero-lines" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M 90 190 C 90 330, 70 450, 0 590"></path>
+                <path d="M 150 370 C 150 450, 140 520, 110 600"></path>
+                <path d="M 910 190 C 910 330, 930 450, 1000 590"></path>
+                <path d="M 850 370 C 850 450, 860 520, 890 600"></path>
+            </svg>
+
+            <!-- Floating tiles -->
+            <div class="hero-tile"><i class="fas fa-house-user"></i></div>
+            <div class="hero-tile"><i class="fas fa-server"></i></div>
+            <div class="hero-tile"><i class="fas fa-globe"></i></div>
+            <div class="hero-tile"><i class="fas fa-network-wired"></i></div>
+            <div class="hero-tile"><i class="fas fa-mobile-screen"></i></div>
+            <div class="hero-tile"><i class="fas fa-shield-halved"></i></div>
+
+            <div class="hero-content">
+                <div class="hero-pill">
+                    <span class="dot"></span>
+                    Premium Proxy Network
+                    <span class="sep">|</span>
+                    190+ Countries
+                </div>
+
+                <h1>
+                    Power <span class="outline">Your</span><br>
+                    Connections
+                </h1>
+
+                <p class="hero-desc">
+                    Residential, datacenter, ISP and mobile proxies across 190+ countries.
+                    Fast, reliable, and built for scraping, automation, and anonymity at scale.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="{{ route('register') }}" class="btn btn-white btn-large">Get Proxies</a>
+                    <a href="#features" class="btn btn-outline-white btn-large">See How</a>
+                </div>
+
+                <div class="hero-note">Instant delivery · 99.9% uptime · 24/7 support</div>
             </div>
-        </div>
-
-        <div class="hero-right">
-            <div class="social-panel">
-                <div class="orbit-icons">
-                    <div class="orbit-icon"><i class="fas fa-house-user"></i></div>
-                    <div class="orbit-icon"><i class="fas fa-server"></i></div>
-                    <div class="orbit-icon"><i class="fas fa-network-wired"></i></div>
-                    <div class="orbit-icon"><i class="fas fa-mobile-screen"></i></div>
-                    <div class="orbit-icon"><i class="fas fa-globe"></i></div>
-                    <div class="orbit-icon"><i class="fas fa-shield-halved"></i></div>
-                </div>
-
-                <div class="live-badge">
-                    <div class="live-dot"></div>
-                    Live Network
-                </div>
-
-                <div class="social-cards-scroll">
-                    <div class="social-cards-track" id="cardsTrack"></div>
-                </div>
-
-                <div class="activity-feed">
-                    <div class="activity-feed-header">
-                        <span>Live Activity</span>
-                        <div class="green-dot"></div>
-                    </div>
-                    <div class="activity-items">
-                        <div class="activity-track" id="activityTrack"></div>
-                    </div>
-                </div>
-
-                <div class="counter-bar">
-                    <div style="display:flex;align-items:center;gap:0.6rem;">
-                        <div style="width:8px;height:8px;background:#059669;border-radius:50%;box-shadow:0 0 8px rgba(5,150,105,0.5);"></div>
-                        <span style="font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Proxies provisioned today</span>
-                    </div>
-                    <span id="order-counter" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#059669;">2,247</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="scroll-hint">
-            <span>Scroll</span>
-            <div class="scroll-line"></div>
         </div>
     </section>
 
@@ -1398,37 +1218,49 @@
     </div>
 </section>
 
-    <section class="partner-section">
-        <div class="partner-inner">
-            <div class="partner-left reveal">
-                <div class="section-tag">Partner Services</div>
-                <h2>Buy &amp; Sell<br>Verified Accounts</h2>
-                <p>Need an established account to jumpstart your presence? Or ready to sell your aged profiles? accpond is our trusted marketplace partner for safe, verified account transactions.</p>
-                <div class="partner-badges">
-                    <span class="badge">Verified Accounts</span>
-                    <span class="badge">Secure Transactions</span>
-                    <span class="badge">Instant Delivery</span>
-                    <span class="badge">24/7 Support</span>
-                </div>
-                <a href="https://www.accpond.com.ng" target="_blank" class="btn btn-solid btn-large">
-                    Visit accpond &nbsp;<i class="fas fa-arrow-right"></i>
-                </a>
+    {{-- ===== BLOG (latest 5 posts) ===== --}}
+    @php
+        $latestPosts = \App\Models\Newsletter::publishedOnBlog()->latest('sent_at')->limit(5)->get();
+    @endphp
+
+    @if($latestPosts->isNotEmpty())
+    <section id="blog" class="blog-section">
+        <div class="blog-inner">
+            <div class="section-tag reveal">From The Blog</div>
+
+            <div class="blog-head reveal">
+                <h2>Proxy Guides<br><span class="outline">&amp; Insights</span></h2>
+                <p>Tips, tutorials, and news on residential, datacenter, ISP, and mobile proxies — straight from the team building them.</p>
             </div>
-            <div class="partner-right reveal">
-                <div class="partner-card">
-                    <div class="partner-logo">Acco<span>pond</span></div>
-                    <p>Nigeria's trusted marketplace for buying and selling social media accounts. Thousands of verified buyers and sellers, every transaction protected.</p>
-                    <a href="https://www.accpond.com.ng" target="_blank" class="btn btn-solid" style="display:block; text-align:center;">
-                        Go to accpond.com.ng
+
+            <div class="hb-grid reveal">
+                @foreach($latestPosts as $post)
+                    <a href="{{ route('blog.show', $post->slug) }}" class="hb-card">
+                        <div class="hb-img" @if($post->featured_image_url) style="background-image:url('{{ $post->featured_image_url }}');" @endif>
+                            @unless($post->featured_image_url)
+                                <i class="fa-regular fa-image"></i>
+                            @endunless
+                        </div>
+                        <div class="hb-body">
+                            <span class="hb-date">{{ $post->sent_at->format('M d, Y') }}</span>
+                            <h3 class="hb-title">{{ $post->subject }}</h3>
+                            @if($post->excerpt)
+                                <p class="hb-excerpt">{{ $post->excerpt }}</p>
+                            @endif
+                            <span class="hb-more">Read Article →</span>
+                        </div>
                     </a>
-                    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-2);display:flex;gap:0.5rem;align-items:center;">
-                        <i class="fas fa-shield-alt" style="color:var(--accent);font-size:0.8rem;"></i>
-                        <span style="font-size:0.75rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;">TRUSTED BY THOUSANDS WORLDWIDE</span>
-                    </div>
-                </div>
+                @endforeach
+            </div>
+
+            <div class="blog-cta reveal">
+                <a href="{{ route('blog.index') }}" class="btn btn-solid btn-large">
+                    View All Blogs &nbsp;<i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
     </section>
+    @endif
 
     <section class="cta-section">
         <h2 class="reveal">
@@ -1459,7 +1291,7 @@
                     <li><a href="{{ route('login') }}">Login</a></li>
                     <li><a href="{{ route('register') }}">Sign Up</a></li>
                     <li><a href="#features">Features</a></li>
-                    <li><a href="#platforms">Platforms</a></li>
+                    <li><a href="#platforms">Locations</a></li>
                     <li><a href="{{ route('blog.index') }}">Blog</a></li>
                 </ul>
             </div>
@@ -1496,116 +1328,6 @@
             return '<img class="flag" src="https://flagcdn.com/w40/' + code + '.png" alt="' + code.toUpperCase() + '"> ';
         });
     }
-
-    const socialCards = [
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Tolani Adewale', handle: 'Residential Proxy', metric: 'Bandwidth', count: '50 GB', countColor: 'green', gained: '+50GB', from: '🇳🇬 Nigeria' },
-        { icon: 'fas fa-server', bg: 'dc-bg', name: 'Marcus Chen', handle: 'Datacenter Proxy', metric: 'IPs', count: '100', countColor: 'green', gained: '+100 IPs', from: '🇺🇸 USA' },
-        { icon: 'fas fa-network-wired', bg: 'isp-bg', name: 'Amira Hassan', handle: 'ISP Proxy', metric: 'IPs', count: '25', countColor: 'green', gained: '+25 IPs', from: '🇦🇪 UAE' },
-        { icon: 'fas fa-mobile-screen', bg: 'mob-bg', name: 'Jake Morrison', handle: 'Mobile Proxy', metric: 'Bandwidth', count: '10 GB', countColor: 'green', gained: '+10GB', from: '🇬🇧 UK' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Chidinma Obi', handle: 'Residential Proxy', metric: 'Bandwidth', count: '200 GB', countColor: 'gold', gained: '+200GB', from: '🇳🇬 Nigeria' },
-        { icon: 'fas fa-server', bg: 'dc-bg', name: 'Sofia Reyes', handle: 'Datacenter Proxy', metric: 'IPs', count: '500', countColor: 'green', gained: '+500 IPs', from: '🇲🇽 Mexico' },
-        { icon: 'fas fa-network-wired', bg: 'isp-bg', name: 'David Okonkwo', handle: 'ISP Proxy', metric: 'IPs', count: '50', countColor: 'green', gained: '+50 IPs', from: '🇬🇭 Ghana' },
-        { icon: 'fas fa-mobile-screen', bg: 'mob-bg', name: 'Luca Ferri', handle: 'Mobile Proxy', metric: 'Bandwidth', count: '20 GB', countColor: 'green', gained: '+20GB', from: '🇮🇹 Italy' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Priya Kapoor', handle: 'Residential Proxy', metric: 'Bandwidth', count: '75 GB', countColor: 'green', gained: '+75GB', from: '🇮🇳 India' },
-        { icon: 'fas fa-server', bg: 'dc-bg', name: 'Kwame Asante', handle: 'Datacenter Proxy', metric: 'IPs', count: '1,000', countColor: 'gold', gained: '+1K IPs', from: '🇬🇭 Ghana' },
-        { icon: 'fas fa-network-wired', bg: 'isp-bg', name: 'Fatima Al-Rashid', handle: 'ISP Proxy', metric: 'IPs', count: '30', countColor: 'green', gained: '+30 IPs', from: '🇸🇦 Saudi Arabia' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Ryan Brooks', handle: 'Residential Proxy', metric: 'Bandwidth', count: '150 GB', countColor: 'gold', gained: '+150GB', from: '🇺🇸 USA' },
-        { icon: 'fas fa-mobile-screen', bg: 'mob-bg', name: 'Yemi Daniels', handle: 'Mobile Proxy', metric: 'Bandwidth', count: '15 GB', countColor: 'green', gained: '+15GB', from: '🇳🇬 Nigeria' },
-        { icon: 'fas fa-server', bg: 'dc-bg', name: 'Ling Wei', handle: 'Datacenter Proxy', metric: 'IPs', count: '2,000', countColor: 'gold', gained: '+2K IPs', from: '🇨🇳 China' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: "Emeka's Team", handle: 'Residential Proxy', metric: 'Bandwidth', count: '500 GB', countColor: 'green', gained: '+500GB', from: '🌍 Worldwide' },
-        { icon: 'fas fa-network-wired', bg: 'isp-bg', name: 'Isabella Moreno', handle: 'ISP Proxy', metric: 'IPs', count: '40', countColor: 'gold', gained: '+40 IPs', from: '🇧🇷 Brazil' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Tunde Marketing', handle: 'Residential Proxy', metric: 'Bandwidth', count: '300 GB', countColor: 'green', gained: '+300GB', from: '🌍 Multi-Country' },
-        { icon: 'fas fa-mobile-screen', bg: 'mob-bg', name: 'Emma Johansson', handle: 'Mobile Proxy', metric: 'Bandwidth', count: '25 GB', countColor: 'green', gained: '+25GB', from: '🇸🇪 Sweden' },
-        { icon: 'fas fa-server', bg: 'dc-bg', name: 'Ahmed Yusuf', handle: 'Datacenter Proxy', metric: 'IPs', count: '150', countColor: 'green', gained: '+150 IPs', from: '🇰🇪 Kenya' },
-        { icon: 'fas fa-house-user', bg: 'res-bg', name: 'Carlos Mendez', handle: 'Residential Proxy', metric: 'Bandwidth', count: '400 GB', countColor: 'gold', gained: '+400GB', from: '🇦🇷 Argentina' },
-    ];
-
-    function shuffle(arr) {
-        const a = [...arr];
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-    }
-
-    function buildCard(card) {
-        return `
-        <div class="soc-card">
-            <div class="soc-card-icon ${card.bg}"><i class="${card.icon}" style="color:#fff"></i></div>
-            <div class="soc-card-info">
-                <div class="soc-card-name">${card.name}</div>
-                <div class="soc-card-handle">${card.handle}</div>
-            </div>
-            <div class="soc-card-right">
-                <div class="soc-card-count ${card.countColor}">${card.count}</div>
-                <div class="soc-card-metric">${card.metric}</div>
-                <div class="soc-card-country">${card.gained} added</div>
-            </div>
-        </div>`;
-    }
-
-    const track = document.getElementById('cardsTrack');
-    const shuffled = shuffle(socialCards);
-    const doubled = [...shuffled, ...shuffled];
-    track.innerHTML = doubled.map(buildCard).join('');
-
-    // ACTIVITY FEED
-    const activityEvents = [
-        { icon: 'fas fa-house-user', bg: '#2563EB', text: '<strong>Tolani A.</strong> just provisioned <span class="hl">+50GB residential</span> from 🇳🇬 Nigeria' },
-        { icon: 'fas fa-server', bg: '#7C3AED', text: '<strong>Emeka B.</strong> received <span class="hl">+100 datacenter IPs</span> from 🇺🇸 USA' },
-        { icon: 'fas fa-mobile-screen', bg: '#EA580C', text: '<strong>Sofia R.</strong> activated <span class="hl">+10GB mobile</span> proxy from 🇲🇽 Mexico' },
-        { icon: 'fas fa-network-wired', bg: '#0D9488', text: '<strong>KwameBuilds</strong> got <span class="hl">+25 ISP IPs</span> from 🇬🇧 UK' },
-        { icon: 'fas fa-house-user', bg: '#2563EB', text: '<strong>Ryan B.</strong> provisioned <span class="hl">+150GB residential</span> from 🇺🇸 United States' },
-        { icon: 'fas fa-server', bg: '#7C3AED', text: '<strong>Chidinma O.</strong> received <span class="hl">+200 datacenter IPs</span> instantly' },
-        { icon: 'fas fa-network-wired', bg: '#0D9488', text: '<strong>Fatima A.</strong> added <span class="hl">+30 ISP IPs</span> from 🇦🇪 UAE' },
-        { icon: 'fas fa-mobile-screen', bg: '#EA580C', text: '<strong>Luca F.</strong> got <span class="hl">+20GB mobile</span> from 🇮🇹 Italy' },
-        { icon: 'fas fa-house-user', bg: '#2563EB', text: '<strong>Tunde M.</strong> activated <span class="hl">+300GB residential</span> from 🇬🇧 UK' },
-        { icon: 'fas fa-server', bg: '#7C3AED', text: '<strong>Priya K.</strong> provisioned <span class="hl">+500 datacenter IPs</span> from 🇮🇳 India' },
-        { icon: 'fas fa-house-user', bg: '#2563EB', text: '<strong>Marcus C.</strong> got <span class="hl">+75GB residential</span> from 🇺🇸 USA' },
-        { icon: 'fas fa-network-wired', bg: '#0D9488', text: '<strong>David O.</strong> received <span class="hl">+50 ISP IPs</span> from 🇬🇭 Ghana' },
-        { icon: 'fas fa-mobile-screen', bg: '#EA580C', text: '<strong>Yemi D.</strong> activated <span class="hl">+15GB mobile</span> proxy within minutes' },
-        { icon: 'fas fa-server', bg: '#7C3AED', text: '<strong>Emma J.</strong> received <span class="hl">+1,000 datacenter IPs</span> from 🇸🇪 Sweden' },
-        { icon: 'fas fa-house-user', bg: '#2563EB', text: '<strong>Aisha Group</strong> provisioned <span class="hl">+500GB residential</span> from 🇿🇦 South Africa' },
-        { icon: 'fas fa-network-wired', bg: '#0D9488', text: '<strong>Jake M.</strong> got <span class="hl">+40 ISP IPs</span> from 🇬🇧 UK' },
-    ];
-
-    let activityIndex = 0;
-    const activityTrack = document.getElementById('activityTrack');
-    function timeAgo() {
-        const opts = ['just now', '1m ago', '2m ago', '3m ago', '5m ago'];
-        return opts[Math.floor(Math.random() * opts.length)];
-    }
-    function addActivity() {
-        const event = activityEvents[activityIndex % activityEvents.length];
-        activityIndex++;
-        const item = document.createElement('div');
-        item.className = 'activity-item';
-        item.innerHTML = `
-            <div class="activity-icon" style="background:${event.bg}18;border:1px solid ${event.bg}30">
-                <i class="${event.icon}" style="color:${event.bg}"></i>
-            </div>
-            <div class="activity-text">${event.text}</div>
-            <div class="activity-time">${timeAgo()}</div>
-        `;
-        activityTrack.insertBefore(item, activityTrack.firstChild);
-        while (activityTrack.children.length > 4) {
-            activityTrack.removeChild(activityTrack.lastChild);
-        }
-    }
-    addActivity(); addActivity(); addActivity();
-    setInterval(addActivity, 2600);
-
-    // ORDER COUNTER
-    const counterEl = document.getElementById('order-counter');
-    let count = 2100 + Math.floor(Math.random() * 400);
-    counterEl.textContent = count.toLocaleString();
-    setInterval(() => {
-        if (Math.random() > 0.35) {
-            count += Math.floor(Math.random() * 4) + 1;
-            counterEl.textContent = count.toLocaleString();
-        }
-    }, 2800);
 
     // CURSOR
     const cursor = document.getElementById('cursor');

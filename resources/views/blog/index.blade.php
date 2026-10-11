@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog — ProxWorld | Proxy Guides, Tips &amp; News</title>
@@ -12,6 +12,17 @@
         <!--! BEGIN: Favicon-->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.png') }}" />
     <!--! END: Favicon-->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2T8TWXC01E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-2T8TWXC01E');
+    </script>
+
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -94,13 +105,13 @@
         /* GRID */
         .blog-grid {
             max-width: 1200px; margin: 0 auto;
-            padding: 1rem 3rem 6rem;
+            padding: 1rem 3rem 4rem;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
         }
         @media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; padding: 1rem 1.5rem 4rem; } }
+        @media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; padding: 1rem 1.5rem 3rem; } }
 
         .post-card {
             background: var(--surface);
@@ -147,8 +158,66 @@
             color: var(--muted);
         }
 
-        .pagination-wrap { display: flex; justify-content: center; padding-bottom: 4rem; }
-        .pagination-wrap nav { background: transparent; border: none; padding: 0; position: static; backdrop-filter: none; }
+        /* PAGINATION */
+        .pagination-wrap { display: flex; justify-content: center; padding: 0 1.5rem 5rem; }
+
+        .pager {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            flex-wrap: wrap; justify-content: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        .pager-pages { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; justify-content: center; }
+
+        .pager-btn {
+            min-width: 42px; height: 42px;
+            padding: 0 0.9rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem; font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: all 0.25s;
+        }
+        a.pager-btn:hover {
+            color: var(--accent);
+            background: var(--bg-2);
+            border-color: var(--border-2);
+            transform: translateY(-1px);
+        }
+        .pager-btn.is-active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+            cursor: default;
+        }
+        .pager-arrow {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.72rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--navy);
+            border-color: var(--border-2);
+        }
+        .pager-arrow i { font-size: 0.75rem; }
+        .pager-btn.is-disabled { opacity: 0.35; cursor: not-allowed; }
+        .pager-dots {
+            min-width: 28px; text-align: center;
+            font-family: 'DM Mono', monospace; color: var(--soft);
+        }
+
+        @media (max-width: 600px) {
+            .pager-label { display: none; }
+            .pager-arrow { padding: 0; width: 42px; }
+            .pager-btn { min-width: 38px; height: 38px; padding: 0 0.6rem; }
+            .pager-arrow { width: 38px; }
+        }
 
         @media (max-width: 900px) {
             nav { padding: 1.1rem 1.5rem; }
@@ -249,15 +318,6 @@
             .platforms-grid { grid-template-columns: repeat(3, 1fr); }
             .footer-top { grid-template-columns: 1fr; }
         }
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2T8TWXC01E"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-2T8TWXC01E');
-        </script>
     </style>
 </head>
 <body>
@@ -308,7 +368,7 @@
     </main>
 
     <div class="pagination-wrap">
-        {{ $posts->links() }}
+        {{ $posts->links('pagination.proxworld') }}
     </div>
 
     <footer id="contact">
