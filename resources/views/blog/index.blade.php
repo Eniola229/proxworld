@@ -326,7 +326,7 @@
         <a href="/" class="logo">Prox<span>World</span></a>
         <ul class="nav-links">
             <li><a href="{{ route('welcome') }}#features">Features</a></li>
-            <li><a href="{{ route('welcome') }}#platforms">Platforms</a></li>
+            <li><a href="{{ route('welcome') }}#platforms">Locations</a></li>
             <li><a href="{{ route('api.docs') }}">Api</a></li>
             <li><a href="{{ route('blog.index') }}">Blog</a></li>
             <li><a href="{{ route('welcome') }}#contact">Contact</a></li>
@@ -390,7 +390,7 @@
                     <li><a href="{{ route('login') }}">Login</a></li>
                     <li><a href="{{ route('register') }}">Sign Up</a></li>
                     <li><a href="#features">Features</a></li>
-                    <li><a href="#platforms">Platforms</a></li>
+                    <li><a href="#platforms">Locations</a></li>
                     <li><a href="{{ route('blog.index') }}">Blog</a></li>
                 </ul>
             </div>
