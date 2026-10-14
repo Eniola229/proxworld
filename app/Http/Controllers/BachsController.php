@@ -112,29 +112,52 @@ class BachsController extends Controller
             return;
         }
 
-        $currency = strtoupper((string) ($data['currency'] ?? ''));
+        // What the customer actually paid. For a USD-priced checkout Bachs may convert this to the
+        // customer's local currency (e.g. NGN), so it is NOT necessarily the currency we priced in.
+        $paidCurrency = strtoupper((string) ($data['currency'] ?? ''));
         $paid = (float) ($data['amount'] ?? 0);
 
-        if ($currency === '' || $paid <= 0) {
+        if ($paidCurrency === '' || $paid <= 0) {
             Log::error("Bachs charge {$reference} has no usable amount/currency.", ['data' => $data]);
 
             return;
         }
 
-        // Credit what we asked for, never more. Customer-borne fees can make the charged amount higher.
         $expected = $this->bachs->getExpected($reference);
 
         if ($expected) {
-            if ($expected['currency'] !== $currency || $paid + 0.01 < (float) $expected['amount']) {
-                Log::error('Bachs amount/currency mismatch', [
-                    'reference' => $reference, 'expected' => $expected, 'got' => ['amount' => $paid, 'currency' => $currency],
-                ]);
-
-                return;
-            }
-
+            $creditCurrency = strtoupper((string) $expected['currency']);
             $creditAmount = (float) $expected['amount'];
+
+            if ($paidCurrency === $creditCurrency) {
+                // Same currency: the amounts must line up. Credit what we asked for, never more
+                // (customer-borne fees can make the charged amount higher).
+                if ($paid + 0.01 < $creditAmount) {
+                    Log::error('Bachs amount/currency mismatch', [
+                        'reference' => $reference,
+                        'expected' => $expected,
+                        'got' => ['amount' => $paid, 'currency' => $paidCurrency],
+                    ]);
+
+                    return;
+                }
+            } else {
+                // Different currency: Bachs converted our price at checkout, so the amounts cannot be
+                // compared without their FX rate. The webhook is signed and its status is SUCCEEDED/OVERPAID
+                // (full price collected), and the price was locked when we created the checkout, so we
+                // credit exactly what we priced.
+                Log::info('Bachs charge paid in a different currency than priced; crediting the priced amount.', [
+                    'reference' => $reference,
+                    'priced' => $expected,
+                    'paid' => ['amount' => $paid, 'currency' => $paidCurrency],
+                    'settlement' => [
+                        'amount' => $data['settlement_amount'] ?? null,
+                        'currency' => $data['settlement_currency'] ?? null,
+                    ],
+                ]);
+            }
         } else {
+            $creditCurrency = $paidCurrency;
             $creditAmount = $paid;
         }
 
@@ -155,13 +178,15 @@ class BachsController extends Controller
 
         $walletTx = $this->wallet->credit($user, $creditAmount, TransactionType::TOPUP, [
             'reference' => $reference,
-            'currency' => $currency,
+            'currency' => $creditCurrency,
             'payment_method' => 'bachs',
             'status' => WalletTransactionStatus::SUCCESS,
             'description' => 'Wallet top-up via Bachs',
             'meta' => [
                 'bachs_charge_id' => $data['charge_id'] ?? null,
                 'bachs_checkout_id' => $data['checkout_id'] ?? null,
+                'paid_amount' => $paid,
+                'paid_currency' => $paidCurrency,
                 'raw' => $data,
             ],
         ]);
