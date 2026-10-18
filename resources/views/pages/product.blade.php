@@ -13,7 +13,7 @@
             <h1>{{ $p['name'] }}</h1>
             <p class="lede">{{ $p['intro'] }}</p>
             <div class="hero-cta">
-                <a href="{{ route('register') }}" class="btn btn-solid btn-large">Buy {{ strtolower($p['short']) }} proxies</a>
+                <a href="{{ route('order.create', ['type' => $slug]) }}" class="btn btn-solid btn-large">Buy {{ strtolower($p['short']) }} proxies</a>
                 <a href="{{ route('pricing') }}" class="btn btn-ghost btn-large">See pricing</a>
             </div>
         </div>
@@ -27,8 +27,8 @@
                 <div class="spec-row"><span>{{ $label }}</span><span>{{ $value }}</span></div>
             @endforeach
             <div class="panel-foot">
-                <a href="{{ route('register') }}" class="btn btn-solid btn-block">
-                    {{ $p['from'] ? 'From ' . $p['from'] . ' / ' . $p['unit'] : 'Get started' }}
+                <a href="{{ route('order.create', ['type' => $slug]) }}" class="btn btn-solid btn-block">
+                    {{ $p['from'] ? 'From ' . $p['from'] . ' / ' . $p['unit'] : 'Purchase now' }}
                 </a>
             </div>
         </div>
@@ -111,7 +111,7 @@
 <section class="cta-band">
     <h2>Ready to send your first request?</h2>
     <p>Create an account, fund your wallet and get your proxies in minutes.</p>
-    <a href="{{ route('register') }}" class="btn btn-light btn-large">Get started</a>
+    <a href="{{ route('order.create', ['type' => $slug]) }}" class="btn btn-light btn-large">Purchase now</a>
     <a href="{{ route('contact') }}" class="btn btn-outline-light btn-large">Talk to us</a>
 </section>
 

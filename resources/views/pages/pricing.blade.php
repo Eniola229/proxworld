@@ -39,7 +39,7 @@
                         <li>{{ $p['specs']['Protocols'] ?? 'HTTP(S), SOCKS5' }}</li>
                     </ul>
 
-                    <a href="{{ route('register') }}" class="btn btn-solid btn-block">Get started</a>
+                    <a href="{{ route('order.create', ['type' => $slug]) }}" class="btn btn-solid btn-block">Purchase now</a>
                     <a href="{{ route('products.show', $slug) }}" class="btn btn-ghost btn-block" style="margin-top:.7rem">Details</a>
                 </div>
             @endforeach
