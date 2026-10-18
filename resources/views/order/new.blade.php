@@ -293,7 +293,7 @@
                 <!-- ───────── Right: the order form + resources ───────── -->
                 <div class="col-xl-5">
                     <div class="card stretch stretch-full" id="order-card">
-                        <div class="card-header"><h5 class="card-title">Buy Proxies</h5></div>
+                        <div class="card-header"><h5 class="card-title" id="order-card-title">Buy Proxies</h5></div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('order.store') }}">
                                 @csrf
@@ -457,6 +457,8 @@ function fmtUnit(p) {
 
 // providersByType: { residential: [{type, provider_id, provider_name}, ...], ... }
 const providersByType = {!! json_encode($providersByType) !!};
+// typeNames: { residential: "Residential Proxies", ... } — used for the "Buy {name}" card title
+const typeNames = {!! json_encode($providersByType->keys()->mapWithKeys(fn ($t) => [$t => $catalog[$t]['name'] ?? ucfirst($t) . ' Proxies'])) !!};
 const servicesUrl  = "{{ route('order.services') }}";
 const countriesUrl = "{{ route('order.countries') }}";
 
@@ -877,6 +879,9 @@ function selectType(type) {
     });
 
     showTypeInfo(type);
+
+    // Card title: "Buy Residential Proxies", "Buy ISP Proxies", etc.
+    document.getElementById('order-card-title').textContent = 'Buy ' + (typeNames[type] || 'Proxies');
 
     // Keep the URL in sync so the page can be shared / refreshed on the same type.
     try {
