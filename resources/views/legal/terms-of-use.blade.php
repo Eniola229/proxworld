@@ -26,7 +26,7 @@
                                             <p class="lead terms-hero-subtitle mb-1">
                                                 Please read these terms carefully before using our services
                                             </p>
-                                            <p class="terms-hero-meta small mb-0">Last Updated: 20 Jan 2026</p>
+                                            <p class="terms-hero-meta small mb-0">Last Updated: 18 Oct 2026</p>
                                         </div>
                                     </div>
                                 </div>
@@ -473,7 +473,7 @@
                                                             <p class="mb-0 small">
                                                                 By using ProxWorld services, you acknowledge that you have read, understood, 
                                                                 and agree to be bound by these Terms of Use. 
-                                                                <strong>Last updated: 20 Jan 2026</strong>
+                                                                <strong>Last updated: 18 Oct 2026</strong>
                                                             </p>
                                                         </div>
                                                     </div>

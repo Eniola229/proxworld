@@ -63,7 +63,7 @@
                                                     <div class="border-start border-info border-4 ps-3 mb-4">
                                                         <h5 class="fw-bold mb-1"><i class="feather-external-link text-info me-2"></i>Third-Party Cookies</h5>
                                                     </div>
-                                                    <p class="text-muted mb-0">Our payment processor (Flutterwave) may set its own cookies during checkout, governed by its own privacy/cookie policy.</p>
+                                                    <p class="text-muted mb-0">Our payment processor(s)  may set its own cookies during checkout, governed by its own privacy/cookie policy.</p>
                                                 </div>
 
                                                 <div class="mb-5">

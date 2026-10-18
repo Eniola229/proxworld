@@ -151,12 +151,12 @@
                                                                             <strong>Yes!</strong> We use industry-standard security measures to protect your account and payment information.
                                                                         </div>
                                                                         <p class="mb-2">
-                                                                            We never ask for your other accounts' passwords, and all transactions are encrypted.
+                                                                            All transactions are encrypted, and payments are handled by trusted payment partners.
                                                                         </p>
                                                                         <div class="faq-alert faq-alert-warning mb-0">
                                                                             <i class="feather-alert-triangle me-2"></i>
-                                                                            Please note that using any proxy service may violate platform terms of service. 
-                                                                            We recommend reviewing your platform's policies before using our services.
+                                                                            Proxies are a tool like any other. Make sure your use is legal and follows the 
+                                                                            terms of the websites and services you connect to.
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -196,23 +196,29 @@
                                                                 <h2 class="accordion-header">
                                                                     <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#general4">
                                                                         <i class="feather-chevron-right me-2 accordion-icon"></i>
-                                                                        Do I need to provide any account passwords?
+                                                                        What do I get after I order?
                                                                     </button>
                                                                 </h2>
                                                                 <div id="general4" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
                                                                     <div class="accordion-body pt-0">
-                                                                        <div class="faq-alert faq-alert-danger">
-                                                                            <div class="d-flex align-items-start gap-3">
-                                                                                <i class="feather-shield fs-3"></i>
-                                                                                <div>
-                                                                                    <h6 class="mb-2"><strong>No! Absolutely not!</strong></h6>
-                                                                                    <p class="mb-0">
-                                                                                        We NEVER ask for passwords to any of your other accounts. All we need is your
-                                                                                        order details (plan, quantity, configuration). Be wary of any service that asks
-                                                                                        for unrelated account passwords — it's a red flag for scams.
-                                                                                    </p>
+                                                                        <p class="mb-3">
+                                                                            Once your order is <span class="badge bg-success text-white">Completed</span>, open it from
+                                                                            Order History to see your connection details:
+                                                                        </p>
+                                                                        <div class="row g-3 mb-3">
+                                                                            @foreach(['Host (proxy address)' => 'feather-globe', 'Port' => 'feather-hash', 'Username' => 'feather-user', 'Password' => 'feather-lock'] as $detail => $icon)
+                                                                            <div class="col-sm-6">
+                                                                                <div class="faq-platform-item d-flex align-items-center gap-2 p-3 rounded">
+                                                                                    <i class="{{ $icon }} text-primary"></i>
+                                                                                    <span>{{ $detail }}</span>
                                                                                 </div>
                                                                             </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        <div class="faq-alert faq-alert-info mb-0">
+                                                                            <i class="feather-info me-2"></i>
+                                                                            Enter these into any browser, bot, scraper or tool that supports HTTP or SOCKS5 proxies.
+                                                                            These are your proxy login details only. We never need passwords for any of your other accounts.
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -234,48 +240,48 @@
                                                                 </h2>
                                                                 <div id="orders1" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
                                                                     <div class="accordion-body pt-0">
-                                                                        <p class="mb-3">Delivery times vary by service type:</p>
+                                                                        <p class="mb-3">Proxy orders are delivered automatically. Here's what you'll see as your order moves along:</p>
                                                                         <div class="row g-3 mb-3">
                                                                             <div class="col-sm-6">
-                                                                                <div class="faq-delivery-card faq-delivery-success p-3 rounded">
+                                                                                <div class="faq-delivery-card faq-delivery-warning p-3 rounded">
                                                                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                                                                        <i class="feather-zap text-success"></i>
-                                                                                        <strong>Instant Services</strong>
+                                                                                        <i class="feather-clock text-warning"></i>
+                                                                                        <strong>Pending</strong>
                                                                                     </div>
-                                                                                    <small class="text-muted">Start within minutes</small>
+                                                                                    <small class="text-muted">Order received, not yet provisioned</small>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-sm-6">
                                                                                 <div class="faq-delivery-card faq-delivery-primary p-3 rounded">
                                                                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                                                                        <i class="feather-fast-forward text-primary"></i>
-                                                                                        <strong>Fast Services</strong>
+                                                                                        <i class="feather-refresh-cw text-primary"></i>
+                                                                                        <strong>Processing</strong>
                                                                                     </div>
-                                                                                    <small class="text-muted">Complete within 1-6 hours</small>
+                                                                                    <small class="text-muted">Being set up with the provider</small>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-6">
+                                                                                <div class="faq-delivery-card faq-delivery-success p-3 rounded">
+                                                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                                                        <i class="feather-zap text-success"></i>
+                                                                                        <strong>Completed</strong>
+                                                                                    </div>
+                                                                                    <small class="text-muted">Your proxy details are ready to use</small>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-sm-6">
                                                                                 <div class="faq-delivery-card faq-delivery-info p-3 rounded">
                                                                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                                                                        <i class="feather-clock text-info"></i>
-                                                                                        <strong>Standard Services</strong>
+                                                                                        <i class="feather-life-buoy text-info"></i>
+                                                                                        <strong>Taking too long?</strong>
                                                                                     </div>
-                                                                                    <small class="text-muted">Complete within 24-48 hours</small>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-sm-6">
-                                                                                <div class="faq-delivery-card faq-delivery-warning p-3 rounded">
-                                                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                                                        <i class="feather-trending-up text-warning"></i>
-                                                                                        <strong>Gradual Services</strong>
-                                                                                    </div>
-                                                                                    <small class="text-muted">Over several days (natural)</small>
+                                                                                    <small class="text-muted">Open a support ticket with your order ID</small>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                         <p class="mb-0 text-muted small">
                                                                             <i class="feather-info me-1"></i>
-                                                                            Check individual service descriptions for specific delivery timeframes.
+                                                                            Once an order is completed, open it from Order History to see your host, port, username and password.
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -296,10 +302,10 @@
                                                                                 $steps = [
                                                                                     ['num' => '1', 'title' => 'Create an account and log in', 'sub' => 'Sign up in seconds with your email', 'color' => 'bg-primary'],
                                                                                     ['num' => '2', 'title' => 'Add funds to your wallet', 'sub' => 'Multiple payment options available', 'color' => 'bg-primary'],
-                                                                                    ['num' => '3', 'title' => 'Go to "New Order" section', 'sub' => 'Browse available services', 'color' => 'bg-primary'],
-                                                                                    ['num' => '4', 'title' => 'Select your proxy type and plan', 'sub' => 'Choose what you need', 'color' => 'bg-primary'],
-                                                                                    ['num' => '5', 'title' => 'Choose quantity and duration', 'sub' => 'Pick how much you need', 'color' => 'bg-primary'],
-                                                                                    ['num' => '6', 'title' => 'Get your proxy credentials instantly', 'sub' => 'IP:port:user:pass, ready to use', 'color' => 'bg-primary'],
+                                                                                    ['num' => '3', 'title' => 'Open the "Proxies" menu', 'sub' => 'Pick Residential, Datacenter, ISP or Mobile', 'color' => 'bg-primary'],
+                                                                                    ['num' => '4', 'title' => 'Select your plan and location', 'sub' => 'Choose what fits your use case', 'color' => 'bg-primary'],
+                                                                                    ['num' => '5', 'title' => 'Choose quantity', 'sub' => 'GB or number of IPs, depending on the plan', 'color' => 'bg-primary'],
+                                                                                    ['num' => '6', 'title' => 'Get your proxy credentials', 'sub' => 'Host, port, username and password, ready to use', 'color' => 'bg-primary'],
                                                                                 ];
                                                                             @endphp
                                                                             @foreach($steps as $step)
@@ -339,13 +345,13 @@
                                                                 <div id="orders3" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
                                                                     <div class="accordion-body pt-0">
                                                                         <p class="mb-3">
-                                                                            Orders can only be cancelled if they are still in <span class="badge bg-warning text-dark">Pending</span> status. 
-                                                                            Once an order moves to <span class="badge bg-info">Processing</span>, it cannot be cancelled.
+                                                                            Orders can only be cancelled while they are still in <span class="badge bg-warning text-dark">Pending</span> status. 
+                                                                            Once an order moves to <span class="badge bg-info">Processing</span>, setup has started and it cannot be cancelled.
                                                                         </p>
                                                                         <div class="faq-alert faq-alert-info">
                                                                             <i class="feather-info me-2"></i>
                                                                             If you need to cancel, please contact our 24/7 support immediately. 
-                                                                            Automatic refunds are issued if the provider cancels your order.
+                                                                            If we can't provision your order, it is refunded to your wallet automatically.
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -355,31 +361,31 @@
                                                                 <h2 class="accordion-header">
                                                                     <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#orders4">
                                                                         <i class="feather-chevron-right me-2 accordion-icon"></i>
-                                                                        What if my order doesn't complete?
+                                                                        What if my order fails?
                                                                     </button>
                                                                 </h2>
                                                                 <div id="orders4" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
                                                                     <div class="accordion-body pt-0">
                                                                         <p class="mb-3">
-                                                                            If your order shows as <span class="badge bg-warning text-dark">Partial</span> or doesn't deliver the full quantity, you have two options:
+                                                                            If we can't provision your order, it's marked <span class="badge bg-secondary text-white">Refunded</span>. Here's what happens:
                                                                         </p>
                                                                         <div class="row g-3 mb-3">
-                                                                            <div class="col-md-6">
-                                                                                <div class="faq-option-card faq-option-primary p-3 rounded h-100">
-                                                                                    <div class="d-flex align-items-start gap-2 mb-2">
-                                                                                        <i class="feather-refresh-cw text-primary"></i>
-                                                                                        <strong>Request a Refill</strong>
-                                                                                    </div>
-                                                                                    <p class="small mb-0">Use the "Request Refill" button on your order (if available)</p>
-                                                                                </div>
-                                                                            </div>
                                                                             <div class="col-md-6">
                                                                                 <div class="faq-option-card faq-option-success p-3 rounded h-100">
                                                                                     <div class="d-flex align-items-start gap-2 mb-2">
                                                                                         <i class="feather-dollar-sign text-success"></i>
-                                                                                        <strong>Request a Refund</strong>
+                                                                                        <strong>Automatic refund</strong>
                                                                                     </div>
-                                                                                    <p class="small mb-0">Contact our 24/7 support team with your order details</p>
+                                                                                    <p class="small mb-0">Failed orders are refunded to your wallet automatically, so you can reorder straight away</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                <div class="faq-option-card faq-option-primary p-3 rounded h-100">
+                                                                                    <div class="d-flex align-items-start gap-2 mb-2">
+                                                                                        <i class="feather-life-buoy text-primary"></i>
+                                                                                        <strong>Contact support</strong>
+                                                                                    </div>
+                                                                                    <p class="small mb-0">If an order stays Pending or Processing for too long, open a ticket with your order ID</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -466,8 +472,7 @@
                                                                     <div class="accordion-body pt-0">
                                                                         <div class="faq-alert faq-alert-info">
                                                                             <i class="feather-info me-2"></i>
-                                                                            Yes, the minimum deposit amount varies by payment method but typically starts 
-                                                                            from <strong>₦100</strong>. The exact amount will be displayed when you select your payment method.
+                                                                            Yes, the minimum deposit amount varies by payment method. The exact amount will be displayed when you select your payment method.
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -590,8 +595,8 @@
                                                                 <div id="quality3" class="accordion-collapse collapse" data-bs-parent="#qualityAccordion">
                                                                     <div class="accordion-body pt-0">
                                                                         <p class="mb-3">
-                                                                            Some plans come with a replacement guarantee (e.g., 30 days, 60 days, or lifetime).
-                                                                            If an assigned IP goes dead or gets blacklisted during the guarantee period, you can request a free replacement.
+                                                                            Some plans come with a replacement guarantee (for example 30 days, 60 days, or lifetime).
+                                                                            If an assigned IP stops working or gets blacklisted during the guarantee period, you can request a free replacement.
                                                                         </p>
                                                                         <div class="faq-option-card faq-option-success p-3 rounded">
                                                                             <div class="d-flex align-items-start gap-3">
@@ -599,8 +604,8 @@
                                                                                 <div>
                                                                                     <strong>How it works:</strong>
                                                                                     <p class="mb-0 mt-1 small">
-                                                                                        Simply click the "Request Refill" button on your order, and we'll automatically 
-                                                                                        replace the dropped quantity at no extra cost during the guarantee period.
+                                                                                        Open a support ticket with your order ID and the IPs or ports that stopped working.
+                                                                                        We'll replace them at no extra cost during the guarantee period.
                                                                                     </p>
                                                                                 </div>
                                                                             </div>
@@ -690,7 +695,7 @@
                                                                     <div class="accordion-body pt-0">
                                                                         <p class="mb-3">We don't offer free trials, but you can:</p>
                                                                         <div class="row g-2">
-                                                                            @foreach(['Start with small test orders','Check our order history','Contact 24/7 support for help','Read detailed service descriptions'] as $tip)
+                                                                            @foreach(['Start with a small test order','Read the setup guides and API docs','Contact 24/7 support for help','Read the plan descriptions before buying'] as $tip)
                                                                             <div class="col-md-6">
                                                                                 <div class="faq-platform-item d-flex align-items-start gap-2 p-3 rounded">
                                                                                     <i class="feather-check text-primary mt-1"></i>

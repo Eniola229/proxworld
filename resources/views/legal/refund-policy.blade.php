@@ -26,7 +26,7 @@
                                             <p class="lead refund-hero-subtitle mb-1">
                                                 Understanding when and how refunds are processed
                                             </p>
-                                            <p class="refund-hero-meta small mb-0">Last Updated: 20 Jan 2026</p>
+                                            <p class="refund-hero-meta small mb-0">Last Updated: 18 Oct 2026</p>
                                         </div>
                                     </div>
                                 </div>
@@ -146,23 +146,6 @@
                                                     </div>
                                                     <p class="text-muted mb-4">You may request a refund by contacting our 24/7 support team in the following cases:</p>
                                                     <div class="accordion" id="manualRefundAccordion">
-
-                                                        <div class="refund-accordion-item border rounded mb-3">
-                                                            <h2 class="accordion-header">
-                                                                <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#incomplete">
-                                                                    <i class="feather-chevron-right me-2 accordion-icon"></i>
-                                                                    Incomplete Order Delivery
-                                                                </button>
-                                                            </h2>
-                                                            <div id="incomplete" class="accordion-collapse collapse show" data-bs-parent="#manualRefundAccordion">
-                                                                <div class="accordion-body pt-0">
-                                                                    <p class="text-muted mb-0">
-                                                                        If your order shows as "Partial" or does not deliver the promised quantity, 
-                                                                        we will investigate and issue a partial or full refund based on what was delivered.
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
 
                                                         <div class="refund-accordion-item border rounded mb-3">
                                                             <h2 class="accordion-header">
@@ -359,7 +342,7 @@
                                                             <p class="mb-0 small">
                                                                 This refund policy may be updated from time to time. Continued use of our services 
                                                                 constitutes acceptance of any changes. 
-                                                                <strong>Last updated: 20 Jan 2026</strong>
+                                                                <strong>Last updated: 18 Oct 2026</strong>
                                                             </p>
                                                         </div>
                                                     </div>
