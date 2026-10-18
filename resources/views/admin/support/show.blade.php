@@ -135,10 +135,6 @@
 
                             <div class="border-top pt-3">
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Balance:</span>
-                                    <strong class="text-success">@money($ticket->user->balance ?? 0, $ticket->user->preferred_currency ?? 'NGN')</strong>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">Member Since:</span>
                                     <strong>{{ $ticket->user->created_at->format('M d, Y') }}</strong>
                                 </div>
