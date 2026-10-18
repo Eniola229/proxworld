@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Services\CloudinaryService;
 use App\Types\TicketSenderType;
 use App\Types\TicketStatus;
 use App\Mail\TicketReplyMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 /** Admin side of the same AJAX live-chat pattern as the customer TicketController. */
 class TicketController extends Controller
@@ -83,17 +85,52 @@ class TicketController extends Controller
         ]);
     }
 
-    public function sendMessage(Request $request, Ticket $ticket)
+    public function sendMessage(Request $request, Ticket $ticket, CloudinaryService $cloudinary)
     {
-        $data = $request->validate(['message' => ['required', 'string', 'max:5000']]);
+        $data = $request->validate([
+            'message'    => ['nullable', 'string', 'max:5000', 'required_without:attachment'],
+            'attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,mp4,webm,mov', 'max:51200'],
+        ], [
+            'message.required_without' => 'Type a reply or attach an image or video.',
+            'attachment.mimes'         => 'Only images (JPG, PNG, GIF, WEBP) and videos (MP4, WEBM, MOV) are allowed.',
+            'attachment.max'           => 'That file is too large. The limit is 50 MB.',
+        ]);
 
-        $admin = $request->user('admin');
+        $admin  = $request->user('admin');
+        $upload = null;
+
+        if ($file = $request->file('attachment')) {
+            $isVideo = str_starts_with((string) $file->getMimeType(), 'video/');
+
+            try {
+                $result = $isVideo
+                    ? $cloudinary->uploadVideo($file, 'orderer/support')
+                    : $cloudinary->uploadImage($file, 'orderer/support');
+
+                $upload = [
+                    'url'       => $result['url'],
+                    'public_id' => $result['public_id'],
+                    'type'      => $isVideo ? 'video' : 'image',
+                    'name'      => $file->getClientOriginalName(),
+                ];
+            } catch (\Throwable $e) {
+                report($e);
+
+                throw ValidationException::withMessages(['attachment' => 'Upload failed. Please try again.']);
+            }
+        }
+
+        $text = trim((string) ($data['message'] ?? ''));
 
         $message = TicketMessage::create([
-            'ticket_id'       => $ticket->id,
-            'sender_type'     => TicketSenderType::ADMIN,
-            'sender_admin_id' => $admin->id,
-            'message'         => $data['message'],
+            'ticket_id'            => $ticket->id,
+            'sender_type'          => TicketSenderType::ADMIN,
+            'sender_admin_id'      => $admin->id,
+            'message'              => $text === '' ? null : $text,
+            'attachment_url'       => $upload['url'] ?? null,
+            'attachment_type'      => $upload['type'] ?? null,
+            'attachment_public_id' => $upload['public_id'] ?? null,
+            'attachment_name'      => $upload['name'] ?? null,
         ]);
 
         $ticket->update([
@@ -136,8 +173,17 @@ class TicketController extends Controller
         return back()->with('success', 'Ticket status updated.');
     }
 
-    public function destroy(Ticket $ticket)
+    public function destroy(Ticket $ticket, CloudinaryService $cloudinary)
     {
+        // Remove uploaded media from Cloudinary first (best effort), then the rows.
+        foreach ($ticket->messages()->whereNotNull('attachment_public_id')->get() as $m) {
+            try {
+                $cloudinary->delete($m->attachment_public_id, $m->attachment_type ?: 'image');
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         $ticket->delete(); // cascades to ticket_messages
 
         return redirect()->route('admin.support.index')->with('success', 'Ticket deleted.');
@@ -150,11 +196,16 @@ class TicketController extends Controller
         $mine    = $isAdmin && (string) $m->sender_admin_id === (string) $adminId;
 
         return [
-            'id'       => $m->id,
-            'is_admin' => $isAdmin,
-            'name'     => $isAdmin ? ($mine ? 'You' : ($m->senderAdmin->name ?? 'Support')) : ($customerName ?: 'Customer'),
-            'message'  => $m->message,
-            'time'     => $m->created_at->format('M d, H:i'),
+            'id'         => $m->id,
+            'is_admin'   => $isAdmin,
+            'name'       => $isAdmin ? ($mine ? 'You' : ($m->senderAdmin->name ?? 'Support')) : ($customerName ?: 'Customer'),
+            'message'    => (string) $m->message,
+            'attachment' => $m->attachment_url ? [
+                'url'  => $m->attachment_url,
+                'type' => $m->attachment_type,
+                'name' => $m->attachment_name,
+            ] : null,
+            'time'       => $m->created_at->format('M d, H:i'),
         ];
     }
 }

@@ -168,6 +168,56 @@
                         </div>
                     </div>
 
+                    <!-- [Buy Proxies - all product types from config('products')] start -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Buy Proxies</h5>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    @foreach (config('products') as $slug => $p)
+                                        <div class="col-12 col-md-6 col-xxl-3">
+                                            <div class="card h-100 border shadow-none mb-0">
+                                                <div class="card-body p-3 d-flex flex-column">
+                                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                                        <div class="avatar-text avatar-lg bg-soft-primary text-primary flex-shrink-0">
+                                                            {{ strtoupper(substr($p['short'] ?? $p['name'], 0, 1)) }}
+                                                        </div>
+                                                        <div class="overflow-hidden">
+                                                            <h6 class="fw-bold mb-0 text-truncate" title="{{ $p['name'] }}">{{ $p['name'] }}</h6>
+                                                            @if (!empty($p['model']))
+                                                                <span class="fs-12 text-muted">{{ $p['model'] }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    @if (!empty($p['tagline']))
+                                                        <p class="fs-12 text-muted mb-3">{{ $p['tagline'] }}.</p>
+                                                    @endif
+
+                                                    <div class="mt-auto">
+                                                        <div class="fs-13 mb-3">
+                                                            @if (!empty($p['from']))
+                                                                From <strong class="text-dark">{{ $p['from'] }}</strong> / {{ $p['unit'] ?? '' }}
+                                                            @else
+                                                                <span class="text-muted">Get started</span>
+                                                            @endif
+                                                        </div>
+                                                        <a href="{{ route('order.create', ['type' => $slug]) }}" class="btn btn-primary w-100">
+                                                            <i class="feather-shopping-cart me-2"></i> Purchase Now
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [Buy Proxies] end -->
+
                     <!-- [Latest Orders - UPDATED TO CARD GRID] start -->
                     <div class="col-xxl-8">
                         <div class="card stretch stretch-full">

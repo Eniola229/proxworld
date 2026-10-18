@@ -9,6 +9,7 @@ use App\Http\Controllers\WelcomeModalController;
 use App\Http\Controllers\ReferralWithdrawalController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 // RESELLER SUBDOMAIN ROUTES — must be registered first, before any
@@ -44,9 +45,29 @@ Route::view('/privacy-policy', 'legal.privacy-policy')->name('privacy-policy');
 Route::view('/acceptable-use-policy', 'legal.acceptable-use-policy')->name('acceptable-use-policy');
 Route::view('/reseller-agreement', 'legal.reseller-agreement')->name('reseller-agreement');
 Route::view('/cookie-policy', 'legal.cookie-policy')->name('cookie-policy');
+Route::get('/api-docs', [\App\Http\Controllers\ApiKeyController::class, 'docs'])->name('api.docs');
 
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{newsletter:slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
+/*
+|--------------------------------------------------------------------------
+| Public pages (products, pricing, use cases, locations, guides, about...)
+|--------------------------------------------------------------------------
+*/
+Route::get('/proxies/{type}', [PageController::class, 'product'])
+    ->where('type', 'residential|isp|datacenter|mobile')
+    ->name('products.show');
+Route::get('/pricing', [PageController::class, 'pricing'])->name('pricing');
+Route::view('/use-cases', 'pages.use-cases')->name('use-cases');
+Route::view('/locations', 'pages.locations')->name('locations');
+Route::view('/guides', 'pages.guides')->name('guides');
+Route::view('/about', 'pages.about')->name('about');
+Route::view('/reseller-program', 'pages.reseller')->name('reseller');
+Route::view('/contact', 'pages.contact')->name('contact');
+Route::post('/contact', [PageController::class, 'contactSend'])
+    ->middleware('throttle:5,1')
+    ->name('contact.send');
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
@@ -144,15 +165,15 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/api/{apiKey}/toggle', [\App\Http\Controllers\ApiKeyController::class, 'toggle'])->name('api.toggle');
     Route::delete('/api/{apiKey}', [\App\Http\Controllers\ApiKeyController::class, 'destroy'])->name('api.destroy');
     Route::get('/api/{apiKey}/test', [\App\Http\Controllers\ApiKeyController::class, 'test'])->name('api.test');
-    Route::get('/api-docs', [\App\Http\Controllers\ApiKeyController::class, 'docs'])->name('api.docs');
 
-    Route::get('/referral', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referral.index');
-    Route::get('/referral/withdraw', [ReferralWithdrawalController::class, 'create'])->name('referral.withdraw');
-    Route::post('/referral/withdraw/wallet', [ReferralWithdrawalController::class, 'withdrawToWallet'])->name('referral.withdraw.wallet');
-    Route::post('/referral/withdraw/bank', [ReferralWithdrawalController::class, 'withdrawToBank'])->name('referral.withdraw.bank');
-    Route::post('/referral/withdraw/resolve-account', [ReferralWithdrawalController::class, 'resolveAccount'])->name('referral.withdraw.resolve-account');
-    Route::put('/reseller/logo', [\App\Http\Controllers\ResellerApplicationController::class, 'updateLogo'])
-    ->name('reseller-panel.update-logo');
+    // Route::get('/referral', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referral.index');
+    // Route::get('/referral/withdraw', [ReferralWithdrawalController::class, 'create'])->name('referral.withdraw');
+    // Route::post('/referral/withdraw/wallet', [ReferralWithdrawalController::class, 'withdrawToWallet'])->name('referral.withdraw.wallet');
+    // Route::post('/referral/withdraw/bank', [ReferralWithdrawalController::class, 'withdrawToBank'])->name('referral.withdraw.bank');
+    // Route::post('/referral/withdraw/resolve-account', [ReferralWithdrawalController::class, 'resolveAccount'])->name('referral.withdraw.resolve-account');
+    // Route::put('/reseller/logo', [\App\Http\Controllers\ResellerApplicationController::class, 'updateLogo'])
+    // ->name('reseller-panel.update-logo');
+    
     Route::get('/reseller-panel', [\App\Http\Controllers\ResellerApplicationController::class, 'index'])->name('reseller-panel.index');
     Route::get('/reseller-panel/create', [\App\Http\Controllers\ResellerApplicationController::class, 'create'])->name('reseller-panel.create');
     Route::post('/reseller-panel', [\App\Http\Controllers\ResellerApplicationController::class, 'store'])->name('reseller-panel.store');
@@ -178,5 +199,3 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.mark.read');
     Route::get('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'settings'])->name('notifications.settings');
 });
-
- 

@@ -26,6 +26,21 @@
                     </a>
                 </li>
 
+                <!-- Proxies Menu (always open) -->
+                <li class="nxl-item nxl-hasmenu nxl-trigger">
+                    <a href="javascript:void(0);" class="nxl-link" style="pointer-events: none; cursor: default;">
+                        <span class="nxl-micon"><i class="feather-shield"></i></span>
+                        <span class="nxl-mtext">Proxies</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu" style="display: block !important;">
+                        @foreach (config('products') as $slug => $p)
+                            <li class="nxl-item {{ request()->routeIs('order.create') && request('type') === $slug ? 'active' : '' }}">
+                                <a class="nxl-link" href="{{ route('order.create', ['type' => $slug]) }}">{{ $p['name'] }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </li>
+
                 <!-- Orders Menu -->
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">
@@ -33,11 +48,9 @@
                         <span class="nxl-mtext">Orders</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('order.create') }}">New Order</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('orders.index') }}">Order History</a></li>
                     </ul>
                 </li>
-
                 <!-- Wallet Menu -->
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">
@@ -78,18 +91,6 @@
                     </ul>
                 </li>
 
-                <!-- Referer Menu -->
-                <li class="nxl-item nxl-hasmenu">
-                    <a href="javascript:void(0);" class="nxl-link">
-                       <span class="nxl-micon"><i class="feather-gift"></i></span>
-                        <span class="nxl-mtext">Referral</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                    </a>
-                    <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('referral.index') }}">Referral Dashboard</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('referral.withdraw') }}">Withdraw Earnings</a></li>
-                    </ul>
-                </li>
-
                 <!-- Support Menu -->
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">
@@ -107,7 +108,7 @@
                 <li class="nxl-item nxl-caption">
                     <label>Account</label>
                 </li>
-
+ 
                 <!-- Settings Menu -->
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">

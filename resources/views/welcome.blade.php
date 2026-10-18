@@ -1,1102 +1,498 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProxWorld — Premium Residential, Datacenter, ISP &amp; Mobile Proxies</title>
-    <meta name="description" content="Buy fast, reliable proxies with ProxWorld. Residential, datacenter, ISP, and mobile proxies across 190+ countries — built for scraping, automation, and anonymity." />
-    <meta name="keyword" content="buy proxies, residential proxies, datacenter proxies, ISP proxies, mobile proxies, proxy provider Nigeria, buy proxies online, rotating proxies, SOCKS5 proxies" />
-    <!--! BEGIN: Favicon-->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/LOGO.png') }}" />
-    <!--! END: Favicon-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@extends('layouts.app')
 
+@section('title', 'ProxWorld — Premium Residential, Datacenter, ISP & Mobile Proxies')
+@section('description', 'Buy fast, reliable proxies with ProxWorld. Residential, datacenter, ISP, and mobile proxies across 190+ countries — built for scraping, automation, and anonymity.')
+@section('keywords', 'buy proxies, residential proxies, datacenter proxies, ISP proxies, mobile proxies, proxy provider Nigeria, buy proxies online, rotating proxies, SOCKS5 proxies')
+@section('canonical', route('welcome'))
 
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+@push('styles')
+<style>
+    /* FLAG IMAGES */
+    .flag { width: 20px; height: 15px; object-fit: cover; border-radius: 2px; vertical-align: middle; box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12); }
+    .flag-lg { width: 32px; height: 24px; border-radius: 3px; display: block; }
 
-        :root {
-            --bg:        #F5F7FF;
-            --bg-2:      #EEF1FA;
-            --bg-3:      #E4E9F5;
-            --surface:   #FFFFFF;
-            --accent:    #2563EB;
-            --electric:  #3B82F6;
-            --gold:      #D97706;
-            --navy:      #0F172A;
-            --navy-2:    #1E293B;
-            --muted:     #64748B;
-            --soft:      #94A3B8;
-            --border:    rgba(37, 99, 235, 0.14);
-            --border-2:  rgba(37, 99, 235, 0.22);
-            --shadow:    0 2px 20px rgba(15, 23, 42, 0.07);
-            --shadow-lg: 0 8px 40px rgba(15, 23, 42, 0.12);
-            --white:     #FFFFFF;
-        }
+    /* HERO */
+    .hero { padding: 6.5rem 1.5rem 1.5rem; }
+    .hero-card {
+        position: relative; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 8rem);
+        border-radius: 28px; overflow: hidden;
+        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #60A5FA 100%);
+        box-shadow: var(--shadow-lg);
+        display: flex; align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem;
+    }
+    .hero-card::after {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: radial-gradient(circle, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+        background-size: 36px 36px; pointer-events: none;
+        mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+        -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+    .hero-glow {
+        position: absolute; width: 700px; height: 700px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
+        top: -280px; left: 50%; transform: translateX(-50%); pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+    .hero-pill {
+        display: inline-flex; align-items: center; gap: 0.7rem;
+        font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; color: #fff;
+        background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.28);
+        -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+        padding: 0.6rem 1.3rem; border-radius: 40px; margin-bottom: 2rem;
+        opacity: 0; animation: rise 0.8s ease forwards 0.2s;
+    }
+    .hero-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 8px rgba(74, 222, 128, 0.8); animation: blink 1.4s ease-in-out infinite; }
+    .hero-pill .sep { opacity: 0.4; }
+    .hero h1 {
+        font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: clamp(3.8rem, 9vw, 8.5rem);
+        line-height: 0.95; letter-spacing: -1px; color: #fff; opacity: 0; animation: rise 1s ease forwards 0.4s;
+    }
+    .hero h1 .outline { -webkit-text-stroke: 2px rgba(255, 255, 255, 0.55); color: transparent; }
+    .hero-desc { color: rgba(255, 255, 255, 0.82); font-size: 1.1rem; line-height: 1.75; font-weight: 400; margin-top: 1.8rem; max-width: 560px; opacity: 0; animation: rise 1s ease forwards 0.6s; }
+    .hero-actions { display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem; opacity: 0; animation: rise 1s ease forwards 0.8s; }
+    .btn-white { background: #fff; color: var(--accent); box-shadow: 0 6px 24px rgba(15, 23, 42, 0.22); }
+    .btn-white:hover { background: #F1F5FF; transform: translateY(-2px); box-shadow: 0 10px 32px rgba(15, 23, 42, 0.3); }
+    .btn-outline-white { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255, 255, 255, 0.45); }
+    .btn-outline-white:hover { background: rgba(255, 255, 255, 0.18); border-color: #fff; }
+    .hero-note { margin-top: 1.6rem; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; color: rgba(255, 255, 255, 0.65); opacity: 0; animation: rise 1s ease forwards 1s; }
 
-        html { scroll-behavior: smooth; }
+    .hero-tile {
+        position: absolute; z-index: 1; width: 76px; height: 76px; border-radius: 18px;
+        background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28);
+        -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.6rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    }
+    .hero-tile:nth-of-type(1) { top: 20%; left: 5%;  animation: orbit1 8s ease-in-out infinite; }
+    .hero-tile:nth-of-type(2) { top: 50%; left: 14%; animation: orbit2 9s ease-in-out infinite; }
+    .hero-tile:nth-of-type(3) { bottom: 8%; left: 4%; animation: orbit3 7s ease-in-out infinite; }
+    .hero-tile:nth-of-type(4) { top: 20%; right: 5%; animation: orbit2 8s ease-in-out infinite 0.5s; }
+    .hero-tile:nth-of-type(5) { top: 50%; right: 14%; animation: orbit1 9s ease-in-out infinite 1s; }
+    .hero-tile:nth-of-type(6) { bottom: 8%; right: 4%; animation: orbit3 10s ease-in-out infinite 1.5s; }
 
-        body {
-            font-family: 'Syne', sans-serif;
-            background: var(--bg);
-            color: var(--navy);
-            overflow-x: hidden;
-            cursor: none;
-        }
+    .hero-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .hero-lines path { fill: none; stroke: rgba(255, 255, 255, 0.35); stroke-width: 1.5; stroke-dasharray: 6 8; vector-effect: non-scaling-stroke; }
 
-        /* Subtle paper texture overlay */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-            opacity: 0.018;
-            pointer-events: none;
-            z-index: 9999;
-        }
+    @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes orbit1 { 0%,100% { transform: translate(0,0) rotate(0deg); } 33% { transform: translate(8px,-10px) rotate(5deg); } 66% { transform: translate(-5px,8px) rotate(-3deg); } }
+    @keyframes orbit2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-10px,-8px); } }
+    @keyframes orbit3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6px,10px) scale(1.05); } }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* CURSOR */
-        .cursor {
-            width: 10px; height: 10px;
-            background: var(--accent);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 2147483647; /* was 99999 — now always on top */
-            transition: transform 0.1s;
-            mix-blend-mode: multiply;
-        }
-        .cursor-ring {
-            width: 36px; height: 36px;
-            border: 1.5px solid var(--accent);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 2147483646; /* was 99998 */
-            transition: all 0.15s ease;
-            opacity: 0.35;
-        }
+    /* PROXY TYPE CARDS */
+    .types-head { margin-top: 5rem; }
+    .type-top { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .type-price { font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500; padding: 0.45rem 1rem; border-radius: 30px; display: inline-flex; align-items: center; gap: 0.6rem; }
+    .type-price i { font-size: 0.9rem; }
+    .type-unit { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); background: var(--bg-2); padding: 0.35rem 0.8rem; border-radius: 30px; }
+    .tp-res { background: #DBEAFE; color: #1D4ED8; }
+    .tp-dc  { background: #EDE9FE; color: #6D28D9; }
+    .tp-isp { background: #CCFBF1; color: #0F766E; }
+    .tp-mob { background: #FFEDD5; color: #C2410C; }
 
-        /* NAV */
-        nav {
-            position: fixed; top: 0; left: 0; width: 100%;
-            z-index: 1000;
-            padding: 1.4rem 3rem;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid transparent;
-            transition: all 0.4s;
-        }
-        nav.scrolled {
-            background: rgba(245, 247, 255, 0.94);
-            backdrop-filter: blur(16px);
-            border-color: var(--border);
-            box-shadow: var(--shadow);
-        }
+    /* TICKER */
+    .ticker-wrap { border-top: 1px solid var(--border-2); border-bottom: 1px solid var(--border-2); background: var(--white); overflow: hidden; padding: 0.9rem 0; }
+    .ticker { display: flex; width: max-content; animation: ticker 30s linear infinite; }
+    .ticker-item { display: flex; align-items: center; gap: 1rem; padding: 0 2rem; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; color: var(--soft); text-transform: uppercase; white-space: nowrap; }
+    .ticker-item .dot { color: var(--accent); font-size: 0.5rem; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.9rem;
-            letter-spacing: 3px;
-            color: var(--navy);
-            text-decoration: none;
-        }
-        .logo span { color: var(--accent); }
+    /* STATS */
+    .stats-section { padding: 6rem 3rem; max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .stat-item { padding: 3rem; border-right: 1px solid var(--border-2); position: relative; }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; line-height: 1; color: var(--navy); margin-bottom: 0.5rem; }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .stat-item::before { content: ''; position: absolute; top: 0; left: 3rem; right: 3rem; height: 1px; background: var(--border-2); }
 
-        .nav-links {
-            display: flex; gap: 2.5rem; list-style: none;
-        }
-        .nav-links a {
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            transition: color 0.3s;
-        }
-        .nav-links a:hover { color: var(--navy); }
+    /* FEATURES */
+    .features { padding: 6rem 3rem; background: var(--white); border-top: 1px solid var(--border-2); border-bottom: 1px solid var(--border-2); }
+    .features-inner { max-width: 1400px; margin: 0 auto; }
+    .section-tag { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+    .section-tag::before { content: ''; display: inline-block; width: 30px; height: 1.5px; background: var(--accent); }
+    .features-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-2); border: 1px solid var(--border-2); border-radius: 8px; overflow: hidden; }
+    .feat-card { background: var(--white); padding: 3rem; transition: background 0.3s; position: relative; overflow: hidden; }
+    .feat-card:hover { background: var(--bg); }
+    .feat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: var(--accent); transition: height 0.4s; }
+    .feat-card:hover::before { height: 100%; }
+    .feat-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--soft); letter-spacing: 2px; margin-bottom: 1.5rem; }
+    .feat-icon { font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; }
+    .feat-card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--navy); }
+    .feat-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.65; font-weight: 400; }
 
-        .nav-btns { display: flex; gap: 1rem; align-items: center; }
+    /* PLATFORMS */
+    .platforms-section { padding: 6rem 3rem; max-width: 1400px; margin: 0 auto; }
+    .platforms-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; border-bottom: 1px solid var(--border-2); padding-bottom: 2rem; }
+    .platforms-header h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: clamp(3rem, 6vw, 5rem); line-height: 1; color: var(--navy); }
+    .platforms-header p { color: var(--muted); font-size: 0.9rem; max-width: 300px; text-align: right; line-height: 1.6; }
+    .platforms-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; background: var(--border-2); border: 1px solid var(--border-2); border-radius: 8px; overflow: hidden; }
+    .platform-cell { background: var(--white); padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; transition: all 0.3s; text-decoration: none; }
+    .platform-cell:hover { background: var(--bg-2); }
+    .platform-cell i { font-size: 1.6rem; color: var(--soft); transition: color 0.3s; }
+    .platform-cell:hover i { color: var(--accent); }
+    .platform-cell span { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; color: var(--soft); font-weight: 600; font-family: 'DM Mono', monospace; }
 
-        /* FLAG IMAGES */
-        .flag {
-            width: 20px;
-            height: 15px;
-            object-fit: cover;
-            border-radius: 2px;
-            vertical-align: middle;
-            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
-        }
-        .flag-lg {
-            width: 32px;
-            height: 24px;
-            border-radius: 3px;
-            display: block;
-        }
+    /* BLOG (home page) */
+    .blog-section { padding: 6rem 3rem; background: var(--bg-2); border-top: 1px solid var(--border-2); }
+    .blog-inner { max-width: 1400px; margin: 0 auto; }
+    .blog-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-2); }
+    .blog-head h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: clamp(3rem, 6vw, 5rem); line-height: 1; color: var(--navy); }
+    .blog-head h2 .outline { -webkit-text-stroke: 2px rgba(15, 23, 42, 0.2); color: transparent; }
+    .blog-head p { color: var(--muted); font-size: 0.92rem; max-width: 340px; text-align: right; line-height: 1.6; }
+    .hb-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.5rem; }
+    .hb-card { grid-column: span 2; background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; }
+    .hb-card:nth-child(-n+2) { grid-column: span 3; }
+    .hb-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--electric); }
+    .hb-img { width: 100%; aspect-ratio: 16/10; background: var(--bg-3) center/cover no-repeat; display: flex; align-items: center; justify-content: center; color: var(--soft); font-size: 2rem; }
+    .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/8; }
+    .hb-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+    .hb-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--soft); letter-spacing: 1px; text-transform: uppercase; }
+    .hb-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; line-height: 1.35; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hb-card:nth-child(-n+2) .hb-title { font-size: 1.3rem; }
+    .hb-excerpt { color: var(--muted); font-size: 0.88rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .hb-more { margin-top: auto; padding-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+    .blog-cta { text-align: center; margin-top: 3rem; }
 
-        .btn {
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 0.7rem 1.8rem;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: none;
-            border: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-        .btn-ghost {
-            color: var(--muted);
-            background: transparent;
-            border: 1px solid rgba(100, 116, 139, 0.3);
-        }
-        .btn-ghost:hover { color: var(--navy); border-color: var(--navy); }
-        .btn-solid {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.28);
-        }
-        .btn-solid:hover {
-            background: var(--electric);
-            box-shadow: 0 6px 28px rgba(59, 130, 246, 0.38);
-            transform: translateY(-2px);
-        }
+    /* CTA */
+    .cta-section { padding: 8rem 3rem; text-align: center; position: relative; overflow: hidden; background: var(--navy); }
+    .cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 900px; height: 600px; background: radial-gradient(ellipse, rgba(37,99,235,0.18) 0%, transparent 70%); pointer-events: none; }
+    .cta-section h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: clamp(4rem, 10vw, 9rem); line-height: 0.9; letter-spacing: -1px; margin-bottom: 2rem; color: #fff; position: relative; }
+    .cta-section h2 .outline { -webkit-text-stroke: 1px rgba(255,255,255,0.25); color: transparent; }
+    .cta-section p { color: #94A3B8; font-size: 1rem; max-width: 450px; margin: 0 auto 3rem; line-height: 1.7; position: relative; }
+    .cta-section .btn { position: relative; }
 
-        .btn-large {
-            padding: 1rem 2.5rem;
-            font-size: 0.9rem;
-        }
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+        .hero-tile:nth-of-type(2), .hero-tile:nth-of-type(5) { display: none; }
+    }
+    @media (max-width: 900px) {
+        .hero { padding: 5.5rem 1rem 1rem; }
+        .hero-card { min-height: auto; border-radius: 20px; padding: 4rem 1.5rem; }
+        .hero h1 { font-size: clamp(3.4rem, 15vw, 6rem); }
+        .hero-tile, .hero-lines { display: none; }
+        .stats-section { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+        .stat-item { border-right: none; border-bottom: 1px solid var(--border-2); padding: 2rem 1.5rem; }
+        .features { padding: 4rem 1.5rem; }
+        .features-layout { grid-template-columns: 1fr; }
+        .platforms-section { padding: 4rem 1.5rem; }
+        .platforms-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .platforms-header p { text-align: left; }
+        .platforms-grid { grid-template-columns: repeat(4, 1fr); }
+        .blog-section { padding: 4rem 1.5rem; }
+        .blog-head p { text-align: left; }
+        .hb-grid { grid-template-columns: repeat(2, 1fr); }
+        .hb-card, .hb-card:nth-child(-n+2) { grid-column: span 1; }
+        .hb-card:last-child:nth-child(odd) { grid-column: span 2; }
+        .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/10; }
+        .hb-card:nth-child(-n+2) .hb-title { font-size: 1.1rem; }
+        .cta-section { padding: 5rem 1.5rem; }
+    }
+    @media (max-width: 600px) {
+        .hb-grid { grid-template-columns: 1fr; }
+        .hb-card:last-child:nth-child(odd) { grid-column: span 1; }
+        .hero-actions .btn-large { width: 100%; text-align: center; }
+        .reseller-hdr-p { text-align: left !important; max-width: 100% !important; }
+        .reseller-section { padding: 4rem 1.2rem !important; }
+    }
+    @media (max-width: 500px) {
+        .platforms-grid { grid-template-columns: repeat(3, 1fr); }
+    }
 
-        /* HERO */
-        .hero {
-            padding: 6.5rem 1.5rem 1.5rem;
-        }
-        .hero-card {
-            position: relative;
-            max-width: 1400px;
-            margin: 0 auto;
-            min-height: calc(100vh - 8rem);
-            border-radius: 28px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #60A5FA 100%);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 5rem 2rem;
-        }
+    /* ============ PROXWORLD ONBOARDING MODAL — SCOPED STYLES ============ */
+    .prox-onb-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; background: rgba(15,23,42,0.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 1.2rem; opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility .35s ease; font-family: 'Syne', sans-serif; }
+    .prox-onb-overlay.is-open { opacity: 1; visibility: visible; }
+    .prox-onb-modal { background: #FFFFFF; width: 100%; max-width: 560px; border-radius: 18px; overflow: hidden; position: relative; box-shadow: 0 30px 80px rgba(15,23,42,0.35); transform: translateY(28px) scale(0.97); opacity: 0; transition: transform .45s cubic-bezier(.2,.9,.25,1), opacity .4s ease; max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; }
+    .prox-onb-overlay.is-open .prox-onb-modal { transform: translateY(0) scale(1); opacity: 1; }
+    .prox-onb-close { position: absolute; top: 16px; right: 16px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(15,23,42,0.12); background: #F5F7FF; color: #64748B; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .9rem; z-index: 5; transition: all .25s; }
+    .prox-onb-close:hover { background: #0F172A; color: #fff; transform: rotate(90deg); }
+    .prox-onb-header { padding: 1.6rem 2rem 0; display: flex; flex-direction: column; gap: .9rem; }
+    .prox-onb-eyebrow { font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: 2.5px; text-transform: uppercase; color: #2563EB; display: flex; align-items: center; gap: .6rem; }
+    .prox-onb-eyebrow::before { content: ''; width: 22px; height: 1.5px; background: #2563EB; }
+    .prox-onb-dots { display: flex; gap: .4rem; }
+    .prox-onb-dot { width: 26px; height: 4px; border-radius: 3px; background: #E4E9F5; transition: background .3s, width .3s; }
+    .prox-onb-dot.active { background: #2563EB; width: 38px; }
+    .prox-onb-dot.done { background: #93C5FD; }
+    .prox-onb-body { padding: 1.6rem 2rem 2rem; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
+    .prox-onb-step { animation: proxStepIn .45s cubic-bezier(.2,.9,.25,1); }
+    @keyframes proxStepIn { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+    .prox-onb-icon { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg,#2563EB,#3B82F6); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; margin-bottom: 1.2rem; box-shadow: 0 10px 26px rgba(37,99,235,0.3); animation: proxIconPop .5s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes proxIconPop { 0% { transform: scale(0.4) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    .prox-onb-step h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 2.1rem; letter-spacing: .5px; line-height: 1.05; color: #0F172A; margin-bottom: .8rem; }
+    .prox-onb-step h2 span { color: #2563EB; }
+    .prox-onb-step p { color: #64748B; font-size: .95rem; line-height: 1.65; margin-bottom: 1rem; }
+    .prox-onb-step p:last-child { margin-bottom: 0; }
+    .prox-onb-step strong { color: #0F172A; }
+    .prox-onb-list { list-style: none; display: flex; flex-direction: column; gap: .7rem; margin-top: 1rem; }
+    .prox-onb-list li { display: flex; align-items: flex-start; gap: .7rem; font-size: .9rem; color: #334155; line-height: 1.55; opacity: 0; animation: proxLiIn .4s ease forwards; }
+    .prox-onb-list li:nth-child(1) { animation-delay: .1s; }
+    .prox-onb-list li:nth-child(2) { animation-delay: .2s; }
+    .prox-onb-list li:nth-child(3) { animation-delay: .3s; }
+    .prox-onb-list li:nth-child(4) { animation-delay: .4s; }
+    .prox-onb-list li:nth-child(5) { animation-delay: .5s; }
+    @keyframes proxLiIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    .prox-onb-list i { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; background: #EFF6FF; color: #2563EB; font-size: .7rem; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .prox-onb-list.prox-bad i { background: #FEF2F2; color: #DC2626; }
+    .prox-onb-list.prox-good i { background: #ECFDF5; color: #059669; }
+    .prox-onb-types { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: 1.1rem; }
+    .prox-onb-type-card { border: 1px solid #E4E9F5; border-radius: 12px; padding: 1rem; background: #F5F7FF; opacity: 0; animation: proxLiIn .4s ease forwards; }
+    .prox-onb-type-card:nth-child(1) { animation-delay: .05s; }
+    .prox-onb-type-card:nth-child(2) { animation-delay: .15s; }
+    .prox-onb-type-card:nth-child(3) { animation-delay: .25s; }
+    .prox-onb-type-card:nth-child(4) { animation-delay: .35s; }
+    .prox-onb-type-icon { width: 34px; height: 34px; border-radius: 8px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .85rem; margin-bottom: .6rem; }
+    .prox-onb-type-card h4 { font-size: .9rem; color: #0F172A; margin-bottom: .3rem; }
+    .prox-onb-type-card p { font-size: .76rem; color: #64748B; line-height: 1.5; margin: 0; }
+    .prox-onb-type-card .tag { display: inline-block; margin-top: .5rem; font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .5px; text-transform: uppercase; color: #2563EB; background: #EFF6FF; padding: .2rem .5rem; border-radius: 4px; }
+    .prox-onb-flow { display: flex; flex-direction: column; gap: .8rem; margin-top: 1.1rem; }
+    .prox-onb-flow-item { display: flex; align-items: center; gap: .9rem; border: 1px solid #E4E9F5; border-radius: 10px; padding: .8rem .9rem; background: #FAFBFF; }
+    .prox-onb-flow-num { width: 28px; height: 28px; border-radius: 50%; background: #0F172A; color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .prox-onb-flow-item div p { margin: 0; font-size: .85rem; color: #334155; }
+    .prox-onb-flow-item div strong { display: block; font-size: .88rem; color: #0F172A; margin-bottom: .1rem; }
+    .prox-onb-callout { margin-top: 1.2rem; padding: .85rem 1rem; border-radius: 10px; background: #FFFBEB; border: 1px solid #FDE68A; display: flex; gap: .7rem; align-items: flex-start; }
+    .prox-onb-callout i { color: #D97706; margin-top: 2px; }
+    .prox-onb-callout p { margin: 0; font-size: .82rem; color: #78350F; line-height: 1.5; }
+    .prox-onb-footer { padding: 1rem 2rem 1.4rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #EEF1FA; }
+    .prox-onb-footer-right { display: flex; gap: .6rem; }
+    .prox-onb-btn { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .78rem; letter-spacing: 1px; text-transform: uppercase; padding: .7rem 1.3rem; border-radius: 7px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; transition: all .25s; -webkit-appearance: none; appearance: none; }
+    .prox-onb-ghost { background: transparent; color: #64748B; border: 1px solid rgba(100,116,139,0.28); }
+    .prox-onb-ghost:hover { color: #0F172A; border-color: #0F172A; }
+    .prox-onb-solid { background: #2563EB; color: #fff; box-shadow: 0 6px 18px rgba(37,99,235,.3); }
+    .prox-onb-solid:hover { background: #3B82F6; transform: translateY(-1px); }
+    #proxOnbBack[disabled] { opacity: 0; pointer-events: none; width: 0; padding: 0; overflow: hidden; }
+    .prox-onb-progress-track { height: 3px; background: #EEF1FA; width: 100%; }
+    .prox-onb-progress-fill { height: 100%; background: linear-gradient(90deg,#2563EB,#3B82F6); width: 14%; transition: width .4s cubic-bezier(.2,.9,.25,1); }
+    @media (max-width: 560px) {
+        .prox-onb-types { grid-template-columns: 1fr 1fr; }
+        .prox-onb-step h2 { font-size: 1.7rem; }
+        .prox-onb-header, .prox-onb-body, .prox-onb-footer { padding-left: 1.3rem; padding-right: 1.3rem; }
+    }
+</style>
+@endpush
 
-        /* Dot grid */
-        .hero-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
-            background-size: 36px 36px;
-            pointer-events: none;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-            -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-        }
+@section('content')
 
-        .hero-glow {
-            position: absolute;
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
-            top: -280px; left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none;
-        }
+<section class="hero">
+    <div class="hero-card">
+        <div class="hero-glow"></div>
 
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        <!-- Curved connector lines -->
+        <svg class="hero-lines" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 90 190 C 90 330, 70 450, 0 590"></path>
+            <path d="M 150 370 C 150 450, 140 520, 110 600"></path>
+            <path d="M 910 190 C 910 330, 930 450, 1000 590"></path>
+            <path d="M 850 370 C 850 450, 860 520, 890 600"></path>
+        </svg>
 
-        .hero-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.7rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            backdrop-filter: blur(8px);
-            padding: 0.6rem 1.3rem;
-            border-radius: 40px;
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: rise 0.8s ease forwards 0.2s;
-        }
-        .hero-pill .dot {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: #4ADE80;
-            box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
-            animation: blink 1.4s ease-in-out infinite;
-        }
-        .hero-pill .sep { opacity: 0.4; }
+        <!-- Floating tiles -->
+        <div class="hero-tile"><i class="fas fa-house-user"></i></div>
+        <div class="hero-tile"><i class="fas fa-server"></i></div>
+        <div class="hero-tile"><i class="fas fa-globe"></i></div>
+        <div class="hero-tile"><i class="fas fa-network-wired"></i></div>
+        <div class="hero-tile"><i class="fas fa-mobile-screen"></i></div>
+        <div class="hero-tile"><i class="fas fa-shield-halved"></i></div>
 
-        .hero h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3.8rem, 9vw, 8.5rem);
-            line-height: 0.95;
-            letter-spacing: -1px;
-            color: #fff;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.4s;
-        }
-        .hero h1 .outline {
-            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.55);
-            color: transparent;
-        }
-
-        .hero-desc {
-            color: rgba(255, 255, 255, 0.82);
-            font-size: 1.1rem;
-            line-height: 1.75;
-            font-weight: 400;
-            margin-top: 1.8rem;
-            max-width: 560px;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.6s;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2.5rem;
-            opacity: 0;
-            animation: rise 1s ease forwards 0.8s;
-        }
-        .btn-white {
-            background: #fff;
-            color: var(--accent);
-            box-shadow: 0 6px 24px rgba(15, 23, 42, 0.22);
-        }
-        .btn-white:hover {
-            background: #F1F5FF;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 32px rgba(15, 23, 42, 0.3);
-        }
-        .btn-outline-white {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.45);
-        }
-        .btn-outline-white:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: #fff;
-        }
-
-        .hero-note {
-            margin-top: 1.6rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.65);
-            opacity: 0;
-            animation: rise 1s ease forwards 1s;
-        }
-
-        /* Floating tiles */
-        .hero-tile {
-            position: absolute;
-            z-index: 1;
-            width: 76px; height: 76px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            backdrop-filter: blur(6px);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff;
-            font-size: 1.6rem;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-        }
-        .hero-tile:nth-of-type(1) { top: 20%; left: 5%;  animation: orbit1 8s ease-in-out infinite; }
-        .hero-tile:nth-of-type(2) { top: 50%; left: 14%; animation: orbit2 9s ease-in-out infinite; }
-        .hero-tile:nth-of-type(3) { bottom: 8%; left: 4%; animation: orbit3 7s ease-in-out infinite; }
-        .hero-tile:nth-of-type(4) { top: 20%; right: 5%; animation: orbit2 8s ease-in-out infinite 0.5s; }
-        .hero-tile:nth-of-type(5) { top: 50%; right: 14%; animation: orbit1 9s ease-in-out infinite 1s; }
-        .hero-tile:nth-of-type(6) { bottom: 8%; right: 4%; animation: orbit3 10s ease-in-out infinite 1.5s; }
-
-        .hero-lines {
-            position: absolute;
-            inset: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        .hero-lines path {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.35);
-            stroke-width: 1.5;
-            stroke-dasharray: 6 8;
-            vector-effect: non-scaling-stroke;
-        }
-
-        @keyframes orbit1 {
-            0%,100% { transform: translate(0,0) rotate(0deg); }
-            33%      { transform: translate(8px,-10px) rotate(5deg); }
-            66%      { transform: translate(-5px,8px) rotate(-3deg); }
-        }
-        @keyframes orbit2 {
-            0%,100% { transform: translate(0,0); }
-            50%      { transform: translate(-10px,-8px); }
-        }
-        @keyframes orbit3 {
-            0%,100% { transform: translate(0,0) scale(1); }
-            50%      { transform: translate(6px,10px) scale(1.05); }
-        }
-        @keyframes blink {
-            0%,100% { opacity: 1; }
-            50%      { opacity: 0.3; }
-        }
-
-        /* PROXY TYPE CARDS */
-        .types-head { margin-top: 5rem; }
-        .type-top {
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;
-        }
-        .type-price {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.78rem; font-weight: 500;
-            padding: 0.45rem 1rem; border-radius: 30px;
-            display: inline-flex; align-items: center; gap: 0.6rem;
-        }
-        .type-price i { font-size: 0.9rem; }
-        .type-unit {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;
-            color: var(--muted); background: var(--bg-2);
-            padding: 0.35rem 0.8rem; border-radius: 30px;
-        }
-        .tp-res { background: #DBEAFE; color: #1D4ED8; }
-        .tp-dc  { background: #EDE9FE; color: #6D28D9; }
-        .tp-isp { background: #CCFBF1; color: #0F766E; }
-        .tp-mob { background: #FFEDD5; color: #C2410C; }
-
-        /* TICKER */
-        .ticker-wrap {
-            border-top: 1px solid var(--border-2);
-            border-bottom: 1px solid var(--border-2);
-            background: var(--white);
-            overflow: hidden;
-            padding: 0.9rem 0;
-        }
-        .ticker {
-            display: flex;
-            width: max-content;
-            animation: ticker 30s linear infinite;
-        }
-        .ticker-item {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 0 2rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            color: var(--soft);
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .ticker-item .dot { color: var(--accent); font-size: 0.5rem; }
-        @keyframes ticker {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
-
-        /* STATS */
-        .stats-section {
-            padding: 6rem 3rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0;
-        }
-        .stat-item {
-            padding: 3rem;
-            border-right: 1px solid var(--border-2);
-            position: relative;
-        }
-        .stat-item:last-child { border-right: none; }
-        .stat-num {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 5rem; line-height: 1;
-            color: var(--navy);
-            margin-bottom: 0.5rem;
-        }
-        .stat-num span { color: var(--accent); }
-        .stat-label {
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            font-weight: 600;
-        }
-        .stat-item::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 3rem; right: 3rem;
-            height: 1px; background: var(--border-2);
-        }
-
-        /* FEATURES */
-        .features {
-            padding: 6rem 3rem;
-            background: var(--white);
-            border-top: 1px solid var(--border-2);
-            border-bottom: 1px solid var(--border-2);
-        }
-        .features-inner { max-width: 1400px; margin: 0 auto; }
-
-        .section-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 3rem;
-            display: flex; align-items: center; gap: 1rem;
-        }
-        .section-tag::before {
-            content: '';
-            display: inline-block;
-            width: 30px; height: 1.5px;
-            background: var(--accent);
-        }
-
-        .features-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border-2);
-            border: 1px solid var(--border-2);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .feat-card {
-            background: var(--white);
-            padding: 3rem;
-            transition: background 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .feat-card:hover { background: var(--bg); }
-        .feat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 3px; height: 0;
-            background: var(--accent);
-            transition: height 0.4s;
-        }
-        .feat-card:hover::before { height: 100%; }
-
-        .feat-num {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--soft);
-            letter-spacing: 2px;
-            margin-bottom: 1.5rem;
-        }
-        .feat-icon {
-            font-size: 1.5rem;
-            color: var(--accent);
-            margin-bottom: 1rem;
-        }
-        .feat-card h3 {
-            font-size: 1.2rem; font-weight: 800;
-            margin-bottom: 0.8rem;
-            color: var(--navy);
-        }
-        .feat-card p {
-            color: var(--muted);
-            font-size: 0.92rem;
-            line-height: 1.65;
-            font-weight: 400;
-        }
-
-        /* PLATFORMS */
-        .platforms-section {
-            padding: 6rem 3rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .platforms-header {
-            display: flex; justify-content: space-between; align-items: flex-end;
-            margin-bottom: 4rem;
-            border-bottom: 1px solid var(--border-2);
-            padding-bottom: 2rem;
-        }
-        .platforms-header h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3rem, 6vw, 5rem); line-height: 1;
-            color: var(--navy);
-        }
-        .platforms-header p {
-            color: var(--muted);
-            font-size: 0.9rem; max-width: 300px;
-            text-align: right; line-height: 1.6;
-        }
-
-        .platforms-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 1px;
-            background: var(--border-2);
-            border: 1px solid var(--border-2);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .platform-cell {
-            background: var(--white);
-            padding: 2rem 1rem;
-            display: flex; flex-direction: column;
-            align-items: center; gap: 0.6rem;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-        .platform-cell:hover { background: var(--bg-2); }
-        .platform-cell i {
-            font-size: 1.6rem;
-            color: var(--soft);
-            transition: color 0.3s;
-        }
-        .platform-cell:hover i { color: var(--accent); }
-        .platform-cell span {
-            font-size: 0.65rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--soft);
-            font-weight: 600;
-            font-family: 'DM Mono', monospace;
-        }
-
-        /* BLOG (home page) */
-        .blog-section {
-            padding: 6rem 3rem;
-            background: var(--bg-2);
-            border-top: 1px solid var(--border-2);
-        }
-        .blog-inner { max-width: 1400px; margin: 0 auto; }
-        .blog-head {
-            display: flex; justify-content: space-between; align-items: flex-end;
-            flex-wrap: wrap; gap: 2rem;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-2);
-        }
-        .blog-head h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3rem, 6vw, 5rem); line-height: 1;
-            color: var(--navy);
-        }
-        .blog-head h2 .outline {
-            -webkit-text-stroke: 2px rgba(15, 23, 42, 0.2);
-            color: transparent;
-        }
-        .blog-head p {
-            color: var(--muted);
-            font-size: 0.92rem; max-width: 340px;
-            text-align: right; line-height: 1.6;
-        }
-
-        .hb-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 1.5rem;
-        }
-        .hb-card {
-            grid-column: span 2;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            text-decoration: none;
-            color: inherit;
-            display: flex; flex-direction: column;
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-        }
-        .hb-card:nth-child(-n+2) { grid-column: span 3; }
-        .hb-card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--electric);
-        }
-        .hb-img {
-            width: 100%; aspect-ratio: 16/10;
-            background: var(--bg-3) center/cover no-repeat;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--soft); font-size: 2rem;
-        }
-        .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/8; }
-        .hb-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
-        .hb-date {
-            font-family: 'DM Mono', monospace; font-size: 0.68rem;
-            color: var(--soft); letter-spacing: 1px; text-transform: uppercase;
-        }
-        .hb-title {
-            font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
-            line-height: 1.35; color: var(--navy);
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .hb-card:nth-child(-n+2) .hb-title { font-size: 1.3rem; }
-        .hb-excerpt {
-            color: var(--muted); font-size: 0.88rem; line-height: 1.6;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .hb-more {
-            margin-top: auto; padding-top: 0.5rem;
-            font-family: 'DM Mono', monospace; font-size: 0.72rem;
-            color: var(--accent); letter-spacing: 1px; text-transform: uppercase;
-        }
-        .blog-cta { text-align: center; margin-top: 3rem; }
-
-        /* CTA */
-        .cta-section {
-            padding: 8rem 3rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            background: var(--navy);
-        }
-        .cta-section::before {
-            content: '';
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 900px; height: 600px;
-            background: radial-gradient(ellipse, rgba(37,99,235,0.18) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .cta-section h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(4rem, 10vw, 9rem);
-            line-height: 0.9; letter-spacing: -1px;
-            margin-bottom: 2rem;
-            color: #fff;
-        }
-        .cta-section h2 .outline {
-            -webkit-text-stroke: 1px rgba(255,255,255,0.25);
-            color: transparent;
-        }
-        .cta-section p {
-            color: #94A3B8;
-            font-size: 1rem;
-            max-width: 450px; margin: 0 auto 3rem;
-            line-height: 1.7;
-        }
-
-        /* FOOTER */
-        footer {
-            background: var(--navy-2);
-            border-top: 1px solid rgba(255,255,255,0.07);
-            padding: 4rem 3rem 2rem;
-        }
-        .footer-top {
-            max-width: 1400px; margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 4rem;
-            padding-bottom: 3rem;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-        .footer-brand .logo-text {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem; letter-spacing: 3px;
-            margin-bottom: 1rem; display: block;
-            color: #fff;
-        }
-        .footer-brand .logo-text span { color: var(--electric); }
-        .footer-brand p {
-            color: #64748B;
-            font-size: 0.88rem; line-height: 1.65;
-            max-width: 280px; margin-bottom: 1.5rem;
-        }
-        .footer-socials { display: flex; gap: 0.6rem; }
-        .soc-btn {
-            width: 38px; height: 38px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            color: #64748B;
-            text-decoration: none; font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-        .soc-btn:hover { border-color: var(--electric); color: var(--electric); }
-
-        .footer-col h4 {
-            font-size: 0.7rem; letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: #fff; margin-bottom: 1.5rem; font-weight: 700;
-        }
-        .footer-col ul { list-style: none; }
-        .footer-col li { margin-bottom: 0.8rem; }
-        .footer-col a {
-            color: #64748B; text-decoration: none;
-            font-size: 0.88rem; transition: color 0.3s;
-        }
-        .footer-col a:hover { color: #fff; }
-        .footer-col .contact-item {
-            color: #64748B;
-            font-size: 0.85rem;
-            display: flex; align-items: flex-start;
-            gap: 0.6rem; margin-bottom: 0.8rem;
-        }
-        .footer-col .contact-item i { color: var(--electric); margin-top: 2px; flex-shrink: 0; }
-
-        .footer-bottom {
-            max-width: 1400px; margin: 2rem auto 0;
-            display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 1rem;
-        }
-        .footer-bottom p {
-            color: #475569;
-            font-size: 0.78rem;
-            font-family: 'DM Mono', monospace;
-        }
-
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .reveal {
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 1100px) {
-            .hero-tile:nth-of-type(2),
-            .hero-tile:nth-of-type(5) { display: none; }
-        }
-        @media (max-width: 900px) {
-            nav { padding: 1.2rem 1.5rem; }
-            .nav-links { display: none; }
-            .hero { padding: 5.5rem 1rem 1rem; }
-            .hero-card { min-height: auto; border-radius: 20px; padding: 4rem 1.5rem; }
-            .hero h1 { font-size: clamp(3.4rem, 15vw, 6rem); }
-            .hero-tile, .hero-lines { display: none; }
-            .stats-section { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
-            .stat-item { border-right: none; border-bottom: 1px solid var(--border-2); padding: 2rem 1.5rem; }
-            .features { padding: 4rem 1.5rem; }
-            .features-layout { grid-template-columns: 1fr; }
-            .platforms-section { padding: 4rem 1.5rem; }
-            .platforms-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .platforms-header p { text-align: left; }
-            .platforms-grid { grid-template-columns: repeat(4, 1fr); }
-            .blog-section { padding: 4rem 1.5rem; }
-            .blog-head p { text-align: left; }
-            .hb-grid { grid-template-columns: repeat(2, 1fr); }
-            .hb-card, .hb-card:nth-child(-n+2) { grid-column: span 1; }
-            .hb-card:last-child:nth-child(odd) { grid-column: span 2; }
-            .hb-card:nth-child(-n+2) .hb-img { aspect-ratio: 16/10; }
-            .hb-card:nth-child(-n+2) .hb-title { font-size: 1.1rem; }
-            .cta-section { padding: 5rem 1.5rem; }
-            footer { padding: 3rem 1.5rem 2rem; }
-            .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
-            .footer-bottom { flex-direction: column; align-items: flex-start; }
-        }
-        @media (max-width: 600px) {
-            .hb-grid { grid-template-columns: 1fr; }
-            .hb-card:last-child:nth-child(odd) { grid-column: span 1; }
-            .hero-actions .btn-large { width: 100%; text-align: center; }
-        }
-        @media (max-width: 500px) {
-            .platforms-grid { grid-template-columns: repeat(3, 1fr); }
-            .footer-top { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 600px) {
-            /* Stack header text left on mobile */
-            .reseller-hdr-p { text-align: left !important; max-width: 100% !important; }
-            /* Section padding */
-            .reseller-section { padding: 4rem 1.2rem !important; }
-        }
-        </style>
-
-        <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-55FF9H7J');</script>
-        <!-- End Google Tag Manager -->
-        
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2T8TWXC01E"></script> 
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-2T8TWXC01E');
-        </script>
-
-</head>
-    <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-55FF9H7J"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-
-    <nav id="nav">
-        <a href="#" class="logo">Prox<span>World</span></a>
-        <ul class="nav-links">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#platforms">Locations</a></li>
-            <li><a href="{{ route('api.docs') }}">Api</a></li>
-            <li><a href="{{ route('blog.index') }}">Blog</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-        <div class="nav-btns">
-            <a href="{{ route('login') }}" class="btn btn-ghost">Login</a>
-            <a href="{{ route('register') }}" class="btn btn-solid">Get Started</a>
-        </div>
-    </nav>
-
-    <section class="hero">
-        <div class="hero-card">
-            <div class="hero-glow"></div>
-
-            <!-- Curved connector lines -->
-            <svg class="hero-lines" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M 90 190 C 90 330, 70 450, 0 590"></path>
-                <path d="M 150 370 C 150 450, 140 520, 110 600"></path>
-                <path d="M 910 190 C 910 330, 930 450, 1000 590"></path>
-                <path d="M 850 370 C 850 450, 860 520, 890 600"></path>
-            </svg>
-
-            <!-- Floating tiles -->
-            <div class="hero-tile"><i class="fas fa-house-user"></i></div>
-            <div class="hero-tile"><i class="fas fa-server"></i></div>
-            <div class="hero-tile"><i class="fas fa-globe"></i></div>
-            <div class="hero-tile"><i class="fas fa-network-wired"></i></div>
-            <div class="hero-tile"><i class="fas fa-mobile-screen"></i></div>
-            <div class="hero-tile"><i class="fas fa-shield-halved"></i></div>
-
-            <div class="hero-content">
-                <div class="hero-pill">
-                    <span class="dot"></span>
-                    Premium Proxy Network
-                    <span class="sep">|</span>
-                    190+ Countries
-                </div>
-
-                <h1>
-                    Power <span class="outline">Your</span><br>
-                    Connections
-                </h1>
-
-                <p class="hero-desc">
-                    Residential, datacenter, ISP and mobile proxies across 190+ countries.
-                    Fast, reliable, and built for scraping, automation, and anonymity at scale.
-                </p>
-
-                <div class="hero-actions">
-                    <a href="{{ route('register') }}" class="btn btn-white btn-large">Get Proxies</a>
-                    <a href="#features" class="btn btn-outline-white btn-large">See How</a>
-                </div>
-
-                <div class="hero-note">Instant delivery · 99.9% uptime · 24/7 support</div>
+        <div class="hero-content">
+            <div class="hero-pill">
+                <span class="dot"></span>
+                Premium Proxy Network
+                <span class="sep">|</span>
+                190+ Countries
             </div>
-        </div>
-    </section>
 
-    <div class="ticker-wrap">
-        <div class="ticker">
-            <div class="ticker-item"><span class="dot">●</span> Residential Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> Datacenter Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> ISP Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> Mobile Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> 190+ Countries</div>
-            <div class="ticker-item"><span class="dot">●</span> HTTP &amp; SOCKS5</div>
-            <div class="ticker-item"><span class="dot">●</span> Unlimited Bandwidth Plans</div>
-            <div class="ticker-item"><span class="dot">●</span> Sticky &amp; Rotating Sessions</div>
-            <div class="ticker-item"><span class="dot">●</span> 99.9% Uptime</div>
-            <div class="ticker-item"><span class="dot">●</span> 24/7 Support</div>
-            <div class="ticker-item"><span class="dot">●</span> Residential Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> Datacenter Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> ISP Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> Mobile Proxies</div>
-            <div class="ticker-item"><span class="dot">●</span> 190+ Countries</div>
-            <div class="ticker-item"><span class="dot">●</span> HTTP &amp; SOCKS5</div>
-            <div class="ticker-item"><span class="dot">●</span> Unlimited Bandwidth Plans</div>
-            <div class="ticker-item"><span class="dot">●</span> Sticky &amp; Rotating Sessions</div>
-            <div class="ticker-item"><span class="dot">●</span> 99.9% Uptime</div>
-            <div class="ticker-item"><span class="dot">●</span> 24/7 Support</div>
+            <h1>
+                Power <span class="outline">Your</span><br>
+                Connections
+            </h1>
+
+            <p class="hero-desc">
+                Residential, datacenter, ISP and mobile proxies across 190+ countries.
+                Fast, reliable, and built for scraping, automation, and anonymity at scale.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{{ route('register') }}" class="btn btn-white btn-large">Get Proxies</a>
+                <a href="#features" class="btn btn-outline-white btn-large">See How</a>
+            </div>
+
+            <div class="hero-note">Instant delivery · 99.9% uptime · 24/7 support</div>
         </div>
     </div>
+</section>
 
-    <div class="stats-section reveal">
-        <div class="stat-item">
-            <div class="stat-num">50K<span>+</span></div>
-            <div class="stat-label">Happy Customers</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">10M<span>+</span></div>
-            <div class="stat-label">Orders Delivered</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">99.9<span>%</span></div>
-            <div class="stat-label">Success Rate</div>
-        </div>
+<div class="ticker-wrap">
+    <div class="ticker">
+        <div class="ticker-item"><span class="dot">●</span> Residential Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> Datacenter Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> ISP Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> Mobile Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> 190+ Countries</div>
+        <div class="ticker-item"><span class="dot">●</span> HTTP &amp; SOCKS5</div>
+        <div class="ticker-item"><span class="dot">●</span> Unlimited Bandwidth Plans</div>
+        <div class="ticker-item"><span class="dot">●</span> Sticky &amp; Rotating Sessions</div>
+        <div class="ticker-item"><span class="dot">●</span> 99.9% Uptime</div>
+        <div class="ticker-item"><span class="dot">●</span> 24/7 Support</div>
+        <div class="ticker-item"><span class="dot">●</span> Residential Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> Datacenter Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> ISP Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> Mobile Proxies</div>
+        <div class="ticker-item"><span class="dot">●</span> 190+ Countries</div>
+        <div class="ticker-item"><span class="dot">●</span> HTTP &amp; SOCKS5</div>
+        <div class="ticker-item"><span class="dot">●</span> Unlimited Bandwidth Plans</div>
+        <div class="ticker-item"><span class="dot">●</span> Sticky &amp; Rotating Sessions</div>
+        <div class="ticker-item"><span class="dot">●</span> 99.9% Uptime</div>
+        <div class="ticker-item"><span class="dot">●</span> 24/7 Support</div>
     </div>
-    <section id="features" class="features">
-        <div class="features-inner">
-            <div class="section-tag reveal">Why We're Different</div>
-            <div class="features-layout">
-                <div class="feat-card reveal">
-                    <div class="feat-num">01</div>
-                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
-                    <h3>Instant Provisioning</h3>
-                    <p>Orders are provisioned within minutes. Our automated pipeline connects to the provider and delivers your credentials without you waiting around.</p>
+</div>
+
+<div class="stats-section reveal">
+    <div class="stat-item">
+        <div class="stat-num">50K<span>+</span></div>
+        <div class="stat-label">Happy Customers</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">10M<span>+</span></div>
+        <div class="stat-label">Orders Delivered</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">99.9<span>%</span></div>
+        <div class="stat-label">Success Rate</div>
+    </div>
+</div>
+
+<section id="features" class="features">
+    <div class="features-inner">
+        <div class="section-tag reveal">Why We're Different</div>
+        <div class="features-layout">
+            <div class="feat-card reveal">
+                <div class="feat-num">01</div>
+                <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Instant Provisioning</h3>
+                <p>Orders are provisioned within minutes. Our automated pipeline connects to the provider and delivers your credentials without you waiting around.</p>
+            </div>
+            <div class="feat-card reveal">
+                <div class="feat-num">02</div>
+                <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Clean &amp; Unshared IPs</h3>
+                <p>No blacklisted ranges, no overused IPs. Every proxy pool is sourced from vetted, ethically-obtained networks.</p>
+            </div>
+            <div class="feat-card reveal">
+                <div class="feat-num">03</div>
+                <div class="feat-icon"><i class="fas fa-gauge-high"></i></div>
+                <h3>High Uptime, Low Latency</h3>
+                <p>99.9% uptime across our network, with fast response times whether you're scraping, automating, or browsing.</p>
+            </div>
+            <div class="feat-card reveal">
+                <div class="feat-num">04</div>
+                <div class="feat-icon"><i class="fas fa-headset"></i></div>
+                <h3>Support, Always On</h3>
+                <p>Got a question at 2am? Our team responds fast — day, night, weekends. No ticket queue runaround.</p>
+            </div>
+            <div class="feat-card reveal">
+                <div class="feat-num">05</div>
+                <div class="feat-icon"><i class="fas fa-tag"></i></div>
+                <h3>Prices That Make Sense</h3>
+                <p>Competitive rates with bulk discounts on bandwidth and IP plans. Scaling up shouldn't drain your budget.</p>
+            </div>
+            <div class="feat-card reveal">
+                <div class="feat-num">06</div>
+                <div class="feat-icon"><i class="fas fa-undo"></i></div>
+                <h3>Refund Guarantee</h3>
+                <p>Something goes wrong? We make it right. Straightforward refund policy, no hoops.</p>
+            </div>
+        </div>
+
+        <!-- ===== PROXY TYPES ===== -->
+        <div class="section-tag types-head reveal">Solutions For Every Use Case</div>
+        <div class="features-layout">
+
+            <div class="feat-card reveal">
+                <div class="type-top">
+                    <span class="type-price tp-res"><i class="fas fa-house-user"></i> from {{ $homePrices['residential'] }}/GB</span>
+                    <span class="type-unit">Per GB</span>
                 </div>
-                <div class="feat-card reveal">
-                    <div class="feat-num">02</div>
-                    <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Clean &amp; Unshared IPs</h3>
-                    <p>No blacklisted ranges, no overused IPs. Every proxy pool is sourced from vetted, ethically-obtained networks.</p>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-num">03</div>
-                    <div class="feat-icon"><i class="fas fa-gauge-high"></i></div>
-                    <h3>High Uptime, Low Latency</h3>
-                    <p>99.9% uptime across our network, with fast response times whether you're scraping, automating, or browsing.</p>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-num">04</div>
-                    <div class="feat-icon"><i class="fas fa-headset"></i></div>
-                    <h3>Support, Always On</h3>
-                    <p>Got a question at 2am? Our team responds fast — day, night, weekends. No ticket queue runaround.</p>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-num">05</div>
-                    <div class="feat-icon"><i class="fas fa-tag"></i></div>
-                    <h3>Prices That Make Sense</h3>
-                    <p>Competitive rates with bulk discounts on bandwidth and IP plans. Scaling up shouldn't drain your budget.</p>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-num">06</div>
-                    <div class="feat-icon"><i class="fas fa-undo"></i></div>
-                    <h3>Refund Guarantee</h3>
-                    <p>Something goes wrong? We make it right. Straightforward refund policy, no hoops.</p>
-                </div>
+                <h3><a href="{{ route('products.show', 'residential') }}" style="color:inherit;text-decoration:none">Residential</a></h3>
+                <p>Ideal for anonymous high-volume web scraping, SEO monitoring, and geo-targeted research at scale.</p>
             </div>
 
-            <!-- ===== PROXY TYPES (NEW) ===== -->
-            <div class="section-tag types-head reveal">Solutions For Every Use Case</div>
-            <div class="features-layout">
-
-                <div class="feat-card reveal">
-                    <div class="type-top">
-                        <span class="type-price tp-res"><i class="fas fa-house-user"></i> from {{ $homePrices['residential'] }}/GB</span>
-                        <span class="type-unit">Per GB</span>
-                    </div>
-                    <h3>Residential</h3>
-                    <p>Ideal for anonymous high-volume web scraping, SEO monitoring, and geo-targeted research at scale.</p>
+            <div class="feat-card reveal">
+                <div class="type-top">
+                    <span class="type-price tp-isp"><i class="fas fa-network-wired"></i> from {{ $homePrices['isp'] }}/proxy</span>
+                    <span class="type-unit">Per proxy</span>
                 </div>
-
-                <div class="feat-card reveal">
-                    <div class="type-top">
-                        <span class="type-price tp-isp"><i class="fas fa-network-wired"></i> from {{ $homePrices['isp'] }}/proxy</span>
-                        <span class="type-unit">Per proxy</span>
-                    </div>
-                    <h3>ISP</h3>
-                    <p>Great for ecommerce automation, ad verification, and long-session reliability. Datacenter speed with residential-level trust.</p>
-                </div>
-
-                <div class="feat-card reveal">
-                    <div class="type-top">
-                        <span class="type-price tp-dc"><i class="fas fa-server"></i> from {{ $homePrices['datacenter'] }}/proxy</span>
-                        <span class="type-unit">Per proxy</span>
-                    </div>
-                    <h3>Datacenter</h3>
-                    <p>Best for speed-critical work like software testing, scraping, and infrastructure monitoring.</p>
-                </div>
-
-                <div class="feat-card reveal">
-                    <div class="type-top">
-                        <span class="type-price tp-mob"><i class="fas fa-mobile-screen"></i> from {{ $homePrices['mobile'] }}/day</span>
-                        <span class="type-unit">Per day</span>
-                    </div>
-                    <h3>Mobile</h3>
-                    <p>Perfect for social platforms, mobile app QA, and regional ad testing on real carrier IPs.</p>
-                </div>
-
+                <h3><a href="{{ route('products.show', 'isp') }}" style="color:inherit;text-decoration:none">ISP</a></h3>
+                <p>Great for ecommerce automation, ad verification, and long-session reliability. Datacenter speed with residential-level trust.</p>
             </div>
-            <!-- ===== END PROXY TYPES ===== -->
+
+            <div class="feat-card reveal">
+                <div class="type-top">
+                    <span class="type-price tp-dc"><i class="fas fa-server"></i> from {{ $homePrices['datacenter'] }}/proxy</span>
+                    <span class="type-unit">Per proxy</span>
+                </div>
+                <h3><a href="{{ route('products.show', 'datacenter') }}" style="color:inherit;text-decoration:none">Datacenter</a></h3>
+                <p>Best for speed-critical work like software testing, scraping, and infrastructure monitoring.</p>
+            </div>
+
+            <div class="feat-card reveal">
+                <div class="type-top">
+                    <span class="type-price tp-mob"><i class="fas fa-mobile-screen"></i> from {{ $homePrices['mobile'] }}/day</span>
+                    <span class="type-unit">Per day</span>
+                </div>
+                <h3><a href="{{ route('products.show', 'mobile') }}" style="color:inherit;text-decoration:none">Mobile</a></h3>
+                <p>Perfect for social platforms, mobile app QA, and regional ad testing on real carrier IPs.</p>
+            </div>
 
         </div>
-    </section>
+        <!-- ===== END PROXY TYPES ===== -->
 
-    <section id="platforms" class="platforms-section">
-        <div class="platforms-header reveal">
-            <h2>190+ Countries.<br>One Dashboard.</h2>
-            <p>Every proxy type, sourced from top-tier suppliers, covering nearly every country on earth.</p>
-        </div>
-        <div class="platforms-grid reveal">
-            <div class="platform-cell"><i class="fas fa-house-user"></i><span>Residential</span></div>
-            <div class="platform-cell"><i class="fas fa-server"></i><span>Datacenter</span></div>
-            <div class="platform-cell"><i class="fas fa-network-wired"></i><span>ISP</span></div>
-            <div class="platform-cell"><i class="fas fa-mobile-screen"></i><span>Mobile</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/us.png" alt="USA"><span>USA</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/gb.png" alt="UK"><span>UK</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/de.png" alt="Germany"><span>Germany</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ng.png" alt="Nigeria"><span>Nigeria</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/in.png" alt="India"><span>India</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/br.png" alt="Brazil"><span>Brazil</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/za.png" alt="South Africa"><span>South Africa</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ae.png" alt="UAE"><span>UAE</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ca.png" alt="Canada"><span>Canada</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/fr.png" alt="France"><span>France</span></div>
-            <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/jp.png" alt="Japan"><span>Japan</span></div>
-            <div class="platform-cell"><i class="fas fa-earth-americas"></i><span>+ many more</span></div>
-        </div>
-    </section>
+    </div>
+</section>
+
+<section id="platforms" class="platforms-section">
+    <div class="platforms-header reveal">
+        <h2>190+ Countries.<br>One Dashboard.</h2>
+        <p>Every proxy type, sourced from top-tier suppliers, covering nearly every country on earth.</p>
+    </div>
+    <div class="platforms-grid reveal">
+        <div class="platform-cell"><i class="fas fa-house-user"></i><span>Residential</span></div>
+        <div class="platform-cell"><i class="fas fa-server"></i><span>Datacenter</span></div>
+        <div class="platform-cell"><i class="fas fa-network-wired"></i><span>ISP</span></div>
+        <div class="platform-cell"><i class="fas fa-mobile-screen"></i><span>Mobile</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/us.png" alt="USA"><span>USA</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/gb.png" alt="UK"><span>UK</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/de.png" alt="Germany"><span>Germany</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ng.png" alt="Nigeria"><span>Nigeria</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/in.png" alt="India"><span>India</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/br.png" alt="Brazil"><span>Brazil</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/za.png" alt="South Africa"><span>South Africa</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ae.png" alt="UAE"><span>UAE</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/ca.png" alt="Canada"><span>Canada</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/fr.png" alt="France"><span>France</span></div>
+        <div class="platform-cell"><img class="flag flag-lg" src="https://flagcdn.com/w80/jp.png" alt="Japan"><span>Japan</span></div>
+        <a href="{{ route('locations') }}" class="platform-cell"><i class="fas fa-earth-americas"></i><span>+ many more</span></a>
+    </div>
+</section>
 
 <!-- RESELLER / API SECTION -->
-<section style="padding: 6rem 3rem; background: var(--navy); position: relative; overflow: hidden;">
-    
+<section style="padding: 6rem 3rem; background: var(--navy); position: relative; overflow: hidden;" class="reseller-section">
+
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(37,99,235,0.15) 0%,transparent 70%);pointer-events:none;"></div>
-    <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;"></div>
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;"></div>
 
     <div style="max-width:1400px;margin:0 auto;position:relative;z-index:1;">
 
         <div style="margin-bottom:4rem;">
             <div class="section-tag reveal" style="color:#60A5FA;">
                 <span style="background:#60A5FA;"></span>
-                For Resellers & Developers
+                For Resellers &amp; Developers
             </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:2rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2rem;">
-                <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5.5rem);line-height:1;color:#fff;">
+                <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:clamp(2.5rem,6vw,5.5rem);line-height:1;color:#fff;">
                     Build On<br>
                     <span style="-webkit-text-stroke:1px rgba(255,255,255,0.2);color:transparent;">ProxWorld</span>
                 </h2>
-                <p class="reveal" style="color:#94A3B8;font-size:0.95rem;max-width:380px;line-height:1.7;text-align:right;">
-                    White-label our platform or connect your own panel via API. 
+                <p class="reveal reseller-hdr-p" style="color:#94A3B8;font-size:0.95rem;max-width:380px;line-height:1.7;text-align:right;">
+                    White-label our platform or connect your own panel via API.
                     Thousands of services, one integration.
                 </p>
             </div>
@@ -1104,25 +500,25 @@
 
         <!-- Cards grid -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 400px), 1fr));gap:1px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;">
-            
+
             <!-- Reseller Card -->
-            <div class="reveal" style="background:#0F172A;padding:clamp(1.5rem, 4vw, 3rem);position:relative;overflow:hidden;transition:background 0.3s;" 
-                 onmouseenter="this.style.background='#1E293B'" 
+            <div class="reveal" style="background:#0F172A;padding:clamp(1.5rem, 4vw, 3rem);position:relative;overflow:hidden;transition:background 0.3s;"
+                 onmouseenter="this.style.background='#1E293B'"
                  onmouseleave="this.style.background='#0F172A'">
-                
+
                 <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,#3B82F6,transparent);"></div>
-                
+
                 <div style="width:52px;height:52px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
                     <i class="fas fa-store" style="color:#60A5FA;font-size:1.3rem;"></i>
                 </div>
-                
+
                 <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:2px;color:#475569;text-transform:uppercase;margin-bottom:0.6rem;">01 — Reseller Panel</div>
                 <h3 style="font-size:clamp(1.1rem, 2.5vw, 1.4rem);font-weight:800;color:#fff;margin-bottom:1rem;">Your Own Proxy Reseller Panel</h3>
                 <p style="color:#94A3B8;font-size:clamp(0.82rem, 1.5vw, 0.9rem);line-height:1.7;margin-bottom:2rem;">
-                    Sell our services under your own brand. Set your own prices, manage your own customers, 
+                    Sell our services under your own brand. Set your own prices, manage your own customers,
                     and keep 100% of your margin. No setup fees — just top up and go.
                 </p>
-                
+
                 <div style="display:flex;flex-direction:column;gap:0.7rem;margin-bottom:2.5rem;">
                     <div style="display:flex;align-items:center;gap:0.8rem;">
                         <div style="width:20px;height:20px;min-width:20px;background:rgba(5,150,105,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
@@ -1134,7 +530,7 @@
                         <div style="width:20px;height:20px;min-width:20px;background:rgba(5,150,105,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
                             <i class="fas fa-check" style="color:#10B981;font-size:0.55rem;"></i>
                         </div>
-                        <span style="color:#94A3B8;font-size:clamp(0.8rem, 1.5vw, 0.85rem);">Manage customers & transactions</span>
+                        <span style="color:#94A3B8;font-size:clamp(0.8rem, 1.5vw, 0.85rem);">Manage customers &amp; transactions</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:0.8rem;">
                         <div style="width:20px;height:20px;min-width:20px;background:rgba(5,150,105,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
@@ -1149,7 +545,7 @@
                         <span style="color:#94A3B8;font-size:clamp(0.8rem, 1.5vw, 0.85rem);">500+ services across all platforms</span>
                     </div>
                 </div>
-                
+
                 <a href="{{ route('register') }}" class="btn btn-solid" style="display:inline-flex;align-items:center;gap:0.6rem;width:100%;justify-content:center;max-width:260px;">
                     Start Reselling &nbsp;<i class="fas fa-arrow-right"></i>
                 </a>
@@ -1159,17 +555,17 @@
             <div class="reveal" style="background:#0F172A;padding:clamp(1.5rem, 4vw, 3rem);position:relative;overflow:hidden;transition:background 0.3s;"
                  onmouseenter="this.style.background='#1E293B'"
                  onmouseleave="this.style.background='#0F172A'">
-                
+
                 <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,#8B5CF6,transparent);"></div>
-                
+
                 <div style="width:52px;height:52px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
                     <i class="fas fa-code" style="color:#A78BFA;font-size:1.3rem;"></i>
                 </div>
-                
+
                 <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:2px;color:#475569;text-transform:uppercase;margin-bottom:0.6rem;">02 — Developer API</div>
                 <h3 style="font-size:clamp(1.1rem, 2.5vw, 1.4rem);font-weight:800;color:#fff;margin-bottom:1rem;">Integrate via REST API</h3>
                 <p style="color:#94A3B8;font-size:clamp(0.82rem, 1.5vw, 0.9rem);line-height:1.7;margin-bottom:2rem;">
-                    Connect ProxWorld directly to your own app, bot, or panel. 
+                    Connect ProxWorld directly to your own app, bot, or panel.
                     Simple POST requests, instant responses. Get your API key and start building in minutes.
                 </p>
 
@@ -1181,7 +577,7 @@
                 </div>
 
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <a href="{{ route('api.docs') }}" class="btn" 
+                    <a href="{{ route('api.docs') }}" class="btn"
                        style="background:rgba(139,92,246,0.15);color:#A78BFA;border:1px solid rgba(139,92,246,0.3);display:inline-flex;align-items:center;gap:0.6rem;flex:1;min-width:120px;justify-content:center;">
                         <i class="fas fa-book"></i> API Docs
                     </a>
@@ -1218,168 +614,65 @@
     </div>
 </section>
 
-    {{-- ===== BLOG (latest 5 posts) ===== --}}
-    @php
-        $latestPosts = \App\Models\Newsletter::publishedOnBlog()->latest('sent_at')->limit(5)->get();
-    @endphp
+{{-- ===== BLOG (latest 5 posts) ===== --}}
+@php
+    $latestPosts = \App\Models\Newsletter::publishedOnBlog()->latest('sent_at')->limit(5)->get();
+@endphp
 
-    @if($latestPosts->isNotEmpty())
-    <section id="blog" class="blog-section">
-        <div class="blog-inner">
-            <div class="section-tag reveal">From The Blog</div>
+@if($latestPosts->isNotEmpty())
+<section id="blog" class="blog-section">
+    <div class="blog-inner">
+        <div class="section-tag reveal">From The Blog</div>
 
-            <div class="blog-head reveal">
-                <h2>Proxy Guides<br><span class="outline">&amp; Insights</span></h2>
-                <p>Tips, tutorials, and news on residential, datacenter, ISP, and mobile proxies — straight from the team building them.</p>
-            </div>
+        <div class="blog-head reveal">
+            <h2>Proxy Guides<br><span class="outline">&amp; Insights</span></h2>
+            <p>Tips, tutorials, and news on residential, datacenter, ISP, and mobile proxies — straight from the team building them.</p>
+        </div>
 
-            <div class="hb-grid reveal">
-                @foreach($latestPosts as $post)
-                    <a href="{{ route('blog.show', $post->slug) }}" class="hb-card">
-                        <div class="hb-img" @if($post->featured_image_url) style="background-image:url('{{ $post->featured_image_url }}');" @endif>
-                            @unless($post->featured_image_url)
-                                <i class="fa-regular fa-image"></i>
-                            @endunless
-                        </div>
-                        <div class="hb-body">
-                            <span class="hb-date">{{ $post->sent_at->format('M d, Y') }}</span>
-                            <h3 class="hb-title">{{ $post->subject }}</h3>
-                            @if($post->excerpt)
-                                <p class="hb-excerpt">{{ $post->excerpt }}</p>
-                            @endif
-                            <span class="hb-more">Read Article →</span>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-
-            <div class="blog-cta reveal">
-                <a href="{{ route('blog.index') }}" class="btn btn-solid btn-large">
-                    View All Blogs &nbsp;<i class="fas fa-arrow-right"></i>
+        <div class="hb-grid reveal">
+            @foreach($latestPosts as $post)
+                <a href="{{ route('blog.show', $post->slug) }}" class="hb-card">
+                    <div class="hb-img" @if($post->featured_image_url) style="background-image:url('{{ $post->featured_image_url }}');" @endif>
+                        @unless($post->featured_image_url)
+                            <i class="fa-regular fa-image"></i>
+                        @endunless
+                    </div>
+                    <div class="hb-body">
+                        <span class="hb-date">{{ $post->sent_at->format('M d, Y') }}</span>
+                        <h3 class="hb-title">{{ $post->subject }}</h3>
+                        @if($post->excerpt)
+                            <p class="hb-excerpt">{{ $post->excerpt }}</p>
+                        @endif
+                        <span class="hb-more">Read Article →</span>
+                    </div>
                 </a>
-            </div>
+            @endforeach
         </div>
-    </section>
-    @endif
 
-    <section class="cta-section">
-        <h2 class="reveal">
-            Go<br>
-            <span class="outline">Anonymous</span><br>
-            Today
-        </h2>
-        <p class="reveal">Join 50,000+ developers, marketers, and businesses running on ProxWorld's network.</p>
-        <a href="{{ route('register') }}" class="btn btn-solid btn-large reveal">Create Free Account</a>
-    </section>
- 
-    <footer id="contact">
-        <div class="footer-top">
-            <div class="footer-brand">
-                <span class="logo-text">Prox<span>World</span></span>
-                <p>Your trusted proxy provider worldwide. Safe, fast, and built for results.</p>
-                <div class="footer-socials">
-                    <a href="https://whatsapp.com/channel/0029VbEIyPKFi8xhoHYXrk2i" target="_blank" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://t.me/proxworldhq" target="_blank" class="soc-btn"><i class="fab fa-telegram"></i></a>
-                    <a href="https://www.tiktok.com/@ProxWorld3928" target="_blank" class="soc-btn"><i class="fab fa-tiktok"></i></a>
-                    <a href="https://www.x.com/prox_world" class="soc-btn"><i class="fab fa-twitter"></i></a>
-                    <a href="https://www.instagram.com/proxworldhq" class="soc-btn"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>Navigate</h4>
-                <ul>
-                    <li><a href="{{ route('login') }}">Login</a></li>
-                    <li><a href="{{ route('register') }}">Sign Up</a></li>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#platforms">Locations</a></li>
-                    <li><a href="{{ route('blog.index') }}">Blog</a></li>
-                </ul>
-            </div>
-                <div class="footer-col">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="{{ route('faq') }}">FAQ</a></li>
-                        <li><a href="{{ route('terms-of-use') }}">Terms of Use</a></li>
-                        <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
-                        <li><a href="{{ route('refund-policy') }}">Refund Policy</a></li>
-                        <li><a href="{{ route('acceptable-use-policy') }}">Acceptable Use Policy</a></li>
-                        <li><a href="{{ route('reseller-agreement') }}">Reseller Agreement</a></li>
-                        <li><a href="{{ route('cookie-policy') }}">Cookie Policy</a></li>
-                    </ul>
-                </div>
-            <div class="footer-col">
-                <h4>Contact</h4>
-                <div class="contact-item"><i class="fas fa-envelope"></i> info@proxworld.shop</div>
-            </div>
+        <div class="blog-cta reveal">
+            <a href="{{ route('blog.index') }}" class="btn btn-solid btn-large">
+                View All Blogs &nbsp;<i class="fas fa-arrow-right"></i>
+            </a>
         </div>
-        <div class="footer-bottom">
-            <p>© 2025 ProxWorld. All rights reserved.</p>
-            <p>ProxWorld is operated by AfricGEM International Company Limited</p>
-        </div>
-    </footer>
+    </div>
+</section>
+@endif
 
-    <script>
+<section class="cta-section">
+    <h2 class="reveal">
+        Go<br>
+        <span class="outline">Anonymous</span><br>
+        Today
+    </h2>
+    <p class="reveal">Join 50,000+ developers, marketers, and businesses running on ProxWorld's network.</p>
+    <a href="{{ route('register') }}" class="btn btn-solid btn-large reveal">Create Free Account</a>
+</section>
 
-    function flagify(str) {
-        return str.replace(/([\u{1F1E6}-\u{1F1FF}]{2})/gu, function (m) {
-            const code = Array.from(m)
-                .map(c => String.fromCharCode(c.codePointAt(0) - 0x1F1E6 + 97))
-                .join('');
-            return '<img class="flag" src="https://flagcdn.com/w40/' + code + '.png" alt="' + code.toUpperCase() + '"> ';
-        });
-    }
-
-    // CURSOR
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => {
-        mx = e.clientX; my = e.clientY;
-        cursor.style.left = mx - 5 + 'px';
-        cursor.style.top  = my - 5 + 'px';
-    });
-    function animRing() {
-        rx += (mx - rx) * 0.12;
-        ry += (my - ry) * 0.12;
-        ring.style.left = rx - 18 + 'px';
-        ring.style.top  = ry - 18 + 'px';
-        requestAnimationFrame(animRing);
-    }
-    animRing();
-    document.querySelectorAll('a, button').forEach(el => {
-        el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(2)'; ring.style.transform = 'scale(1.4)'; ring.style.opacity = '0.6'; });
-        el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)';  ring.style.transform = 'scale(1)';   ring.style.opacity = '0.35'; });
-    });
-
-    // NAV SCROLL
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 60); });
-
-    // REVEAL
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, i) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => entry.target.classList.add('visible'), i * 80);
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
-
-    // SMOOTH SCROLL
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-            const target = document.querySelector(a.getAttribute('href'));
-            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-        });
-    });
-    </script>
-
-    <div id="proxOnboardOverlay" class="prox-onb-overlay">
+<!-- ONBOARDING MODAL -->
+<div id="proxOnboardOverlay" class="prox-onb-overlay" role="dialog" aria-modal="true" aria-label="ProxWorld quick start">
   <div class="prox-onb-modal" id="proxOnboardModal">
 
-    <button class="prox-onb-close" id="proxOnbCancel" title="Cancel" aria-label="Cancel">
+    <button type="button" class="prox-onb-close" id="proxOnbCancel" title="Cancel" aria-label="Cancel">
       <i class="fas fa-xmark"></i>
     </button>
 
@@ -1394,13 +687,13 @@
 
     <div class="prox-onb-footer">
       <div class="prox-onb-footer-left">
-        <button class="prox-onb-btn prox-onb-ghost" id="proxOnbSkip">Skip</button>
+        <button type="button" class="prox-onb-btn prox-onb-ghost" id="proxOnbSkip">Skip</button>
       </div>
       <div class="prox-onb-footer-right">
-        <button class="prox-onb-btn prox-onb-ghost" id="proxOnbBack">
+        <button type="button" class="prox-onb-btn prox-onb-ghost" id="proxOnbBack">
           <i class="fas fa-arrow-left"></i> Back
         </button>
-        <button class="prox-onb-btn prox-onb-solid" id="proxOnbContinue">
+        <button type="button" class="prox-onb-btn prox-onb-solid" id="proxOnbContinue">
           Continue <i class="fas fa-arrow-right"></i>
         </button>
       </div>
@@ -1412,206 +705,9 @@
   </div>
 </div>
 
-<style>
-/* ============ PROXWORLD ONBOARDING MODAL — SCOPED STYLES ============ */
-.prox-onb-overlay{
-  position:fixed; inset:0; z-index:99999;
-  background:rgba(15,23,42,0.62);
-  backdrop-filter:blur(6px);
-  display:flex; align-items:center; justify-content:center;
-  padding:1.2rem;
-  opacity:0; visibility:hidden;
-  transition:opacity .35s ease, visibility .35s ease;
-  font-family:'Syne',sans-serif;
-}
-.prox-onb-overlay.is-open{ opacity:1; visibility:visible; }
+@endsection
 
-.prox-onb-modal{
-  background:#FFFFFF;
-  width:100%; max-width:560px;
-  border-radius:18px;
-  overflow:hidden;
-  position:relative;
-  box-shadow:0 30px 80px rgba(15,23,42,0.35);
-  transform:translateY(28px) scale(0.97);
-  opacity:0;
-  transition:transform .45s cubic-bezier(.2,.9,.25,1), opacity .4s ease;
-  max-height:88vh;
-  display:flex; flex-direction:column;
-}
-.prox-onb-overlay.is-open .prox-onb-modal{
-  transform:translateY(0) scale(1);
-  opacity:1;
-}
-
-.prox-onb-close{
-  position:absolute; top:16px; right:16px;
-  width:34px; height:34px; border-radius:50%;
-  border:1px solid rgba(15,23,42,0.12);
-  background:#F5F7FF; color:#64748B;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-size:.9rem; z-index:5;
-  transition:all .25s;
-}
-.prox-onb-close:hover{ background:#0F172A; color:#fff; transform:rotate(90deg); }
-
-.prox-onb-header{
-  padding:1.6rem 2rem 0;
-  display:flex; flex-direction:column; gap:.9rem;
-}
-.prox-onb-eyebrow{
-  font-family:'DM Mono',monospace; font-size:.68rem;
-  letter-spacing:2.5px; text-transform:uppercase; color:#2563EB;
-  display:flex; align-items:center; gap:.6rem;
-}
-.prox-onb-eyebrow::before{ content:''; width:22px; height:1.5px; background:#2563EB; }
-
-.prox-onb-dots{ display:flex; gap:.4rem; }
-.prox-onb-dot{
-  width:26px; height:4px; border-radius:3px;
-  background:#E4E9F5; transition:background .3s, width .3s;
-}
-.prox-onb-dot.active{ background:#2563EB; width:38px; }
-.prox-onb-dot.done{ background:#93C5FD; }
-
-.prox-onb-body{
-  padding:1.6rem 2rem 2rem;
-  overflow-y:auto;
-  flex:1;
-}
-.prox-onb-step{
-  animation:proxStepIn .45s cubic-bezier(.2,.9,.25,1);
-}
-@keyframes proxStepIn{
-  from{ opacity:0; transform:translateX(18px); }
-  to{ opacity:1; transform:translateX(0); }
-}
-
-.prox-onb-icon{
-  width:60px; height:60px; border-radius:16px;
-  background:linear-gradient(135deg,#2563EB,#3B82F6);
-  display:flex; align-items:center; justify-content:center;
-  font-size:1.5rem; color:#fff; margin-bottom:1.2rem;
-  box-shadow:0 10px 26px rgba(37,99,235,0.3);
-  animation:proxIconPop .5s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes proxIconPop{
-  0%{ transform:scale(0.4) rotate(-10deg); opacity:0; }
-  100%{ transform:scale(1) rotate(0deg); opacity:1; }
-}
-
-.prox-onb-step h2{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:2.1rem; letter-spacing:.5px; line-height:1.05;
-  color:#0F172A; margin-bottom:.8rem;
-}
-.prox-onb-step h2 span{ color:#2563EB; }
-
-.prox-onb-step p{
-  color:#64748B; font-size:.95rem; line-height:1.65; margin-bottom:1rem;
-}
-.prox-onb-step p:last-child{ margin-bottom:0; }
-.prox-onb-step strong{ color:#0F172A; }
-
-.prox-onb-list{ list-style:none; display:flex; flex-direction:column; gap:.7rem; margin-top:1rem; }
-.prox-onb-list li{
-  display:flex; align-items:flex-start; gap:.7rem;
-  font-size:.9rem; color:#334155; line-height:1.55;
-  opacity:0; animation:proxLiIn .4s ease forwards;
-}
-.prox-onb-list li:nth-child(1){ animation-delay:.1s; }
-.prox-onb-list li:nth-child(2){ animation-delay:.2s; }
-.prox-onb-list li:nth-child(3){ animation-delay:.3s; }
-.prox-onb-list li:nth-child(4){ animation-delay:.4s; }
-.prox-onb-list li:nth-child(5){ animation-delay:.5s; }
-@keyframes proxLiIn{ from{opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
-.prox-onb-list i{
-  width:22px; height:22px; flex-shrink:0; border-radius:6px;
-  background:#EFF6FF; color:#2563EB; font-size:.7rem;
-  display:flex; align-items:center; justify-content:center; margin-top:2px;
-}
-.prox-onb-list.prox-bad i{ background:#FEF2F2; color:#DC2626; }
-.prox-onb-list.prox-good i{ background:#ECFDF5; color:#059669; }
-
-/* type cards grid */
-.prox-onb-types{
-  display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:1.1rem;
-}
-.prox-onb-type-card{
-  border:1px solid #E4E9F5; border-radius:12px; padding:1rem;
-  background:#F5F7FF; opacity:0; animation:proxLiIn .4s ease forwards;
-}
-.prox-onb-type-card:nth-child(1){ animation-delay:.05s; }
-.prox-onb-type-card:nth-child(2){ animation-delay:.15s; }
-.prox-onb-type-card:nth-child(3){ animation-delay:.25s; }
-.prox-onb-type-card:nth-child(4){ animation-delay:.35s; }
-.prox-onb-type-icon{
-  width:34px; height:34px; border-radius:8px; color:#fff;
-  display:flex; align-items:center; justify-content:center; font-size:.85rem; margin-bottom:.6rem;
-}
-.prox-onb-type-card h4{ font-size:.9rem; color:#0F172A; margin-bottom:.3rem; }
-.prox-onb-type-card p{ font-size:.76rem; color:#64748B; line-height:1.5; margin:0; }
-.prox-onb-type-card .tag{
-  display:inline-block; margin-top:.5rem; font-family:'DM Mono',monospace;
-  font-size:.6rem; letter-spacing:.5px; text-transform:uppercase;
-  color:#2563EB; background:#EFF6FF; padding:.2rem .5rem; border-radius:4px;
-}
-
-/* order flow steps */
-.prox-onb-flow{ display:flex; flex-direction:column; gap:.8rem; margin-top:1.1rem; }
-.prox-onb-flow-item{
-  display:flex; align-items:center; gap:.9rem;
-  border:1px solid #E4E9F5; border-radius:10px; padding:.8rem .9rem;
-  background:#FAFBFF;
-}
-.prox-onb-flow-num{
-  width:28px; height:28px; border-radius:50%; background:#0F172A; color:#fff;
-  font-family:'Bebas Neue',sans-serif; font-size:1rem;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.prox-onb-flow-item div p{ margin:0; font-size:.85rem; color:#334155; }
-.prox-onb-flow-item div strong{ display:block; font-size:.88rem; color:#0F172A; margin-bottom:.1rem; }
-
-.prox-onb-callout{
-  margin-top:1.2rem; padding:.85rem 1rem; border-radius:10px;
-  background:#FFFBEB; border:1px solid #FDE68A; display:flex; gap:.7rem; align-items:flex-start;
-}
-.prox-onb-callout i{ color:#D97706; margin-top:2px; }
-.prox-onb-callout p{ margin:0; font-size:.82rem; color:#78350F; line-height:1.5; }
-
-.prox-onb-footer{
-  padding:1rem 2rem 1.4rem;
-  display:flex; justify-content:space-between; align-items:center;
-  border-top:1px solid #EEF1FA;
-}
-.prox-onb-footer-right{ display:flex; gap:.6rem; }
-
-.prox-onb-btn{
-  font-family:'Syne',sans-serif; font-weight:700; font-size:.78rem;
-  letter-spacing:1px; text-transform:uppercase;
-  padding:.7rem 1.3rem; border-radius:7px; border:none; cursor:pointer;
-  display:inline-flex; align-items:center; gap:.5rem;
-  transition:all .25s;
-}
-.prox-onb-ghost{ background:transparent; color:#64748B; border:1px solid rgba(100,116,139,0.28); }
-.prox-onb-ghost:hover{ color:#0F172A; border-color:#0F172A; }
-.prox-onb-solid{ background:#2563EB; color:#fff; box-shadow:0 6px 18px rgba(37,99,235,.3); }
-.prox-onb-solid:hover{ background:#3B82F6; transform:translateY(-1px); }
-#proxOnbBack[disabled]{ opacity:0; pointer-events:none; width:0; padding:0; overflow:hidden; }
-
-.prox-onb-progress-track{ height:3px; background:#EEF1FA; width:100%; }
-.prox-onb-progress-fill{
-  height:100%; background:linear-gradient(90deg,#2563EB,#3B82F6);
-  width:14%; transition:width .4s cubic-bezier(.2,.9,.25,1);
-}
-
-@media (max-width:560px){
-  .prox-onb-types{ grid-template-columns:1fr 1fr; }
-  .prox-onb-step h2{ font-size:1.7rem; }
-  .prox-onb-header, .prox-onb-body, .prox-onb-footer{ padding-left:1.3rem; padding-right:1.3rem; }
-}
-</style>
-
+@push('scripts')
 <script>
 (function(){
   var steps = [
@@ -1810,7 +906,6 @@
 
   continueBtn.addEventListener('click', function(){
     if(current === steps.length - 1){
-      // Final step — send them to register (adjust this URL to your actual register route)
       window.location.href = "{{ route('register') }}";
       return;
     }
@@ -1839,10 +934,8 @@
     setTimeout(open, 500);
   });
 
-  // Expose so you can trigger it manually too, e.g. from a "How it works" nav link
+  // Expose so you can trigger it manually too, e.g. from a "How it works" link
   window.ProxOnboarding = { open: open, close: close };
 })();
 </script>
-
-</body>
-</html>
+@endpush

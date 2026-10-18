@@ -4,6 +4,82 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+/* ───────────── Proxy type tabs (top of page) ───────────── */
+.type-tabs {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; margin-bottom: 24px;
+    background: #f4f5f7; border: 1px solid #e5e7eb; border-radius: 12px;
+}
+.type-tab {
+    flex: 1 1 160px; display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border: 0; border-radius: 10px; background: transparent;
+    font-size: 14px; font-weight: 600; color: #212529; text-align: left; cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+}
+.type-tab:hover { background: rgba(255,255,255,.65); }
+.type-tab.active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.type-tab .tt-ico {
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: #e9ecff; color: var(--bs-primary, #3454d1); font-size: 14px;
+}
+.type-tab.active .tt-ico { background: var(--bs-primary, #3454d1); color: #fff; }
+
+/* ───────────── Product info (left column) ───────────── */
+.po-card { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 24px; }
+.po-head { display: flex; gap: 20px; align-items: flex-start; }
+.po-logo {
+    width: 96px; height: 96px; flex-shrink: 0; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: #eef0fb; color: var(--bs-primary, #3454d1); font-size: 40px;
+}
+.po-title { margin: 0 0 6px; font-size: 26px; font-weight: 600; color: #1b2030; }
+.po-intro { margin: 0; font-size: 15px; line-height: 1.6; color: #5f6675; }
+.po-from { margin-top: 10px; font-size: 13px; color: #5f6675; }
+.po-from strong { color: #1b2030; }
+.po-buy { margin-top: 20px; }
+.po-buy .btn { width: 100%; padding: 12px; font-weight: 600; }
+.po-section { margin-top: 20px; padding: 20px; background: #f8f9fb; border-radius: 12px; }
+.po-section h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #1b2030; }
+.po-ico {
+    width: 52px; height: 52px; flex-shrink: 0; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: #eef0fb; color: var(--bs-primary, #3454d1); font-size: 20px;
+}
+.po-uses { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+.po-use { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 500; color: #1b2030; }
+.po-features { display: flex; flex-direction: column; gap: 14px; }
+.po-feature { display: flex; align-items: center; gap: 14px; }
+.po-feature h4 { margin: 0 0 2px; font-size: 16px; font-weight: 600; color: #1b2030; }
+.po-feature p { margin: 0; font-size: 13.5px; color: #5f6675; line-height: 1.45; }
+.po-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.po-spec { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #e9ecef; font-size: 13.5px; }
+.po-spec span:first-child { color: #5f6675; }
+.po-spec span:last-child { font-weight: 600; color: #1b2030; text-align: right; }
+.type-info { animation: tiFade .25s ease; }
+@keyframes tiFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 575.98px) {
+    .po-head { flex-direction: column; }
+    .po-uses, .po-specs { grid-template-columns: 1fr; }
+    .po-title { font-size: 22px; }
+}
+
+/* ───────────── Resources card (right column) ───────────── */
+.res-card {
+    margin-top: 24px; padding: 24px; border-radius: 12px; color: #fff;
+    background: linear-gradient(135deg, var(--bs-primary, #3454d1) 0%, color-mix(in srgb, var(--bs-primary, #3454d1) 65%, #fff) 100%);
+}
+.res-card h3 { margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #fff; }
+.res-link {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,.35); border-radius: 8px;
+    color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; transition: background .15s;
+}
+.res-link:last-child { margin-bottom: 0; }
+.res-link:hover { background: rgba(255,255,255,.14); color: #fff; }
+.res-link i { font-size: 13px; opacity: .9; }
+
+/* ───────────── Service / country pickers (unchanged) ───────────── */
 .service-picker-wrapper { position: relative; }
 
 .service-picker-trigger {
@@ -91,35 +167,13 @@
 .cp-item-name { display: flex; align-items: center; gap: 8px; }
 .cp-flag { width: 20px; height: 15px; object-fit: cover; border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
 .cp-item-name mark { background: #fff3cd; color: #212529; border-radius: 2px; padding: 0 1px; }
-
-/* Proxy type info panel — shown under the type buttons once a type is picked */
-.proxy-type-info {
-    border-left: 4px solid var(--pti-accent, #0d6efd);
-    padding-left: 14px;
-    animation: ptiFadeIn 0.25s ease;
-}
-@keyframes ptiFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-.pti-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.pti-icon {
-    width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--pti-accent, #0d6efd); color: #fff; font-size: 17px;
-}
-.pti-title { margin: 0; font-size: 15px; font-weight: 700; color: #212529; }
-.pti-tagline { font-size: 12.5px; color: #6c757d; }
-.pti-description { font-size: 13px; color: #495057; margin: 0 0 12px 0; line-height: 1.55; }
-.pti-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 576px) { .pti-grid { grid-template-columns: 1fr; } }
-.pti-col-title {
-    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
-    color: var(--pti-accent, #0d6efd); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
-}
-.pti-list { list-style: none; margin: 0; padding: 0; }
-.pti-list li {
-    font-size: 12.5px; color: #495057; padding: 3px 0 3px 20px; position: relative; line-height: 1.4;
-}
-.pti-list li i { position: absolute; left: 0; top: 5px; font-size: 11px; color: var(--pti-accent, #0d6efd); }
 </style>
+
+@php
+    // All the descriptive content (intro, use cases, features, specs) comes from config/products.php.
+    $catalog = config('products');
+    $useIcons = ['fa-chart-line', 'fa-magnifying-glass', 'fa-desktop', 'fa-bolt', 'fa-bullseye', 'fa-layer-group'];
+@endphp
 
 <main class="nxl-container">
     <div class="nxl-content">
@@ -147,42 +201,102 @@
                 </div>
             @endif
 
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card stretch stretch-full">
+            <!-- 1. Proxy type tabs -->
+            <div class="type-tabs" id="type-container">
+                @foreach($providersByType as $type => $entries)
+                    @php $tp = $catalog[$type] ?? null; @endphp
+                    <button type="button" class="type-tab type-btn" data-type="{{ $type }}" onclick="selectType('{{ $type }}')">
+                        <span class="tt-ico"><i class="fas {{ $tp['icon'] ?? 'fa-globe' }}"></i></span>
+                        <span>{{ $tp['short'] ?? ucfirst($type) }}</span>
+                    </button>
+                @endforeach
+            </div>
+
+            @if($providersByType->isEmpty())
+                <div class="alert alert-warning mb-4">
+                    No proxy plans are available right now — check back shortly, or contact
+                    <a href="{{ route('support.index') }}">support</a>.
+                </div>
+            @endif
+
+            <div class="row g-4">
+
+                <!-- ───────── Left: info for the selected type ───────── -->
+                <div class="col-xl-7">
+                    @foreach($providersByType as $type => $entries)
+                        @php $p = $catalog[$type] ?? null; @endphp
+                        <div class="type-info" data-type="{{ $type }}" style="display:none;">
+                            <div class="po-card">
+                                <div class="po-head">
+                                    <div class="po-logo"><i class="fas {{ $p['icon'] ?? 'fa-globe' }}"></i></div>
+                                    <div>
+                                        <h2 class="po-title">{{ $p['name'] ?? ucfirst($type) . ' Proxies' }}</h2>
+                                        <p class="po-intro">{{ $p['intro'] ?? ($p['tagline'] ?? 'Choose a plan on the right to see pricing.') }}</p>
+                                        @if(!empty($p['from']))
+                                            <div class="po-from">From <strong>{{ $p['from'] }}</strong> / {{ $p['unit'] ?? '' }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="po-buy">
+                                    <button type="button" class="btn btn-primary" onclick="scrollToOrder()">
+                                        <i class="fas fa-cart-shopping me-2"></i> Purchase Now
+                                    </button>
+                                </div>
+
+                                @if(!empty($p['best_for']))
+                                    <div class="po-section">
+                                        <h3>Use cases</h3>
+                                        <div class="po-uses">
+                                            @foreach($p['best_for'] as $item)
+                                                <div class="po-use">
+                                                    <span class="po-ico"><i class="fas {{ $useIcons[$loop->index % count($useIcons)] }}"></i></span>
+                                                    <span>{{ $item }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if(!empty($p['features']))
+                                    <div class="po-section">
+                                        <h3>Features</h3>
+                                        <div class="po-features">
+                                            @foreach($p['features'] as $f)
+                                                <div class="po-feature">
+                                                    <span class="po-ico"><i class="fas {{ $f[0] }}"></i></span>
+                                                    <div>
+                                                        <h4>{{ $f[1] }}</h4>
+                                                        <p>{{ $f[2] }}</p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if(!empty($p['specs']))
+                                    <div class="po-section">
+                                        <h3>At a glance</h3>
+                                        <div class="po-specs">
+                                            @foreach($p['specs'] as $label => $value)
+                                                <div class="po-spec"><span>{{ $label }}</span><span>{{ $value }}</span></div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- ───────── Right: the order form + resources ───────── -->
+                <div class="col-xl-5">
+                    <div class="card stretch stretch-full" id="order-card">
                         <div class="card-header"><h5 class="card-title">Buy Proxies</h5></div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('order.store') }}">
                                 @csrf
-
-                                <!-- 1. Proxy Type Selection -->
-                                <div class="mb-4">
-                                    <label class="form-label mb-3">Select Proxy Type</label>
-                                    <div class="d-flex flex-wrap gap-3" id="type-container">
-                                        @foreach($providersByType as $type => $entries)
-                                            <button type="button"
-                                                    class="btn type-btn btn-outline-secondary d-flex flex-column align-items-center justify-content-center"
-                                                    style="width: 110px; height: 80px; border-radius: 12px; padding: 10px 6px;"
-                                                    data-type="{{ $type }}"
-                                                    onclick="selectType('{{ $type }}')">
-                                                <i class="{{ match($type) {
-                                                    'residential' => 'fas fa-house-user',
-                                                    'datacenter' => 'fas fa-server',
-                                                    'isp' => 'fas fa-network-wired',
-                                                    'mobile' => 'fas fa-mobile-screen',
-                                                    default => 'fas fa-globe',
-                                                } }} fa-lg" style="margin-bottom: 6px;"></i>
-                                                <small class="mt-1" style="font-size: 11px; text-transform: capitalize;">{{ $type }}</small>
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                    @if($providersByType->isEmpty())
-                                        <div class="alert alert-warning mt-3 mb-0">
-                                            No proxy plans are available right now — check back shortly, or contact
-                                            <a href="{{ route('support.index') }}">support</a>.
-                                        </div>
-                                    @endif
-                                </div>
 
                                 <!-- 2. Provider Selection -->
                                 <div class="mb-3" id="provider-section" style="display: none;">
@@ -308,31 +422,21 @@
                         </div>
                     </div>
 
-                    <!-- Proxy type info — outside the form, shown below the Buy Proxies
-                         card once a type is picked. Filled in by JS. -->
-                    <div class="card stretch stretch-full mt-4" id="proxy-type-info-card" style="display:none;">
-                        <div class="card-body">
-                            <div class="proxy-type-info" id="proxy-type-info">
-                                <div class="pti-header">
-                                    <div class="pti-icon"><i id="pti-icon" class="fas fa-globe"></i></div>
-                                    <div>
-                                        <h6 class="pti-title" id="pti-title"></h6>
-                                        <div class="pti-tagline" id="pti-tagline"></div>
-                                    </div>
-                                </div>
-                                <p class="pti-description" id="pti-description"></p>
-                                <div class="pti-grid">
-                                    <div class="pti-col">
-                                        <div class="pti-col-title"><i class="fas fa-bullseye"></i> Best For</div>
-                                        <ul class="pti-list" id="pti-bestfor"></ul>
-                                    </div>
-                                    <div class="pti-col">
-                                        <div class="pti-col-title"><i class="fas fa-star"></i> Key Strengths</div>
-                                        <ul class="pti-list" id="pti-pros"></ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Resources -->
+                    <div class="res-card">
+                        <h3>Resources</h3>
+                        <a href="{{ route('guides') }}" target="_blank" rel="noopener" class="res-link">
+                            <span>Setup Guides</span><i class="fas fa-up-right-from-square"></i>
+                        </a>
+                        <a href="{{ route('api.docs') }}" target="_blank" rel="noopener" class="res-link">
+                            <span>API Docs</span><i class="fas fa-up-right-from-square"></i>
+                        </a>
+                        <a href="{{ route('faq') }}" target="_blank" rel="noopener" class="res-link">
+                            <span>FAQ</span><i class="fas fa-up-right-from-square"></i>
+                        </a>
+                        <a href="{{ route('support.index') }}" class="res-link">
+                            <span>Chat with support</span><i class="fas fa-comments"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -747,124 +851,18 @@ function resetServiceSelection() {
     updateTotalDisplay(0);
 }
 
-// ── Proxy type info panel ──────────────────────────────────────────────────
-// Everything shown here is static reference content about each proxy type —
-// not tied to pricing/providers — describing what it is and when to use it.
-const proxyTypeInfo = {
-    residential: {
-        icon: 'fas fa-house-user',
-        color: '#0d6efd',
-        title: 'Residential Proxies',
-        tagline: 'IPs from real home internet connections',
-        description: 'Residential proxies route your traffic through IP addresses assigned by internet service providers to actual homes. Because they look exactly like an everyday visitor, they\'re the hardest proxy type for websites to detect or block.',
-        bestFor: [
-            'Web scraping sites with strict anti-bot systems',
-            'Sneaker / ticket / retail checkouts',
-            'Ad verification & brand protection',
-            'Managing multiple social media accounts',
-        ],
-        pros: [
-            'Very low block / ban rate',
-            'Looks like genuine organic traffic',
-            'Wide country & city targeting options',
-            'Great for long, human-like sessions',
-        ],
-    },
-    datacenter: {
-        icon: 'fas fa-server',
-        color: '#6f42c1',
-        title: 'Datacenter Proxies',
-        tagline: 'IPs hosted in commercial data centers',
-        description: 'Datacenter proxies come from servers in data centers rather than ISPs. They\'re not tied to a real household, but they make up for it with speed, stability, and the lowest cost per IP — ideal for large-scale, high-volume tasks.',
-        bestFor: [
-            'High-volume, high-speed scraping',
-            'SEO & rank tracking at scale',
-            'Automated testing & QA',
-            'Tasks on sites with light bot detection',
-        ],
-        pros: [
-            'Fastest response times',
-            'Cheapest option per IP',
-            'Very stable, consistent uptime',
-            'Great for bulk / high-concurrency jobs',
-        ],
-    },
-    isp: {
-        icon: 'fas fa-network-wired',
-        color: '#0aa2c0',
-        title: 'ISP Proxies',
-        tagline: 'Datacenter speed, residential-looking IPs',
-        description: 'ISP (Static Residential) proxies are hosted on datacenter servers but registered under real ISPs, so they carry a residential IP reputation with datacenter-grade speed and a static address that doesn\'t rotate.',
-        bestFor: [
-            'Account management needing a stable IP',
-            'Ad verification with consistent identity',
-            'Tasks needing speed AND trust',
-            'Long-term sessions on strict platforms',
-        ],
-        pros: [
-            'Static IP — same address every time',
-            'Faster than typical residential IPs',
-            'Higher trust score than datacenter IPs',
-            'Good balance of speed, stealth & cost',
-        ],
-    },
-    mobile: {
-        icon: 'fas fa-mobile-screen',
-        color: '#e8590c',
-        title: 'Mobile Proxies',
-        tagline: 'IPs from real mobile carrier networks',
-        description: 'Mobile proxies route traffic through IP addresses assigned by 3G/4G/5G mobile carriers. Carriers share these IPs across thousands of real devices, making them extremely trusted and almost impossible to blacklist wholesale.',
-        bestFor: [
-            'Social media automation (Instagram, TikTok, etc.)',
-            'Mobile app testing & ad verification',
-            'Sites that aggressively flag datacenter IPs',
-            'Tasks needing the highest possible trust level',
-        ],
-        pros: [
-            'Highest trust / lowest ban rate of all types',
-            'Shared carrier IPs are rarely blacklisted',
-            'Ideal for mobile-first platforms',
-            'Natural fit for app & SDK based traffic',
-        ],
-    },
-};
-
-// Fallback used for any proxy type not explicitly listed above,
-// so the panel still renders something sensible.
-function proxyTypeInfoFallback(type) {
-    const label = type.charAt(0).toUpperCase() + type.slice(1);
-    return {
-        icon: 'fas fa-globe',
-        color: '#0d6efd',
-        title: label + ' Proxies',
-        tagline: 'Proxy plans for ' + label.toLowerCase() + ' use cases',
-        description: 'Pick a plan below to see pricing for ' + label + ' proxies. Reach out to support if you need help choosing the right fit for your use case.',
-        bestFor: ['General purpose browsing & automation'],
-        pros: ['Provisioned instantly after checkout'],
-    };
+// ── Proxy type info (rendered server-side from config/products.php) ───────
+// Each type has a hidden .type-info block; we just show the matching one.
+function showTypeInfo(type) {
+    document.querySelectorAll('.type-info').forEach(function (el) {
+        el.style.display = el.dataset.type === type ? '' : 'none';
+    });
 }
 
-function renderProxyTypeInfo(type) {
-    const card = document.getElementById('proxy-type-info-card');
-    if (!type) { card.style.display = 'none'; return; }
-
-    const info = proxyTypeInfo[type] || proxyTypeInfoFallback(type);
-
-    document.getElementById('proxy-type-info').style.setProperty('--pti-accent', info.color);
-    document.getElementById('pti-icon').className = info.icon;
-    document.getElementById('pti-title').textContent = info.title;
-    document.getElementById('pti-tagline').textContent = info.tagline;
-    document.getElementById('pti-description').textContent = info.description;
-    document.getElementById('pti-bestfor').innerHTML =
-        info.bestFor.map(item => '<li><i class="fas fa-check"></i>' + escHtml(item) + '</li>').join('');
-    document.getElementById('pti-pros').innerHTML =
-        info.pros.map(item => '<li><i class="fas fa-check"></i>' + escHtml(item) + '</li>').join('');
-
-    card.style.display = 'none';
-    // Force reflow so the fade-in animation restarts on every click, even
-    // when switching straight from one type to another.
-    void card.offsetWidth;
-    card.style.display = '';
+// "Purchase Now" button: bring the order form into view (matters on phones, where it sits below the info).
+function scrollToOrder() {
+    const card = document.getElementById('order-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Step 1: Proxy type selected ───────────────────────────────────────────
@@ -875,12 +873,17 @@ function selectType(type) {
     spSearchTerm = '';
 
     document.querySelectorAll('.type-btn').forEach(function(btn) {
-        const active = btn.dataset.type === type;
-        btn.classList.toggle('btn-primary', active);
-        btn.classList.toggle('btn-outline-secondary', !active);
+        btn.classList.toggle('active', btn.dataset.type === type);
     });
 
-    renderProxyTypeInfo(type);
+    showTypeInfo(type);
+
+    // Keep the URL in sync so the page can be shared / refreshed on the same type.
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('type', type);
+        window.history.replaceState({}, '', url);
+    } catch (e) { /* non-critical */ }
 
     const entries = providersByType[type] || [];
 
@@ -948,4 +951,17 @@ function updateTotalDisplay(total, ready) {
         btn.innerHTML = '<i class="fas fa-bolt me-2"></i> Place Order';
     }
 }
+
+// ── On load: pre-select the type from ?type=… (e.g. the dashboard "Buy Now" buttons) ──
+// If there is no valid ?type, fall back to the first available type so the info panel is never empty.
+document.addEventListener('DOMContentLoaded', function () {
+    const wanted = (new URLSearchParams(window.location.search).get('type') || '').toLowerCase();
+    const available = Object.keys(providersByType);
+
+    if (wanted && available.indexOf(wanted) !== -1) {
+        selectType(wanted);
+    } else if (available.length) {
+        selectType(available[0]);
+    }
+});
 </script>

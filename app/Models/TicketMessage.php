@@ -10,7 +10,7 @@ class TicketMessage extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['ticket_id', 'sender_type', 'sender_admin_id', 'message', 'is_read'];
+    protected $fillable = ['ticket_id', 'sender_type', 'sender_admin_id', 'message', 'is_read', 'attachment_url', 'attachment_type', 'attachment_public_id', 'attachment_name',];
 
     protected function casts(): array
     {
