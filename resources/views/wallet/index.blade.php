@@ -310,46 +310,50 @@
             let clockTimer = null;
 
             /* ---------------------------------------------------------
-             * COPY (works on iPhone Safari + Android + desktop)
+             * COPY (desktop, Android and iPhone Safari)
+             *
+             * 1) Modern Clipboard API when the page is on HTTPS.
+             * 2) Fallback: hidden readonly textarea + execCommand('copy'),
+             *    the same approach the clipboard.js library uses. The
+             *    textarea MUST be focused and selected for the copy to
+             *    actually capture the text.
              * ------------------------------------------------------- */
             function legacyCopy(text) {
-                // Must run synchronously inside the tap for iOS to allow it
                 const el = document.createElement('textarea');
                 el.value = text;
-                el.contentEditable = true;
-                el.readOnly = false;
+                el.setAttribute('readonly', '');   // stops the keyboard popping up on phones
                 el.style.position = 'fixed';
                 el.style.top = '0';
                 el.style.left = '0';
+                el.style.width = '1px';
+                el.style.height = '1px';
+                el.style.padding = '0';
+                el.style.border = '0';
                 el.style.opacity = '0';
-                el.style.fontSize = '16px'; // stops iOS from zooming
+                el.style.fontSize = '16px';        // stops iOS from zooming in
                 document.body.appendChild(el);
 
-                const range = document.createRange();
-                range.selectNodeContents(el);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-                el.setSelectionRange(0, text.length);
-
                 let ok = false;
-                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                try {
+                    el.focus();
+                    el.select();
+                    el.setSelectionRange(0, text.length); // needed for iOS
+                    ok = document.execCommand('copy');
+                } catch (e) {
+                    ok = false;
+                }
 
-                sel.removeAllRanges();
                 document.body.removeChild(el);
                 return ok;
             }
 
-            async function copyText(text) {
-                if (legacyCopy(text)) return true;
-
+            function copyText(text) {
                 if (navigator.clipboard && window.isSecureContext) {
-                    try {
-                        await navigator.clipboard.writeText(text);
-                        return true;
-                    } catch (e) { /* fall through */ }
+                    return navigator.clipboard.writeText(text)
+                        .then(() => true)
+                        .catch(() => legacyCopy(text));
                 }
-                return false;
+                return Promise.resolve(legacyCopy(text));
             }
 
             let toastTimeout = null;
@@ -363,7 +367,13 @@
             document.querySelectorAll('[data-copy]').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const ok = await copyText(btn.dataset.copy);
-                    showToast(ok ? (btn.dataset.copyLabel || 'Copied') : 'Could not copy — press and hold to copy');
+                    showToast(ok ? (btn.dataset.copyLabel || 'Copied') : 'Could not copy — press and hold the number to copy it');
+
+                    if (ok) {
+                        const original = btn.textContent;
+                        btn.textContent = 'Copied ✓';
+                        setTimeout(() => { btn.textContent = original; }, 1600);
+                    }
                 });
             });
 
