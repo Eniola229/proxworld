@@ -145,6 +145,27 @@
                     </a>
                 </li>
 
+              <!-- Traffic Sources -->
+                @if(auth('admin')->user()->can('tracking.view'))
+                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.traffic.*') || request()->routeIs('admin.tracking-links.*') ? 'nxl-trigger' : '' }}">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-bar-chart-2"></i></span>
+                        <span class="nxl-mtext">Traffic Sources</span>
+                        <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item">
+                            <a class="nxl-link {{ request()->routeIs('admin.traffic.*') ? 'active' : '' }}"
+                               href="{{ route('admin.traffic.index') }}">Sessions</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link {{ request()->routeIs('admin.tracking-links.*') ? 'active' : '' }}"
+                               href="{{ route('admin.tracking-links.index') }}">Tracking Links</a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
+
                 <!-- Admins Management -->
                 @if(auth('admin')->user()->canManageAdmins())
                 <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.roles.*') ? 'nxl-trigger' : '' }}">

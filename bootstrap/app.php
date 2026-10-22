@@ -69,6 +69,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // guards — appended to `web` so it covers customer AND admin routes
         // (admin routes run `web` too, right after admin.session — see routing above).
         $middleware->appendToGroup('web', \App\Http\Middleware\LogActivity::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\TrackVisitor::class);
 
         // Flutterwave's webhook is server-to-server — it can't send a CSRF
         // token, and it's verified by signature header instead (see

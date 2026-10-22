@@ -221,6 +221,17 @@ Route::middleware('admin.auth')->group(function () {
         Route::delete('/roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('roles.destroy');
     });
 
+     Route::middleware('permission:tracking.view,admin')->group(function () {
+        Route::get('/traffic', [\App\Http\Controllers\Admin\TrafficController::class, 'index'])->name('traffic.index');
+        Route::get('/traffic/{trackingSession}', [\App\Http\Controllers\Admin\TrafficController::class, 'show'])->name('traffic.show');
+
+        Route::get('/tracking-links', [\App\Http\Controllers\Admin\TrackingLinkController::class, 'index'])->name('tracking-links.index');
+        Route::post('/tracking-links', [\App\Http\Controllers\Admin\TrackingLinkController::class, 'store'])
+            ->middleware('permission:tracking.manage,admin')->name('tracking-links.store');
+        Route::delete('/tracking-links/{trackingLink}', [\App\Http\Controllers\Admin\TrackingLinkController::class, 'destroy'])
+            ->middleware('permission:tracking.manage,admin')->name('tracking-links.destroy');
+    });
+
     Route::middleware('permission:activity-logs.view,admin')->group(function () {
         Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
     });
